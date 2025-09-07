@@ -1,0 +1,112 @@
+[
+  {
+    "id": "matematica-01",
+    "pregunta": "Sea f(x)=2x+1. ¿Cuál es f(3)?",
+    "a": "5",
+    "b": "6",
+    "c": "7",
+    "d": "12",
+    "correcta": "c",
+    "OA": "Modelación y resolución de problemas",
+    "PAES": "M1/M2"
+  },
+  {
+    "id": "matematica-02",
+    "pregunta": "Sea f(x)=2x+2. ¿Cuál es f(3)?",
+    "a": "5",
+    "b": "6",
+    "c": "8",
+    "d": "12",
+    "correcta": "c",
+    "OA": "Modelación y resolución de problemas",
+    "PAES": "M1/M2"
+  },
+  {
+    "id": "matematica-03",
+    "pregunta": "Sea f(x)=2x+3. ¿Cuál es f(3)?",
+    "a": "5",
+    "b": "6",
+    "c": "9",
+    "d": "12",
+    "correcta": "c",
+    "OA": "Modelación y resolución de problemas",
+    "PAES": "M1/M2"
+  },
+  {
+    "id": "matematica-04",
+    "pregunta": "Sea f(x)=2x+4. ¿Cuál es f(3)?",
+    "a": "5",
+    "b": "6",
+    "c": "10",
+    "d": "12",
+    "correcta": "c",
+    "OA": "Modelación y resolución de problemas",
+    "PAES": "M1/M2"
+  },
+  {
+    "id": "matematica-05",
+    "pregunta": "Sea f(x)=2x+5. ¿Cuál es f(3)?",
+    "a": "5",
+    "b": "6",
+    "c": "11",
+    "d": "12",
+    "correcta": "c",
+    "OA": "Modelación y resolución de problemas",
+    "PAES": "M1/M2"
+  },
+  {
+    "id": "matematica-06",
+    "pregunta": "Sea f(x)=2x+6. ¿Cuál es f(3)?",
+    "a": "5",
+    "b": "6",
+    "c": "12",
+    "d": "12",
+    "correcta": "c",
+    "OA": "Modelación y resolución de problemas",
+    "PAES": "M1/M2"
+  },
+  {
+    "id": "matematica-07",
+    "pregunta": "Sea f(x)=2x+7. ¿Cuál es f(3)?",
+    "a": "5",
+    "b": "6",
+    "c": "13",
+    "d": "12",
+    "correcta": "c",
+    "OA": "Modelación y resolución de problemas",
+    "PAES": "M1/M2"
+  },
+  {
+    "id": "matematica-08",
+    "pregunta": "Sea f(x)=2x+8. ¿Cuál es f(3)?",
+    "a": "5",
+    "b": "6",
+    "c": "14",
+    "d": "12",
+    "correcta": "c",
+    "OA": "Modelación y resolución de problemas",
+    "PAES": "M1/M2"
+  },
+  {
+    "id": "matematica-09",
+    "pregunta": "Sea f(x)=2x+9. ¿Cuál es f(3)?",
+    "a": "5",
+    "b": "6",
+    "c": "15",
+    "d": "12",
+    "correcta": "c",
+    "OA": "Modelación y resolución de problemas",
+    "PAES": "M1/M2"
+  },
+  {
+    "id": "matematica-10",
+    "pregunta": "Sea f(x)=2x+10. ¿Cuál es f(3)?",
+    "a": "5",
+    "b": "6",
+    "c": "16",
+    "d": "12",
+    "correcta": "c",
+    "OA": "Modelación y resolución de problemas",
+    "PAES": "M1/M2"
+  }
+]
