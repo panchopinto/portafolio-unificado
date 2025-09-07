@@ -26,5 +26,37 @@
     <p>Ejemplo de visualización de patrimonio cultural en 3D. Reemplaza el <code>src</code> por un modelo <strong>CC0/Open Access</strong> (por ejemplo de Smithsonian Open Access) cuando definas el recurso definitivo.</p>
   </div>
   <model-viewer src="https://modelviewer.dev/shared-assets/models/Astronaut.glb" alt="Modelo de ejemplo" camera-controls auto-rotate></model-viewer>
+
+  <section class="wrap" style="margin-top:8px">
+    <label for="assetSel"><strong>Modelo:</strong></label>
+    <select id="assetSel" style="margin-left:8px">
+      <option value="https://modelviewer.dev/shared-assets/models/Astronaut.glb">Astronauta (placeholder)</option>
+      <option value="https://3d.si.edu/object/3d/1903-wright-flyer%3Ad8c62e5e-4ebc-11ea-b77f-2e728ce88125">Smithsonian — 1903 Wright Flyer (descargar y alojar GLB)</option>
+      <option value="https://3d.si.edu/object/3d/orbiter-space-shuttle-ov-103-discovery%3Ad8c636ce-4ebc-11ea-b77f-2e728ce88125">Smithsonian — Transbordador Discovery (descargar y alojar GLB)</option>
+      <option value="https://3d.si.edu/explorer/cosmic-buddha-laser-scan">Smithsonian — Cosmic Buddha (OBJ → convertir a GLB)</option>
+    </select>
+    <p style="font-size:.95rem;opacity:.9;margin-top:6px">
+      Consejo: descarga el modelo desde Smithsonian Open Access (CC0), conviértelo a <code>.glb</code> si hace falta, y súbelo a tu repo para evitar CORS. Fuente: Open Access (CC0) del Smithsonian.
+    </p>
+    <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:8px">
+      <span class="badge" title="Bases curriculares y prácticas de indagación">OA: HCyCS (Análisis patrimonio)</span>
+      <span class="badge" title="Temario PAES Historia y Cs. Sociales">PAES: Historia y Cs. Sociales</span>
+      <span class="badge" title="Accesibilidad visual">PIE: Filtros daltonismo activos</span>
+    </div>
+  </section>
+  <script>
+    const mv = document.querySelector('model-viewer');
+    const sel = document.getElementById('assetSel');
+    sel.addEventListener('change', e=>{
+      const v = e.target.value;
+      if(v.endsWith('.glb')||v.endsWith('.gltf')){
+        mv.src = v;
+      }else{
+        window.open(v,'_blank');
+        sel.value = 'https://modelviewer.dev/shared-assets/models/Astronaut.glb';
+      }
+    });
+  </script>
+
 </body>
 </html>
