@@ -22,6 +22,23 @@
     });
   </script>
 
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function(){
+      try {
+        var ok = (localStorage.getItem('auth') === 'ok');
+        var nav = document.querySelector('header .nav');
+        if(nav && !ok){
+          nav.style.display = 'none';
+        }
+        // opcional: también ocultar cualquier .tab suelta fuera del nav
+        if(!ok){
+          document.querySelectorAll('.tab').forEach(function(el){ el.style.display='none'; });
+        }
+      } catch(e){ /* noop */ }
+    });
+  </script>
+
 </head>
 <body>
   <header class="topbar">
