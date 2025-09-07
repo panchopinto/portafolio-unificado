@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Demo 3D — Plantilla</title>
+<link rel="stylesheet" href="../css/styles.css"/>
+<script defer src="../js/pie-theme.js"></script>
+<!-- Model Viewer -->
+<script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+<style>
+  body{margin:0; display:grid; place-items:center; gap:12px}
+  .wrap{width:min(1000px, 92vw)}
+  model-viewer{width:100%; height:70vh; background:#111}
+</style>
+</head>
+<body class="pie-scope">
+  <div class="wrap">
+    <h1>Demo 3D — Plantilla</h1>
+    <div class="pie-controls">
+      <span>PIE:</span>
+      <a href="#" class="badge" data-theme="default">Default</a>
+      <a href="#" class="badge" data-theme="protanopia">Protanopia</a>
+      <a href="#" class="badge" data-theme="deuteranopia">Deuteranopia</a>
+      <a href="#" class="badge" data-theme="tritanopia">Tritanopia</a>
+    </div>
+    <p>Carga un modelo <code>.glb/.gltf</code> cambiando el atributo <code>src</code>.</p>
+  </div>
+  <model-viewer src="https://modelviewer.dev/shared-assets/models/Astronaut.glb"
+                alt="Modelo 3D de ejemplo" camera-controls auto-rotate></model-viewer>
+</body>
+</html>

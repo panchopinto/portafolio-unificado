@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Demo AR — Plantilla</title>
+<link rel="stylesheet" href="../css/styles.css"/>
+<script defer src="../js/pie-theme.js"></script>
+<!-- A-Frame + AR.js CDN (para marker-based AR) -->
+<script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/aframe-ar.js"></script>
+<style>
+  body{margin:0} .wrap{padding:12px}
+</style>
+</head>
+<body class="pie-scope">
+  <div class="wrap">
+    <h1>Demo AR — Plantilla</h1>
+    <div class="pie-controls">
+      <span>PIE:</span>
+      <a href="#" class="badge" data-theme="default">Default</a>
+      <a href="#" class="badge" data-theme="protanopia">Protanopia</a>
+      <a href="#" class="badge" data-theme="deuteranopia">Deuteranopia</a>
+      <a href="#" class="badge" data-theme="tritanopia">Tritanopia</a>
+    </div>
+    <p>Ejemplo base con un marcador <code>hiro</code> mostrando un cubo. Reemplaza el contenido 3D según la asignatura.</p>
+  </div>
+  <a-scene embedded arjs>
+    <a-marker preset="hiro">
+      <a-box position="0 0.5 0" depth="1" height="1" width="1" color="#4CC3D9"></a-box>
+    </a-marker>
+    <a-entity camera></a-entity>
+  </a-scene>
+</body>
+</html>

@@ -135,3 +135,49 @@ input[type=email],input[type=password]{
   .subject-card{background:#171a2b}
   .subject-card li{background:#20243a}
 }
+
+
+
+/* ---- PIE Themes (Protanopia / Deuteranopia / Tritanopia) ---- */
+:root {
+  --pie-contrast: 1;
+  --pie-saturate: 1;
+  --pie-hue: 0deg;
+}
+html[data-pie-theme="default"] { --pie-contrast: 1; --pie-saturate: 1; --pie-hue: 0deg; }
+html[data-pie-theme="protanopia"] { --pie-contrast: 1.05; --pie-saturate: 0.85; --pie-hue: -10deg; }
+html[data-pie-theme="deuteranopia"] { --pie-contrast: 1.05; --pie-saturate: 0.85; --pie-hue: 10deg; }
+html[data-pie-theme="tritanopia"] { --pie-contrast: 1.05; --pie-saturate: 0.9; --pie-hue: 120deg; }
+
+.pie-scope, .subjects-grid, canvas, img, model-viewer, a-scene {
+  filter: contrast(var(--pie-contrast)) saturate(var(--pie-saturate)) hue-rotate(var(--pie-hue));
+}
+
+/* quick badge buttons */
+.pie-controls{display:flex; gap:8px; justify-content:center; align-items:center; margin:6px 0 14px}
+.pie-controls .badge{
+  padding:6px 10px; border-radius:999px; background:#eef0ff; border:1px solid #dfe3ff; font-size:.9rem; cursor:pointer;
+}
+.pie-controls .badge.active{ box-shadow:0 0 0 2px rgba(92,92,255,.35) inset; }
+@media (prefers-color-scheme:dark){
+  .pie-controls .badge{ background:#20243a; border-color:#2d3150; }
+}
+
+
+
+
+/* --- Icon pills for demo types --- */
+.demo-pill{display:inline-flex; align-items:center; gap:6px; padding:6px 10px; border-radius:10px; font-weight:600}
+.demo-ar{background:#e8f7ff}
+.demo-rv{background:#eaf8ef}
+.demo-3d{background:#fff4e6}
+.demo-trivia{background:#f2e8ff}
+.demo-pill svg{width:16px; height:16px}
+@media (prefers-color-scheme:dark){
+ .demo-ar{background:#113344}
+ .demo-rv{background:#123322}
+ .demo-3d{background:#443311}
+ .demo-trivia{background:#2a1844}
+}
+.subject-emoji{font-size:1.25rem; margin-right:6px}
+
