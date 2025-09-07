@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Proyecto Realidad Aumentada Biología — Selector de Célula</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    :root{--bg:#0b0f14;--card:#111825;--muted:#9ab;--text:#e6eef7;--accent:#3cc9ff;}
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;background:radial-gradient(1200px 600px at 20% -10%, #122, transparent), #0b0f14;color:var(--text);font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif}
+    .wrap{max-width:1080px;margin:0 auto;padding:28px}
+    h1{margin:6px 0 2px;font-size:clamp(26px,4.6vw,40px);line-height:1.05}
+    p{margin:0 0 12px;color:var(--muted)}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-top:18px}
+    .card{background:var(--card);border-radius:16px;padding:18px;border:1px solid rgba(255,255,255,.06);box-shadow:0 6px 24px rgba(0,0,0,.25)}
+    .card h2{margin:0 0 6px;font-size:20px}
+    .btn{display:inline-block;margin-top:10px;padding:12px 16px;border-radius:12px;text-decoration:none;color:#fff;background:linear-gradient(180deg,#1a93c7,#177fa9)}
+    .row{display:grid;grid-template-columns:1fr auto;gap:16px;align-items:center}
+    .qr{width:180px;height:180px;margin-left:auto;background:#000;border-radius:12px}
+    code{background:rgba(255,255,255,.06);padding:2px 6px;border-radius:6px}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Proyecto AR Biología — Selector de Célula</h1>
+    <p>Elige qué célula quieres ver en Realidad Aumentada (marcador <code>HIRO</code>) o comparte el QR.</p>
+
+    <div class="grid">
+      <div class="card">
+        <div class="row">
+          <div>
+            <h2>Realidad Aumentada — Célula Animal</h2>
+            <p>Usa el marcador HIRO y permite acceso a la cámara.</p>
+            <a class="btn" href="arjs-demo/cell_ar.html?m=animal">Abrir Realidad Aumentada (Animal)</a>
+          </div>
+          <div id="qrAnimal" class="qr"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="row">
+          <div>
+            <h2>Realidad Aumentada — Célula Vegetal</h2>
+            <p>Usa el marcador HIRO y permite acceso a la cámara.</p>
+            <a class="btn" href="arjs-demo/cell_ar.html?m=vegetal">Abrir Realidad Aumentada (Vegetal)</a>
+          </div>
+          <div id="qrVegetal" class="qr"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Vista 3D (sin RA)</h2>
+        <p>Si quieres revisar el modelo 3D sin cámara ni marcador, usa el visor con etiquetas.</p>
+        <a class="btn" href="viewer_hotspots.html">Abrir visor con hotspots</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  const base = location.origin + location.pathname.replace(/[^\/]*$/, '');
+  // Unificamos: todo va a cell_ar.html con ?m=
+  const urlAnimal  = base + "arjs-demo/cell_ar.html?m=animal";
+  const urlVegetal = base + "arjs-demo/cell_ar.html?m=vegetal";
+
+  new QRCode(document.getElementById("qrAnimal"),  { text: urlAnimal,  width: 180, height: 180, correctLevel: QRCode.CorrectLevel.M });
+  new QRCode(document.getElementById("qrVegetal"), { text: urlVegetal, width: 180, height: 180, correctLevel: QRCode.CorrectLevel.M });
+</script>
+<script src="./assets/js/legal-footer.js" defer></script>
+</body>
+</html>

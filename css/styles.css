@@ -1,0 +1,119 @@
+
+:root{
+  --bg1:#0f0f1a;
+  --bg2:#1a1a2b;
+  --card:rgba(255,255,255,.08);
+  --glass:rgba(255,255,255,.06);
+  --stroke:rgba(255,255,255,.16);
+  --txt:#eaeef5;
+  --muted:#a8b3cf;
+  --accent:#4cc9f0;
+  --accent2:#a1ff7a;
+  --warn:#ffd166;
+  --danger:#ff5d5d;
+  --ok:#49e1a1;
+  --shadow: 0 10px 30px rgba(0,0,0,.45);
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0; color:var(--txt); font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial;
+  background: radial-gradient(1200px 800px at 15% 10%, #1b2741 0%, transparent 60%),
+              radial-gradient(1000px 800px at 85% 90%, #22283f 0%, transparent 60%),
+              linear-gradient(160deg, var(--bg1), var(--bg2));
+  background-attachment: fixed;
+}
+
+a{color:var(--accent); text-decoration:none}
+a:hover{opacity:.9}
+
+.topbar{
+  position:sticky; top:0; z-index:10;
+  display:flex; align-items:center; gap:16px; justify-content:space-between;
+  padding:14px 18px; background:rgba(0,0,0,.25); border-bottom:1px solid var(--stroke); backdrop-filter:blur(8px);
+}
+.brand{font-weight:800; letter-spacing:.3px}
+.nav{display:flex; gap:10px; flex-wrap:wrap}
+.tab{
+  padding:10px 14px; border:1px solid var(--stroke); border-radius:12px; color:var(--txt); background:var(--glass);
+  font-weight:700; box-shadow:var(--shadow);
+}
+.tab:hover{transform:translateY(-1px);}
+.tab.primary{border-color:transparent; background:linear-gradient(135deg, var(--accent), #705CFF); color:#081018}
+.tab.green{background:linear-gradient(135deg, #4ade80, #22c55e); color:#052012; border:0}
+.tab.orange{background:linear-gradient(135deg, #ffd166, #f59e0b); color:#231a00; border:0}
+.tab.pink{background:linear-gradient(135deg, #ff7eb6, #ff3d77); color:#2d0014; border:0}
+
+.main-center{min-height:calc(100% - 64px); display:grid; place-items:center; padding:32px;}
+.glass{
+  width:100%; background:var(--glass); border:1px solid var(--stroke); border-radius:18px; box-shadow:var(--shadow);
+  padding:28px;
+}
+.split{display:grid; grid-template-columns: 1.1fr 1fr; gap:24px}
+@media (max-width: 900px){ .split{grid-template-columns:1fr} }
+
+.cover{
+  background: radial-gradient(800px 400px at 10% 10%, rgba(76,201,240,.15), transparent 60%);
+  border:1px dashed var(--stroke); border-radius:16px; padding:22px;
+}
+.logo-badge{
+  display:inline-block; padding:6px 10px; border-radius:10px; font:700 12px/1 ui-sans-serif;
+  color:#07131b; background:linear-gradient(135deg, var(--accent), #a1ff7a); margin-bottom:10px;
+}
+h1,h2,h3{margin:.2em 0 .5em}
+h1{font-size:clamp(24px, 5vw, 38px)}
+h2{font-size:clamp(18px, 3.5vw, 26px)}
+p{color:var(--muted)}
+.bullets{margin:0; padding-left:18px; color:var(--muted)}
+
+.form{
+  display:grid; gap:14px; background:rgba(0,0,0,.25); border:1px solid var(--stroke); border-radius:16px; padding:18px;
+}
+.input{
+  display:flex; align-items:center; gap:10px; background:rgba(255,255,255,.06);
+  border:1px solid var(--stroke); border-radius:12px; padding:10px 12px;
+}
+input[type=email],input[type=password]{
+  width:100%; border:0; outline:0; background:transparent; color:var(--txt); font-size:16px;
+}
+.btn{
+  display:inline-flex; align-items:center; justify-content:center; gap:10px;
+  padding:12px 14px; border-radius:12px; border:1px solid var(--stroke);
+  background:linear-gradient(135deg, var(--accent), #705CFF); color:#0a0a0a; font-weight:800; cursor:pointer;
+  box-shadow:var(--shadow);
+}
+.btn:hover{transform:translateY(-1px)}
+.btn.ghost{background:var(--glass); color:var(--txt)}
+.btn.row{width:100%}
+
+.grid{display:grid; gap:16px; grid-template-columns: repeat(4, minmax(0,1fr));}
+@media (max-width: 1100px){ .grid{grid-template-columns: repeat(2, minmax(0,1fr));} }
+@media (max-width: 600px){ .grid{grid-template-columns: 1fr;} }
+
+.card{
+  background:var(--card); border:1px solid var(--stroke); border-radius:16px; padding:18px; box-shadow:var(--shadow);
+}
+.card h3{display:flex; align-items:center; gap:10px; margin-top:0}
+.card .actions{display:flex; gap:10px; flex-wrap:wrap; margin-top:10px}
+
+.kbd{font:700 12px/1 ui-monospace, SFMono-Regular, Menlo, monospace; padding:6px 8px; border-radius:8px; background:rgba(255,255,255,.1); border:1px solid var(--stroke)}
+
+.disclosure{display:grid; gap:10px}
+.details{background:rgba(0,0,0,.2); border:1px solid var(--stroke); border-radius:12px; padding:14px}
+
+.footer{
+  margin-top:36px; padding:18px; text-align:center; color:var(--muted);
+  border-top:1px solid var(--stroke); background:rgba(0,0,0,.18)
+}
+.small{font-size:12px; color:var(--muted)}
+
+.icon{width:18px; height:18px; display:inline-block; vertical-align:-3px}
+.i-play{background: conic-gradient(from 0deg at 50% 50%, #fff, #fff) padding-box; -webkit-mask: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="white" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>') center/80% no-repeat;}
+.i-gov{ -webkit-mask: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="white" viewBox="0 0 24 24"><path d="M12 2l9 5v3H3V7l9-5zm9 9H3v11h18V11zM7 13h2v2H7v-2zm0 4h2v2H7v-2zm4-4h2v2h-2v-2zm0 4h2v2h-2v-2zm4-4h2v2h-2v-2zm0 4h2v2h-2v-2z"/></svg>') center/contain no-repeat; background:#a1ff7a}
+.i-lab{ -webkit-mask: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="white" viewBox="0 0 24 24"><path d="M6 2h12v2l-4 7v7l2 2H8l2-2v-7L6 4z"/></svg>') center/contain no-repeat; background:#4cc9f0}
+.i-city{ -webkit-mask: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="white" viewBox="0 0 24 24"><path d="M3 13h18v8H3v-8zM13 3h6v8h-6V3zM5 9h6v2H5V9z"/></svg>') center/contain no-repeat; background:#ffd166}
+.i-school{ -webkit-mask: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="white" viewBox="0 0 24 24"><path d="M12 3l9 4-9 4-9-4 9-4zm0 7l7.89-3.51L21 10l-9 4-9-4 1.11-.51L12 10zm-9 6l9 4 9-4"/></svg>') center/contain no-repeat; background:#a78bfa}
+.i-catalog{ -webkit-mask: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="white" viewBox="0 0 24 24"><path d="M4 6h16v2H4V6zm0 4h10v2H4v-2zm0 4h16v2H4v-2z"/></svg>') center/contain no-repeat; background:#67e8f9}
+
+.hide{display:none}

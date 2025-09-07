@@ -1,0 +1,346 @@
+[
+  {
+    "id": "ORG_A_01",
+    "area": "organelos",
+    "activity": "A",
+    "type": "mcq",
+    "difficulty": 1,
+    "stem": "¿Qué organelo clasifica, modifica y empaqueta proteínas provenientes del RER?",
+    "options": [
+      "Núcleo",
+      "Cloroplasto",
+      "Ribosomas",
+      "Mitocondrias",
+      "Aparato de Golgi"
+    ],
+    "answer": 4,
+    "explanation": "El aparato de Golgi procesa y empaqueta proteínas."
+  },
+  {
+    "id": "ORG_A_02",
+    "area": "organelos",
+    "activity": "A",
+    "type": "mcq",
+    "difficulty": 1,
+    "stem": "Las membranas biológicas están constituidas principalmente por…",
+    "options": [
+      "Triglicéridos",
+      "Proteoglicanos",
+      "Fosfolípidos",
+      "Glucógeno",
+      "Celulosa"
+    ],
+    "answer": 2,
+    "explanation": "Bicapa de fosfolípidos."
+  },
+  {
+    "id": "ORG_A_03",
+    "area": "organelos",
+    "activity": "A",
+    "type": "tf",
+    "difficulty": 1,
+    "stem": "Los lisosomas son orgánulos membranosos que contienen enzimas hidrolíticas.",
+    "answer": true,
+    "explanation": "Degradan macromoléculas."
+  },
+  {
+    "id": "ORG_A_04",
+    "area": "organelos",
+    "activity": "A",
+    "type": "match",
+    "difficulty": 2,
+    "stem": "Relaciona el orgánulo con su función.",
+    "left": [
+      "Mitocondria",
+      "Ribosoma",
+      "REL",
+      "Cloroplasto"
+    ],
+    "right": [
+      "Síntesis de lípidos",
+      "Producción de ATP",
+      "Fotosíntesis",
+      "Síntesis de proteínas"
+    ],
+    "pairs": {
+      "Mitocondria": "Producción de ATP",
+      "Ribosoma": "Síntesis de proteínas",
+      "REL": "Síntesis de lípidos",
+      "Cloroplasto": "Fotosíntesis"
+    },
+    "explanation": "Asociación principal."
+  },
+  {
+    "id": "ORG_A_05",
+    "area": "organelos",
+    "activity": "A",
+    "type": "short",
+    "difficulty": 2,
+    "stem": "Explica por qué una droga que bloquea el REL afecta la secreción lipídica de una glándula sebácea.",
+    "rubric": "REL sintetiza lípidos; al bloquearlo disminuye la secreción."
+  },
+  {
+    "id": "ORG_B_01",
+    "area": "organelos",
+    "activity": "B",
+    "type": "mcq",
+    "difficulty": 2,
+    "stem": "¿Cuál de las siguientes estructuras presenta bicapa lipídica?",
+    "options": [
+      "Centríolo",
+      "Lisosoma",
+      "Citoesqueleto",
+      "Ribosoma",
+      "Cromosoma"
+    ],
+    "answer": 1,
+    "explanation": "Lisosoma tiene membrana."
+  },
+  {
+    "id": "ORG_B_02",
+    "area": "organelos",
+    "activity": "B",
+    "type": "tf",
+    "difficulty": 2,
+    "stem": "Núcleo, mitocondria y cloroplasto son orgánulos con doble membrana.",
+    "answer": true,
+    "explanation": "Los tres tienen doble membrana."
+  },
+  {
+    "id": "ORG_B_03",
+    "area": "organelos",
+    "activity": "B",
+    "type": "mcq",
+    "difficulty": 2,
+    "stem": "En células vegetales, a diferencia de las animales, es correcto afirmar que poseen…",
+    "options": [
+      "Solo cloroplastos",
+      "Solo pared celular",
+      "Cloroplastos y pared celular",
+      "Solo membrana plasmática",
+      "Ninguna de las anteriores"
+    ],
+    "answer": 2,
+    "explanation": "Clave diferencial vegetal."
+  },
+  {
+    "id": "ORG_B_04",
+    "area": "organelos",
+    "activity": "B",
+    "type": "short",
+    "difficulty": 3,
+    "stem": "Describe cambios de vacuola/turgencia si pones una célula vegetal en solución hipertónica.",
+    "rubric": "Pérdida de agua, menor turgencia y plasmólisis."
+  },
+  {
+    "id": "PROEU_A_01",
+    "area": "proeu",
+    "activity": "A",
+    "type": "tf",
+    "difficulty": 1,
+    "stem": "Las células procariontes carecen de núcleo verdadero.",
+    "answer": true,
+    "explanation": "ADN en nucleoide."
+  },
+  {
+    "id": "PROEU_A_02",
+    "area": "proeu",
+    "activity": "A",
+    "type": "mcq",
+    "difficulty": 1,
+    "stem": "¿Cuál es una característica propia de las células eucariontes?",
+    "options": [
+      "ADN circular libre",
+      "Ausencia de orgánulos",
+      "Núcleo definido",
+      "<1 µm",
+      "Pared de peptidoglucano"
+    ],
+    "answer": 2,
+    "explanation": "Núcleo definido y orgánulos."
+  },
+  {
+    "id": "PROEU_A_03",
+    "area": "proeu",
+    "activity": "A",
+    "type": "match",
+    "difficulty": 2,
+    "stem": "Relaciona tipo celular con ejemplo.",
+    "left": [
+      "Procarionte",
+      "Eucarionte animal",
+      "Eucarionte vegetal"
+    ],
+    "right": [
+      "Bacteria",
+      "Célula muscular",
+      "Parénquima foliar"
+    ],
+    "pairs": {
+      "Procarionte": "Bacteria",
+      "Eucarionte animal": "Célula muscular",
+      "Eucarionte vegetal": "Parénquima foliar"
+    },
+    "explanation": "Correspondencia típica."
+  },
+  {
+    "id": "PROEU_B_01",
+    "area": "proeu",
+    "activity": "B",
+    "type": "mcq",
+    "difficulty": 2,
+    "stem": "Una evidencia a favor de la teoría endosimbiótica es que…",
+    "options": [
+      "Lisosomas con ADN propio",
+      "Cloroplastos sin ribosomas",
+      "Mitocondrias con doble membrana y ADN propio",
+      "El núcleo se divide por fisión binaria",
+      "Bacterias realizan mitosis"
+    ],
+    "answer": 2,
+    "explanation": "Mitocondrias/cloroplastos con ADN propio."
+  },
+  {
+    "id": "PROEU_B_02",
+    "area": "proeu",
+    "activity": "B",
+    "type": "tf",
+    "difficulty": 1,
+    "stem": "Hooke acuñó 'célula' observando corcho (1665).",
+    "answer": true,
+    "explanation": "Historia de la teoría celular."
+  },
+  {
+    "id": "PROEU_B_03",
+    "area": "proeu",
+    "activity": "B",
+    "type": "short",
+    "difficulty": 3,
+    "stem": "Explica por qué la generación espontánea fue descartada por el experimento de Pasteur.",
+    "rubric": "Matraz cuello de cisne; sin contaminación no crecen microbios."
+  },
+  {
+    "id": "EF_A_01",
+    "area": "ef",
+    "activity": "A",
+    "type": "mcq",
+    "difficulty": 2,
+    "stem": "Una célula intestinal con abundante RER y Golgi se especializa en…",
+    "options": [
+      "Síntesis y secreción de proteínas",
+      "Contracción",
+      "Conducción de impulsos",
+      "Almacenar lípidos",
+      "División rápida"
+    ],
+    "answer": 0,
+    "explanation": "RER + Golgi → secreción."
+  },
+  {
+    "id": "EF_A_02",
+    "area": "ef",
+    "activity": "A",
+    "type": "tf",
+    "difficulty": 2,
+    "stem": "Muchas mitocondrias en una célula muscular evidencian alta demanda energética.",
+    "answer": true,
+    "explanation": "→ más ATP."
+  },
+  {
+    "id": "EF_A_03",
+    "area": "ef",
+    "activity": "A",
+    "type": "match",
+    "difficulty": 2,
+    "stem": "Relaciona tipo celular con su rasgo predominante.",
+    "left": [
+      "Muscular",
+      "Nerviosa",
+      "Pancreática exocrina",
+      "Epidérmica vegetal"
+    ],
+    "right": [
+      "Múltiples mitocondrias",
+      "RER + Golgi desarrollados",
+      "Vacuola y pared gruesa",
+      "Axones y dendritas"
+    ],
+    "pairs": {
+      "Muscular": "Múltiples mitocondrias",
+      "Nerviosa": "Axones y dendritas",
+      "Pancreática exocrina": "RER + Golgi desarrollados",
+      "Epidérmica vegetal": "Vacuola y pared gruesa"
+    },
+    "explanation": "Estructura predice función."
+  },
+  {
+    "id": "EF_B_01",
+    "area": "ef",
+    "activity": "B",
+    "type": "short",
+    "difficulty": 3,
+    "stem": "Modelo: interacción energética cloroplastos↔mitocondrias en célula vegetal.",
+    "rubric": "Fotosíntesis (O2/glucosa) ↔ respiración (ATP/CO2/H2O)."
+  },
+  {
+    "id": "EF_B_02",
+    "area": "ef",
+    "activity": "B",
+    "type": "mcq",
+    "difficulty": 3,
+    "stem": "Al pasar de medio hipotónico a hipertónico, ¿qué esperas?",
+    "options": [
+      "Más turgencia",
+      "Plasmólisis",
+      "Citólisis",
+      "> fotosíntesis",
+      "Duplicación del ADN"
+    ],
+    "answer": 1,
+    "explanation": "Pierde agua → plasmólisis."
+  },
+  {
+    "id": "PAES_01",
+    "area": "paes",
+    "activity": "A",
+    "type": "mcq",
+    "difficulty": 3,
+    "stem": "Un fármaco inhibe ribosomas bacterianos sin afectar eucariontes. ¿Mejor explicación?",
+    "options": [
+      "Ribosomas 80S en ambos",
+      "Bacterias 70S y eucariontes 80S",
+      "Bacterias no tienen ribosomas",
+      "Bloqueo ADN eucarionte",
+      "Daño a membranas de organelos"
+    ],
+    "answer": 1,
+    "explanation": "Selectividad 70S vs 80S."
+  },
+  {
+    "id": "PAES_02",
+    "area": "paes",
+    "activity": "A",
+    "type": "tf",
+    "difficulty": 3,
+    "stem": "La membrana deja pasar libremente moléculas polares pequeñas por difusión simple.",
+    "answer": false,
+    "explanation": "Usan transportadores."
+  },
+  {
+    "id": "PAES_03",
+    "area": "paes",
+    "activity": "B",
+    "type": "mcq",
+    "difficulty": 4,
+    "stem": "Si baja la temperatura, ¿qué ayuda a mantener la fluidez de membrana?",
+    "options": [
+      "Ácidos grasos saturados",
+      "Más colesterol",
+      "Menos colesterol",
+      "Cadenas más largas",
+      "Más puentes de H"
+    ],
+    "answer": 1,
+    "explanation": "Colesterol amortigua la caída de fluidez."
+  }
+]

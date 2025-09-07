@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<title>3D — Célula (etiquetas)</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=3,user-scalable=yes"/>
+<script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+<style>
+  :root{
+    --uiScale:1;
+    --hudH: 44px;
+    --safeTop: env(safe-area-inset-top);
+    --hudRealH: calc(var(--hudH) + var(--safeTop)); /* ← altura real medida por JS */
+    --z-hud: 10;
+    --z-sides: 12;
+    --z-progress: 14;
+    --z-list: 20;
+    --z-controls: 8;
+    --z-float: 30;
+
+    /* Barra centrada (Animal/Vegetal) */
+    --toolbarH: 46px;
+
+    /* Botones izquierdos (como en viewer) */
+    --leftFixedH: 1cm;   /* alto  */
+    --leftFixedW: 1.2cm; /* ancho */
+
+    /* Enfocar/Ping */
+    --fixedBtnH: 1cm;
+    --fixedBtnW: 1.2cm;
+  }
+
+  html,body{margin:0;height:100%;background:#000;overflow:hidden;touch-action:none;overscroll-behavior:contain}
+  canvas,.a-canvas{position:fixed;inset:0;width:100vw!important;height:100vh!important;background:#000!important;z-index:0}
+
+  body.pinch-page{ touch-action: pinch-zoom !important; }
+  body.pinch-page canvas, body.pinch-page .a-canvas{ touch-action: pinch-zoom !important; }
+
+  .uiRoot{position:fixed; inset:0; pointer-events:none; transform:scale(var(--uiScale)); transform-origin: top left; z-index:9999}
+  .uiRoot > *{ pointer-events:auto }
+
+  /* ===== HUD ===== */
+  .hud{
+    position:fixed;left:0;right:0;top:0;
+    min-height: calc(var(--hudH) + var(--safeTop)); /* crece si el título salta a 2 líneas */
+    height:auto;
+    padding: calc(8px + var(--safeTop)) 12px 8px 12px;
+    display:flex; align-items:flex-end; gap:8px; justify-content:center;
+    color:#fff; font:600 clamp(12px,1.6vw,14px) system-ui; z-index: var(--z-hud);
+    background:linear-gradient(180deg,rgba(0,0,0,.6),rgba(0,0,0,0));
+    text-align:center;
+  }
+  .hud .tag{opacity:.9}
+
+  /* ===== Toolbar centrada: Animal / Vegetal ===== */
+  .toolbar{
+    position:fixed;
+    top: calc(var(--hudRealH) + 6px); /* siempre debajo de la HUD real */
+    left:50%;
+    transform:translateX(-50%);
+    height: var(--toolbarH);
+    display:flex; align-items:center; gap:10px; z-index: var(--z-hud);
+    padding: 6px 8px;
+    background: rgba(0,0,0,.35);
+    border:1px solid rgba(255,255,255,.18);
+    border-radius:14px;
+    backdrop-filter: blur(6px);
+    box-shadow:0 8px 24px rgba(0,0,0,.25);
+    white-space:nowrap; /* evita quiebres de línea */
+  }
+  .toolbar .btn{
+    border:1px solid rgba(255,255,255,.22);
+    color:#fff; background:rgba(0,0,0,.35);
+    border-radius:12px; padding:8px 12px;
+    font:700 clamp(12px,1.6vw,14px)/1.2 system-ui; cursor:pointer; transition:.15s;
+    white-space:nowrap;
+  }
+  .toolbar .btn:hover{ background:rgba(255,255,255,.10); transform:translateY(-1px) }
+  .toolbar .btn.active{ background:rgba(60,201,255,.22); border-color:#3cc9ff }
+
+  /* ===== Columna izquierda — tarjeta se ajusta al tamaño de los botones ===== */
+  .leftColumn{
+    position:fixed; z-index: var(--z-sides);
+    left:12px;
+    top: calc(var(--hudRealH) + var(--toolbarH) + 12px);
+    width:auto; /* clave: no uses un ancho grande fijo */
+  }
+  .leftColumn .card{
+    display:inline-block;                /* se encoge al contenido */
+    background:rgba(0,0,0,.35);
+    border:1px solid rgba(255,255,255,.18);
+    backdrop-filter: blur(6px); border-radius:14px;
+    box-shadow:0 8px 24px rgba(0,0,0,.25);
+    padding:10px;
+    width: calc(var(--leftFixedW) + 20px);  /* 2×padding horizontal */
+  }
+  .group{ display:flex; flex-direction:column; gap:8px }
+
+  /* Base botón */
+  .btn{
+    border:1px solid rgba(255,255,255,.22);
+    color:#fff; background:rgba(0,0,0,.35);
+    border-radius:12px; cursor:pointer; transition:.15s;
+  }
+  .btn:hover{ background:rgba(255,255,255,.10); transform:translateY(-1px) }
+  .btn:active{ transform:translateY(0) }
+  .btn:focus-visible{ outline:none; box-shadow:0 0 0 2px rgba(60,201,255,.55); border-color:#3cc9ff }
+  .btn.active{ background:rgba(60,201,255,.22); border-color:#3cc9ff; box-shadow:0 0 0 1px rgba(60,201,255,.25) inset }
+
+  /* Botones del lado IZQUIERDO — 1cm × 1.2cm y texto con elipsis */
+  .leftBtn{
+    width: var(--leftFixedW);
+    min-width: var(--leftFixedW); max-width: var(--leftFixedW);
+    height: var(--leftFixedH);
+    min-height: var(--leftFixedH); max-height: var(--leftFixedH);
+    display:inline-flex; align-items:center; justify-content:center;
+    padding:0 8px; text-align:center;
+    font:700 12px/1 system-ui;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+
+  /* Progreso */
+  .progress{
+    position:fixed;left:50%;transform:translateX(-50%);
+    top: calc(var(--hudRealH) + var(--toolbarH) + 60px);
+    z-index: var(--z-progress);
+    width:min(60vw,520px);height:10px; display:none;
+    background:rgba(255,255,255,.15);border-radius:999px;overflow:hidden;border:1px solid rgba(57,255,20,.35)
+  }
+  .progress .bar{width:0%;height:100%;background:linear-gradient(90deg,#39ff14,#bfff00);
+                 box-shadow:0 0 12px #39ff14,0 0 24px #39ff14;transition:width .15s ease}
+  .progress .pct{position:absolute;right:0;top:-22px;font:700 12px system-ui;color:#bfff00;text-shadow:0 0 8px #39ff14}
+
+  /* Info EDU */
+  .infoPanel{
+    position:fixed;left:12px;z-index:8; padding:12px; width:min(360px,86vw);max-height:60vh;overflow:auto;
+    background:rgba(0,0,0,.55);border:1px solid rgba(255,255,255,.28);border-radius:14px;backdrop-filter:blur(2px);
+    top: calc(var(--hudRealH) + var(--toolbarH) + 12px + 200px);
+  }
+  .infoPanel h3{margin:0 0 6px;font:700 clamp(14px,1.8vw,16px) system-ui;color:#fff}
+  .infoPanel h4{margin:10px 0 6px;font:700 clamp(12px,1.6vw,13px) system-ui;color:#cfe6ff}
+  .infoPanel ul{margin:0;padding-left:16px}
+  .infoPanel li{margin:2px 0;color:#e9f2ff;font: clamp(12px,1.6vw,13px) system-ui}
+  .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+  .chip{ padding:6px 8px;border-radius:999px;font:700 12px system-ui;color:#132;
+    background:rgba(57,255,20,.15);border:1px solid #39ff14; box-shadow:0 0 8px rgba(57,255,20,.5) inset,0 0 6px rgba(57,255,20,.25) }
+
+  /* Panel Componentes (derecha) */
+  .listPanel{
+    position:fixed; right:12px; z-index: var(--z-list);
+    top: calc(var(--hudRealH) + var(--toolbarH) + 12px);
+    padding:12px;background:rgba(0,0,0,.55);
+    border:1px solid rgba(255,255,255,.28);border-radius:12px;min-width:240px;
+    box-shadow:0 6px 24px rgba(0,0,0,.35); backdrop-filter: blur(2px);
+  }
+  .listPanel h4{margin:0 0 6px;font:700 clamp(12px,1.4vw,13px) system-ui;color:#cfe6ff}
+  .listPanel select{width:100%;font:600 clamp(12px,1.4vw,12.5px)/1.2 system-ui;padding:8px;border-radius:10px;border:1px solid #3cc9ff;background:#021525;color:#e8fbff}
+  .listPanel .row{display:flex; gap:8px; margin-top:10px; justify-content:center}
+
+  /* Enfocar / Ping fijos */
+  #btnFocus, #btnPing{
+    width: var(--fixedBtnW);
+    min-width: var(--fixedBtnW); max-width: var(--fixedBtnW);
+    height: var(--fixedBtnH);
+    min-height: var(--fixedBtnH); max-height: var(--fixedBtnH);
+    display:inline-flex; align-items:center; justify-content:center;
+    padding: 0 6px; text-align:center;
+    font-size: 12px; line-height:1;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+
+  /* Controles inferiores */
+  .controls{
+    position:fixed;right:10px;z-index: var(--z-controls);
+    bottom: 88px; display:grid;grid-template-columns:repeat(3,48px);grid-gap:8px
+  }
+  body.no-vr-button .controls{ bottom:10px; }
+  .ctrl{
+    width:48px;height:48px;border-radius:12px;border:1px solid rgba(255,255,255,.24);
+    background:rgba(0,0,0,.45);color:#fff;
+    font:600 20px/48px system-ui;text-align:center;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.25);
+    transition:transform .06s ease, background .15s ease, border-color .15s ease;
+  }
+  .ctrl:hover{ background:rgba(255,255,255,.08); transform:translateY(-1px) }
+  .ctrl:active{ transform:translateY(0) }
+  .ctrl:focus-visible{ outline:none; box-shadow:0 0 0 2px rgba(60,201,255,.55), 0 4px 14px rgba(0,0,0,.25); border-color:#3cc9ff }
+
+  .panel{
+    position:fixed;left:10px;z-index:8;
+    bottom: 88px; padding:8px 10px;background:rgba(0,0,0,.45);
+    border:1px solid rgba(255,255,255,.28);border-radius:10px;min-width:190px
+  }
+  body.no-vr-button .panel{ bottom:10px }
+  .panel label{display:flex;align-items:center;gap:6px;font:600 clamp(12px,1.6vw,12.5px) system-ui;color:#fff;margin:4px 0}
+  .panel input[type=range]{width:130px}
+
+  /* Ayuda VR flotante */
+  #btnHelpVRFloat{
+    position:fixed; right:12px; bottom:64px; z-index: var(--z-float);
+    border:1px solid rgba(255,255,255,.22); color:#fff; background:rgba(0,0,0,.55);
+    border-radius:12px; padding:10px 14px; font:700 clamp(12px,1.6vw,13px) system-ui; cursor:pointer;
+    box-shadow:0 6px 18px rgba(0,0,0,.35);
+  }
+  body.no-vr-button #btnHelpVRFloat{ display:none }
+
+  /* Móvil */
+  @media (max-width:480px){
+    .leftColumn{ left:8px }
+    .leftColumn .card{ padding:8px; width: calc(var(--leftFixedW) + 16px); }
+    .controls{grid-gap:6px}
+    .ctrl{width:44px;height:44px;font:600 18px/44px system-ui}
+    .listPanel{min-width:210px}
+  }
+
+  /* ===== Overlay Ayuda VR ===== */
+  .helpVR-backdrop{ position:fixed; inset:0; background:rgba(0,0,0,.55); display:none; align-items:center; justify-content:center; z-index:99999; backdrop-filter: blur(2px) }
+  .helpVR{ width:min(720px,92vw); background:rgba(2,14,24,.9); border:1px solid rgba(60,201,255,.35); border-radius:14px; padding:14px; color:#def; box-shadow:0 10px 30px rgba(0,0,0,.4) }
+  .helpVR h3{margin:0 0 8px; font:700 clamp(14px,1.8vw,16px) system-ui; color:#fff}
+  .helpVR p{margin:4px 0 10px; font:600 clamp(12px,1.6vw,13px) system-ui; color:#d5ebff}
+  .helpRow{display:grid; grid-template-columns: 36px 1fr; gap:10px; align-items:flex-start; margin:8px 0}
+  .helpKey{ width:36px; height:36px; border-radius:10px; display:grid; place-items:center; background:rgba(0,0,0,.35); border:1px solid rgba(255,255,255,.25); color:#fff; font:700 14px system-ui }
+  .helpTitle{font:700 clamp(12px,1.6vw,13px) system-ui; color:#bfe8ff}
+  .helpDesc{font:600 clamp(12px,1.6vw,13px) system-ui; color:#d7f3ff; opacity:.95}
+  .helpActions{display:flex; gap:8px; justify-content:flex-end; margin-top:10px}
+  .helpBtn{ border:1px solid rgba(255,255,255,.25); color:#fff; background:rgba(0,0,0,.35); border-radius:10px; padding:6px 10px; font:700 clamp(12px,1.6vw,12.5px) system-ui; cursor:pointer }
+  .helpBtn.primary{ background:#1279c4; border-color:#0e68a8 }
+  .helpVR-backdrop.show{ display:flex }
+</style>
+</head>
+<body class="no-vr-button">
+  <div class="uiRoot">
+    <div class="hud">3D — Célula <span id="labelKind" class="tag">Animal</span></div>
+
+    <!-- BARRA CENTRADA: Animal / Vegetal -->
+    <div class="toolbar">
+      <button id="btnAnimal"  class="btn">Animal</button>
+      <button id="btnVegetal" class="btn">Vegetal</button>
+    </div>
+
+    <!-- IZQUIERDA: botones compactos 1cm×1.2cm y tarjeta ajustada -->
+    <div class="leftColumn">
+      <div class="card">
+        <div class="group">
+          <button id="btnAuto"       class="btn leftBtn" title="Auto-rotación">Auto</button>
+          <button id="btnTags"       class="btn leftBtn active" title="Mostrar u ocultar etiquetas">Etiquetas</button>
+          <button id="btnDiff"       class="btn leftBtn active" title="Resaltar diferencias">Diferencias</button>
+          <button id="btnSolo"       class="btn leftBtn" title="Mostrar solo el componente seleccionado">Solo</button>
+          <button id="btnPinchPage"  class="btn leftBtn" title="Zoom de la PÁGINA">Pinch página</button>
+          <button id="btnInfo"       class="btn leftBtn" title="Ver/Ocultar ficha">Info</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Progreso -->
+    <div class="progress" id="progress"><div class="bar" id="progressBar"></div><div class="pct" id="progressPct">0%</div></div>
+
+    <!-- Ficha EDU -->
+    <div class="infoPanel" id="infoPanel" style="display:none"></div>
+
+    <!-- Panel Componentes (derecha) -->
+    <div class="listPanel" id="listPanel">
+      <h4>Componentes</h4>
+      <select id="compSelect"></select>
+      <div class="row">
+        <button class="btn" id="btnFocus">Enfocar</button>
+        <button class="btn" id="btnPing">Ping</button>
+      </div>
+    </div>
+
+    <!-- Controles giro/zoom -->
+    <div class="controls" id="controls">
+      <div class="ctrl" id="rotL" title="Rotar izquierda">↶</div>
+      <div class="ctrl" id="reset" title="Reset">⟲</div>
+      <div class="ctrl" id="rotR" title="Rotar derecha">↷</div>
+      <div class="ctrl" id="zoomOut" title="Zoom -">−</div>
+      <div class="ctrl" id="center" title="Centrar">◎</div>
+      <div class="ctrl" id="zoomIn" title="Zoom +">+</div>
+    </div>
+
+    <!-- Sliders -->
+    <div class="panel" id="panel">
+      <label>Zoom <input type="range" id="scaleRange" min="0.20" max="3.00" step="0.01" value="0.40"></label>
+      <label>Vel. rotación <input type="range" id="speedRange" min="-60" max="60" step="1" value="20"></label>
+    </div>
+  </div>
+
+  <!-- Ayuda VR flotante -->
+  <button id="btnHelpVRFloat" title="Controles en casco (Quest 2)">Ayuda VR</button>
+
+  <!-- ===== Overlay Ayuda VR ===== -->
+  <div id="helpVRBackdrop" class="helpVR-backdrop" aria-hidden="true">
+    <div class="helpVR" role="dialog" aria-modal="true" aria-labelledby="helpVRTitle">
+      <h3 id="helpVRTitle">Controles en Oculus Quest 2</h3>
+      <p>Apunta con el <b>rayo</b> del control derecho al modelo. Usa estos gestos dentro del casco:</p>
+
+      <div class="helpRow">
+        <div class="helpKey">RT</div>
+        <div>
+          <div class="helpTitle">Gatillo derecho (Trigger)</div>
+          <div class="helpDesc">Mantén presionado para <b>agarrar</b> y <b>mover</b> el modelo.</div>
+        </div>
+      </div>
+
+      <div class="helpRow">
+        <div class="helpKey">↔︎</div>
+        <div>
+          <div class="helpTitle">Stick derecho (Izq/Der)</div>
+          <div class="helpDesc"><b>Rota</b> la célula sobre su eje Y.</div>
+        </div>
+      </div>
+
+      <div class="helpRow">
+        <div class="helpKey">↕︎</div>
+        <div>
+          <div class="helpTitle">Stick derecho (Arriba/Abajo)</div>
+          <div class="helpDesc"><b>Escala</b> el modelo (con límites).</div>
+        </div>
+      </div>
+
+      <div class="helpRow">
+        <div class="helpKey">VR</div>
+        <div>
+          <div class="helpTitle">Autoposicionar</div>
+          <div class="helpDesc">Al entrar a VR, se coloca <b>frente a ti</b> a <b>1.2 m</b> de altura.</div>
+        </div>
+      </div>
+
+      <div class="helpActions">
+        <button id="helpVRToggleHint" class="helpBtn">No mostrar automáticamente</button>
+        <button id="helpVRClose" class="helpBtn primary">Entendido</button>
+      </div>
+    </div>
+  </div>
+
+  <a-scene
+    embedded
+    renderer="antialias:true;precision:mediump"
+    background="color: #000"
+    webxr="optionalFeatures: local-floor, bounded-floor"
+  >
+    <a-entity light="type:ambient; intensity:0.9"></a-entity>
+    <a-entity light="type:directional; intensity:0.8" position="1 1 0"></a-entity>
+
+    <a-entity id="cellModel" class="interactable"
+      position="0 0 0" rotation="0 0 0" scale="0.40 0.40 0.40"
+      gesture-handler="minScale:0.20; maxScale:3.0; rotFactor:0.5"
+      pinch-scale="min:0.20; max:3.0; factor:1"
+      mouse-drag-rotate
+      mouse-pan="panFactor:1.0"
+      tap-reset="scale:0.40; rotYdeg:0"
+      auto-rotator="enabled:false; speed:20"
+      vr-autoplace="y:1.2; z:-1.6"
+    ></a-entity>
+
+    <a-entity id="cameraRig">
+      <a-entity camera position="0 0 1.6" cursor="rayOrigin: mouse" raycaster="objects: .hs-click"></a-entity>
+    </a-entity>
+
+    <!-- Controladores Quest 2 -->
+    <a-entity id="rightHand"
+              oculus-touch-controls="hand: right"
+              raycaster="objects: .interactable; far: 20"
+              line="opacity: 0.9"></a-entity>
+
+    <a-entity id="leftHand"
+              oculus-touch-controls="hand: left"></a-entity>
+
+    <!-- Manipulador VR -->
+    <a-entity id="vrManipulator"
+              vr-grab-rotate-scale="target: #cellModel; rotateSpeed: 2.0; scaleSpeed: 0.003; minScale:0.05; maxScale:4"></a-entity>
+  </a-scene>
+
+<script>
+/* === Altura real de la HUD: evita que la toolbar se monte encima === */
+function updateHudHeight(){
+  const hud = document.querySelector('.hud');
+  if(!hud) return;
+  const h = Math.ceil(hud.getBoundingClientRect().height);
+  document.documentElement.style.setProperty('--hudRealH', h + 'px');
+}
+window.addEventListener('load', updateHudHeight, {once:true});
+window.addEventListener('resize', updateHudHeight);
+window.addEventListener('orientationchange', updateHudHeight);
+
+/* === Posicionar “Ayuda VR” === */
+(function watchVRButton(){
+  const clsNoVR  = 'no-vr-button';
+  const helpBtn  = document.getElementById('btnHelpVRFloat');
+
+  function place(){
+    const vrBtn = document.querySelector('.a-enter-vr-button, .a-enter-ar-button');
+    if (vrBtn){
+      document.body.classList.remove(clsNoVR);
+      const h = Math.max(56, vrBtn.offsetHeight || 56);
+      helpBtn.style.bottom = `calc(${h + 12}px - 0.7cm)`;
+      helpBtn.style.right  = '12px';
+      helpBtn.style.display = 'block';
+    }else{
+      document.body.classList.add(clsNoVR);
+      helpBtn.style.display = 'none';
+    }
+  }
+  const obs = new MutationObserver(place);
+  obs.observe(document.body, {childList:true, subtree:true});
+  window.addEventListener('resize', place);
+  place();
+})();
+
+/* Overlay de ayuda */
+const helpVRBackdrop = document.getElementById('helpVRBackdrop');
+const helpVRClose = document.getElementById('helpVRClose');
+const helpVRToggleHint = document.getElementById('helpVRToggleHint');
+function openHelpVR(){ helpVRBackdrop.classList.add('show'); helpVRBackdrop.setAttribute('aria-hidden','false'); }
+function closeHelpVR(){ helpVRBackdrop.classList.remove('show'); helpVRBackdrop.setAttribute('aria-hidden','true'); }
+document.getElementById('btnHelpVRFloat').addEventListener('click', openHelpVR);
+helpVRClose.addEventListener('click', closeHelpVR);
+helpVRBackdrop.addEventListener('click', (e)=>{ if(e.target===helpVRBackdrop) closeHelpVR(); });
+helpVRToggleHint.addEventListener('click', ()=>{
+  const cur = localStorage.getItem('vh_help_auto') !== '0';
+  const next = !cur;
+  localStorage.setItem('vh_help_auto', next ? '1' : '0');
+  helpVRToggleHint.textContent = next ? 'No mostrar automáticamente' : 'Volver a mostrar automáticamente';
+});
+
+/* ====== Pinch mode ====== */
+window.PINCH_MODE = 'model';
+function setPinchMode(mode){
+  window.PINCH_MODE = mode;
+  document.body.classList.toggle('pinch-page', mode==='page');
+  let mv = document.querySelector('meta[name="viewport"]');
+  if (!mv) { mv = document.createElement('meta'); mv.setAttribute('name','viewport'); document.head.appendChild(mv); }
+  mv.setAttribute('content', mode==='page'
+    ? 'width=device-width,initial-scale=1,maximum-scale=5,user-scalable=yes'
+    : 'width=device-width,initial-scale=1,maximum-scale=3,user-scalable=yes');
+  localStorage.setItem('vh_pinch', mode);
+}
+
+/* ====== Gestos / interacción ====== */
+AFRAME.registerComponent('gesture-handler',{schema:{rotFactor:{default:0.45},minScale:{default:0.05},maxScale:{default:3.0}},
+  init:function(){this.oneFinger=false;this.lastX=0;this.lastY=0;const s=this.el.sceneEl;const add=()=>{const t=s.canvas||s;
+    t.addEventListener('touchstart',e=>{ if(window.PINCH_MODE==='page') return; if(e.touches.length===1){this.oneFinger=true;this.lastX=e.touches[0].clientX; this.lastY=e.touches[0].clientY;}},{passive:false});
+    t.addEventListener('touchmove',e=>{ if(window.PINCH_MODE==='page') return; if(this.oneFinger&&e.touches.length===1){const dx=e.touches[0].clientX-this.lastX; const dy=e.touches[0].clientY-this.lastY; this.lastX=e.touches[0].clientX; this.lastY=e.touches[0].clientY;
+      const o=this.el.object3D.rotation; o.y-=(dx*this.data.rotFactor)*Math.PI/180;
+      let nx=o.x-(dy*this.data.rotFactor)*Math.PI/180; const lim=THREE.MathUtils.degToRad(80); o.x=THREE.MathUtils.clamp(nx,-lim,lim); e.preventDefault();}},{passive:false});
+    t.addEventListener('touchend',()=>{this.oneFinger=false;},{passive:false});
+    t.addEventListener('touchcancel',()=>{this.oneFinger=false;},{passive:false});
+    t.addEventListener('wheel',e=>{ if(window.PINCH_MODE==='page') return; e.preventDefault();const dir=e.deltaY>0?0.9:1.1;
+      const s=this.el.object3D.scale.x*dir; const cl=THREE.MathUtils.clamp(s,this.data.minScale,this.data.maxScale); this.el.object3D.scale.set(cl,cl,cl);
+      if (typeof DEFAULT_SCALE!=='undefined' && DEFAULT_SCALE>0) { USER_MULT = cl/DEFAULT_SCALE; }
+      if (typeof scaleRange!=='undefined') scaleRange.value=cl.toFixed(2);
+    },{passive:false});
+    t.addEventListener('contextmenu',e=>e.preventDefault());
+  }; s.hasLoaded?add():s.addEventListener('loaded',add,{once:true});}});
+
+AFRAME.registerComponent('pinch-scale',{schema:{min:{default:0.1},max:{default:4},factor:{default:1}},
+  init:function(){this.active=false;this.startDist=0;this.startScale=this.el.object3D.scale.clone();const s=this.el.sceneEl;const add=()=>{const c=s.canvas||s;
+    c.addEventListener('touchstart',e=>{ if(window.PINCH_MODE==='page') return; if(e.touches.length===2){this.active=true;const dx=e.touches[0].clientX-e.touches[1].clientX;const dy=e.touches[0].clientY-e.touches[1].clientY;
+      this.startDist=Math.hypot(dx,dy);this.startScale=this.el.object3D.scale.clone();e.preventDefault();}}, {passive:false});
+    c.addEventListener('touchmove',e=>{ if(window.PINCH_MODE==='page') return; if(!this.active||e.touches.length!==2)return;const dx=e.touches[0].clientX-e.touches[1].clientX;const dy=e.touches[0].clientY-e.touches[1].clientY;
+      const dist=Math.hypot(dx,dy);const k=(dist/this.startDist)*this.data.factor;const sX=THREE.MathUtils.clamp(this.startScale.x*k,this.data.min,this.data.max);
+      this.el.object3D.scale.set(sX,sX,sX); if (typeof DEFAULT_SCALE!=='undefined' && DEFAULT_SCALE>0) { USER_MULT = sX/DEFAULT_SCALE; } if (typeof scaleRange!=='undefined') scaleRange.value=sX.toFixed(2);
+      e.preventDefault();},{passive:false});
+    const end=()=>{this.active=false;}; c.addEventListener('touchend',end,{passive:false}); c.addEventListener('touchcancel',end,{passive:false});};
+  s.hasLoaded?add():s.addEventListener('loaded',add,{once:true});}});
+
+AFRAME.registerComponent('mouse-drag-rotate',{schema:{factor:{default:0.45}},
+  init:function(){this.drag=false;this.lastX=0;this.lastY=0;const s=this.el.sceneEl;const add=()=>{const t=s.canvas||s;
+    t.addEventListener('mousedown',e=>{ if(e.button===0){ this.drag=true; this.lastX=e.clientX; this.lastY=e.clientY; }});
+    window.addEventListener('mouseup',()=>{this.drag=false;});
+    window.addEventListener('mousemove',e=>{ if(!this.drag) return; const dx=e.clientX-this.lastX; const dy=e.clientY-this.lastY; this.lastX=e.clientX; this.lastY=e.clientY;
+      const o=this.el.object3D.rotation; o.y-=(dx*this.data.factor)*Math.PI/180; let nx=o.x-(dy*this.data.factor)*Math.PI/180; const lim=THREE.MathUtils.degToRad(80); o.x=THREE.MathUtils.clamp(nx,-lim,lim); });
+  }; s.hasLoaded?add():s.addEventListener('loaded',add,{once:true});}});
+
+AFRAME.registerComponent('mouse-pan',{schema:{panFactor:{default:1}},
+  init:function(){const s=this.el.sceneEl; let down=false,start={x:0,y:0}, startPos=this.el.object3D.position.clone(), shift=false;
+    const worldPerPixel=()=>{ const cam=s.camera; if(!cam||!s.canvas) return {x:0,y:0}; const fov=(cam.fov||60)*Math.PI/180; const h=s.canvas.height||window.innerHeight; const z=Math.max(0.001, Math.abs(cam.position.z||1));
+      const y=2*z*Math.tan(fov/2)/h; const x=y*(cam.aspect||1.777); return {x,y}; };
+    const onDown=(e)=>{ shift=e.shiftKey; if(e.button===1 || e.button===2 || (e.button===0 && shift)){ down=true; start={x:e.clientX,y:e.clientY}; startPos=this.el.object3D.position.clone(); e.preventDefault(); } };
+    const onMove=(e)=>{ if(!down) return; e.preventDefault(); const dx=e.clientX-start.x, dy=e.clientY-start.y; const wp=worldPerPixel();
+      const tx=dx*wp.x*this.data.panFactor; const ty=-dy*wp.y*this.data.panFactor; this.el.object3D.position.set(startPos.x+tx, startPos.y+ty, this.el.object3D.position.z); };
+    const onUp=()=>{ down=false; };
+    const add=()=>{ const c=s.canvas||s; c.addEventListener('mousedown',onDown,{passive:false}); window.addEventListener('mousemove',onMove,{passive:false});
+      window.addEventListener('mouseup',onUp,{passive:false}); c.addEventListener('contextmenu',e=>e.preventDefault()); };
+    s.hasLoaded?add():s.addEventListener('loaded',add,{once:true});
+  }
+});
+
+AFRAME.registerComponent('tap-reset',{schema:{scale:{default:1},rotYdeg:{default:0}},
+  init:function(){this.lastTap=0;const s=this.el.sceneEl;const add=()=>{const t=s.canvas||s;
+    t.addEventListener('touchend',()=>{ if(window.PINCH_MODE==='page') return; const n=performance.now(); if(n-this.lastTap<300){
+      const sc=this.data.scale; this.el.object3D.scale.set(sc,sc,sc); this.el.object3D.rotation.set(0,THREE.MathUtils.degToRad(this.data.rotYdeg),0);
+      if (typeof scaleRange!=='undefined') scaleRange.value=sc.toFixed(2);
+    } this.lastTap=n; },{passive:true});
+  }; s.hasLoaded?add():s.addEventListener('loaded',add,{once:true});}});
+
+AFRAME.registerComponent('auto-rotator',{schema:{speed:{default:20},enabled:{default:false}},tick:function(t,dt){
+  if(!this.data.enabled)return; this.el.object3D.rotation.y+=THREE.MathUtils.degToRad(this.data.speed)*(dt/1000);
+}});
+AFRAME.registerComponent('billboard',{tick:function(){const cam=this.el.sceneEl&&this.el.sceneEl.camera;if(!cam)return;this.el.object3D.quaternion.copy(cam.el.object3D.quaternion);}});
+
+/* ====== Datos ==== */
+const HS_DEFAULT={
+  animal:[
+    {name:'Núcleo',desc:'Controla la célula y guarda el ADN.',pos:[0,0.12,0]},
+    {name:'Mitocondrias',desc:'Producen ATP (energía).',pos:[0.18,0.06,0.04]},
+    {name:'Aparato de Golgi',desc:'Empaqueta y distribuye proteínas/lípidos.',pos:[0.12,0.00,-0.15]},
+    {name:'Ribosomas',desc:'Sintetizan proteínas.',pos:[-0.18,0.08,0]},
+    {name:'Lisosomas',desc:'Digestión celular de desechos.',pos:[-0.12,-0.02,0.14],diff:true},
+    {name:'Centriolos',desc:'Organizan huso mitótico.',pos:[0.16,0.14,-0.02],diff:true},
+    {name:'Membrana plasmática',desc:'Delimita e intercambio.',pos:[0,-0.08,0.2]},
+    {name:'Citoplasma',desc:'Medio de reacciones químicas.',pos:[-0.06,0.02,-0.18]}
+  ],
+  vegetal:[
+    {name:'Núcleo',desc:'Controla la célula y guarda el ADN.',pos:[0,0.12,0]},
+    {name:'Cloroplastos',desc:'Fotosíntesis: luz → energía química.',pos:[0.18,0.05,0],diff:true},
+    {name:'Vacuola central',desc:'Almacenamiento y turgencia.',pos:[-0.12,0.02,-0.1],diff:true},
+    {name:'Pared celular',desc:'Rigidez y protección (celulosa).',pos:[0,0,-0.22],diff:true},
+    {name:'Plasmodesmos',desc:'Comunicación entre células vegetales.',pos:[-0.20,0.00,0.12],diff:true},
+    {name:'Aparato de Golgi',desc:'Empaque y secreción.',pos:[0.12,0,-0.15]},
+    {name:'Mitocondrias',desc:'Producción de ATP.',pos:[-0.18,0.06,0.02]},
+    {name:'Ribosomas',desc:'Síntesis de proteínas.',pos:[0.0,0.16,0.16]}
+  ]
+};
+const STORAGE_KEY = k => `hs_positions_v1_${k}`;
+function loadCustom(kind){ try{ return JSON.parse(localStorage.getItem(STORAGE_KEY(kind))||'null'); }catch{ return null; } }
+function getHotspots(kind){
+  const custom = loadCustom(kind);
+  if (!custom) return HS_DEFAULT[kind] || [];
+  const byName = new Map((HS_DEFAULT[kind]||[]).map(x=>[x.name,x]));
+  return custom.map(c=>({ ...byName.get(c.name)||{}, ...c }));
+}
+
+const CONTENT={
+  animal:{titulo:"Célula Animal",
+    componentes:[
+      ["Núcleo","Controla la célula y guarda el ADN."],
+      ["Membrana plasmática","Delimita y regula el intercambio de sustancias."],
+      ["Citoplasma","Medio donde ocurren reacciones químicas."],
+      ["Ribosomas","Fabrican proteínas."],
+      ["R.E. rugoso","Sintetiza y procesa proteínas."],
+      ["R.E. liso","Sintetiza lípidos y detoxifica."],
+      ["Aparato de Golgi","Empaqueta y distribuye proteínas/lípidos."],
+      ["Mitocondrias","Producen ATP (energía)."],
+      ["Lisosomas","Digieren desechos y partículas."],
+      ["Peroxisomas","Metabolismo de peróxidos."],
+      ["Citoesqueleto","Forma, soporte y transporte interno."],
+      ["Centriolos","Organizan huso mitótico en división celular."]
+    ],
+    diferencia:["Sin pared celular","Sin cloroplastos","Vacuolas pequeñas y múltiples","Centriolos presentes","Lisosomas abundantes"]
+  },
+  vegetal:{titulo:"Célula Vegetal",
+    componentes:[
+      ["Núcleo","Controla la célula y guarda el ADN."],
+      ["Membrana plasmática","Regula el intercambio con el exterior."],
+      ["Pared celular (celulosa)","Aporta rigidez y protección."],
+      ["Citoplasma","Medio de reacciones celulares."],
+      ["Ribosomas","Síntesis de proteínas."],
+      ["R.E. rugoso/liso","Proteínas y lípidos."],
+      ["Aparato de Golgi","Empaque y secreción."],
+      ["Mitocondrias","Producción de ATP."],
+      ["Vacuola central","Almacenamiento y turgencia (presión interna)."],
+      ["Cloroplastos","Fotosíntesis: luz → energía química."],
+      ["Plasmodesmos","Canales de comunicación entre células vegetales."],
+      ["Citoesqueleto","Estructura y transporte."]
+    ],
+    diferencia:["Pared celular (celulosa)","Cloroplastos (fotosíntesis)","Vacuola central grande","Plasmodesmos","Sin centriolos típicos"]
+  }
+};
+
+const INIT={ animal:{scale:0.40,rotYdeg:0}, vegetal:{scale:0.36,rotYdeg:0} };
+const MIN_SCALE=0.20, MAX_SCALE=3.0, ROT_STEP_DEG=8, ZOOM_STEP=1.12;
+const MAP={
+  animal:{normal:"./assets/models/animal.glb",draco:"./assets/models/animal_draco.glb"},
+  vegetal:{normal:"./assets/models/vegetal.glb",draco:"./assets/models/vegetal_draco.glb"}
+};
+
+/* ====== Estado / Referencias ====== */
+const params=new URLSearchParams(location.search);
+let kind=(params.get('m')||localStorage.getItem('vh_kind')||'animal').toLowerCase(); if(!MAP[kind]) kind='animal';
+
+const modelEl=document.getElementById('cellModel');
+const labelEl=document.getElementById('labelKind');
+const btnA=document.getElementById('btnAnimal');
+const btnV=document.getElementById('btnVegetal');
+const btnAuto=document.getElementById('btnAuto');
+const btnTags=document.getElementById('btnTags');
+const btnDiff=document.getElementById('btnDiff');
+const btnSolo=document.getElementById('btnSolo');
+const btnPinchPage=document.getElementById('btnPinchPage');
+const btnInfo=document.getElementById('btnInfo');
+
+const rotL=document.getElementById('rotL'), rotR=document.getElementById('rotR');
+const zoomIn=document.getElementById('zoomIn'), zoomOut=document.getElementById('zoomOut');
+const resetBtn=document.getElementById('reset'), centerBtn=document.getElementById('center');
+const scaleRange=document.getElementById('scaleRange'), speedRange=document.getElementById('speedRange');
+
+const infoPanel=document.getElementById('infoPanel');
+const compSelect=document.getElementById('compSelect');
+const btnFocus=document.getElementById('btnFocus');
+const btnPing=document.getElementById('btnPing');
+
+let DEFAULT_SCALE=1.0, USER_MULT=1.0;
+
+/* ====== Normalización & encuadre ====== */
+const QP = new URLSearchParams(location.search);
+const TARGET_SIZE = parseFloat(QP.get('size') || '0.30');
+const TARGET_PAD  = parseFloat(QP.get('pad')  || '1.10');
+const ZOOM0       = parseFloat(QP.get('zoom') || '1.00');
+
+function frameCameraOnly(){
+  const scene=modelEl.sceneEl; if(!scene) return;
+  const cam=scene.camera; if(!cam) return;
+  const THREE = window.THREE;
+  const box = new THREE.Box3().setFromObject(modelEl.object3D);
+  const sphere = box.getBoundingSphere(new THREE.Sphere());
+  const radius = sphere.radius * TARGET_PAD;
+
+  const fov = (cam.fov||60)*Math.PI/180;
+  const aspect = cam.aspect || (scene.canvas ? scene.canvas.width/scene.canvas.height : 1.777);
+  const distV = radius / Math.sin(fov/2);
+  const hFov = 2*Math.atan(Math.tan(fov/2)*aspect);
+  const distH = radius / Math.sin(hFov/2);
+  const dist = Math.max(distV,distH);
+
+  if (cam.el) cam.el.setAttribute('position', `0 0 ${dist.toFixed(4)}`); else cam.position.set(0,0,dist);
+  cam.near=Math.max(0.01,dist*0.01); cam.far=dist*10; cam.updateProjectionMatrix();
+}
+function normalizeAndFrame(){
+  const THREE = window.THREE;
+  const mesh = modelEl.getObject3D('mesh'); if(!mesh) return;
+  const box = new THREE.Box3().setFromObject(mesh);
+  const size = box.getSize(new THREE.Vector3());
+  const center = box.getCenter(new THREE.Vector3());
+  const maxDim = Math.max(size.x,size.y,size.z) || 1;
+  mesh.position.sub(center);
+  const s  = TARGET_SIZE / maxDim;
+  const s2 = s * ZOOM0;
+  modelEl.object3D.scale.set(s2,s2,s2);
+  DEFAULT_SCALE = s2;
+  modelEl.object3D.scale.multiplyScalar(USER_MULT);
+  if (scaleRange) scaleRange.value=(DEFAULT_SCALE*USER_MULT).toFixed(2);
+  const init=INIT[kind]||INIT.animal;
+  modelEl.setAttribute('tap-reset', `scale:${DEFAULT_SCALE.toFixed(2)}; rotYdeg:${init.rotYdeg}`);
+  frameCameraOnly();
+}
+window.addEventListener('resize', frameCameraOnly);
+window.addEventListener('orientationchange', frameCameraOnly);
+
+/* ====== Progreso ====== */
+const progress=document.getElementById('progress'); const progressBar=document.getElementById('progressBar'); const progressPct=document.getElementById('progressPct');
+function showProgress(p){ progress.style.display='block'; setProgress(p); }
+function setProgress(p){ const v=Math.max(0,Math.min(1,p||0)); progressBar.style.width=(v*100).toFixed(0)+'%'; progressPct.textContent=(v*100).toFixed(0)+'%'; }
+function hideProgress(){ setProgress(1); setTimeout(()=>{progress.style.display='none';},300); }
+const manager=THREE.DefaultLoadingManager; manager.onStart=()=>showProgress(0); manager.onProgress=(u,l,t)=>{if(t&&t>0)setProgress(l/t)}; manager.onLoad=()=>hideProgress();
+
+/* ====== Ficha EDU ====== */
+function renderInfo(k){
+  const c=CONTENT[k]; let html=`<h3>${c.titulo}</h3><h4>Componentes y función</h4><ul>`;
+  for(const [n,d] of c.componentes){ html+=`<li><b>${n}:</b> ${d}</li>`;}
+  html+=`</ul><h4>Se diferencia por…</h4><div class="chips">`;
+  for(const it of c.diferencia){ html+=`<span class="chip">${it}</span>`;}
+  html+=`</div>`; infoPanel.innerHTML=html;
+}
+function setUI(){
+  btnA.classList.toggle('active',kind==='animal'); btnV.classList.toggle('active',kind==='vegetal');
+  labelEl.textContent=(kind==='animal'?'Animal':'Vegetal'); renderInfo(kind);
+  const u=new URL(location.href); u.searchParams.set('m',kind); history.replaceState(null,'',u.toString());
+  /* Recalcular altura real de la HUD cuando cambia el texto (Animal/Vegetal) */
+  updateHudHeight();
+}
+
+/* ====== Hotspots runtime ====== */
+let hsRoot=null, hsRecords=[];
+function clearHotspots(){ const old=document.getElementById('hsRoot'); if(old&&old.parentNode) old.parentNode.removeChild(old); hsRecords=[]; compSelect.innerHTML=''; }
+function populateSelect(items){ compSelect.innerHTML=''; items.forEach((it,i)=>{ const o=document.createElement('option'); o.value=i; o.textContent=it.name; compSelect.appendChild(o); }); }
+
+/* Dibuja hotspots */
+function makeHotspots(kind){
+  clearHotspots();
+  const items = getHotspots(kind) || [];
+  hsRoot = document.createElement('a-entity'); hsRoot.setAttribute('id','hsRoot'); modelEl.appendChild(hsRoot);
+
+  const labelsOn = btnTags.classList.contains('active');
+  const diffOn   = btnDiff.classList.contains('active');
+  const soloOn   = btnSolo.classList.contains('active');
+  const selectedIndex = parseInt(compSelect.value||0,10)||0;
+
+  items.forEach((item,idx)=>{
+    const wrap=document.createElement('a-entity'); wrap.setAttribute('position', item.pos.join(' '));
+    const dot=document.createElement('a-entity'); dot.classList.add('hs-click');
+    const isDiff = !!item.diff && diffOn;
+
+    dot.setAttribute('geometry', `primitive: sphere; radius: ${isDiff?0.055:0.035}`);
+    dot.setAttribute('material', `color:${isDiff?'#39ff14':'#00d4ff'}; emissive:${isDiff?'#39ff14':'#00a0ff'}; emissiveIntensity:0.85; roughness:0.3; side: double`);
+    if(isDiff){ dot.setAttribute('animation','property: scale; dir: alternate; dur:800; loop:true; to:1.25 1.25 1.25; easing:easeInOutSine'); }
+
+    const tip=document.createElement('a-entity'); tip.setAttribute('position','0 0.12 0'); tip.setAttribute('billboard','');
+    const bg=document.createElement('a-entity'); bg.setAttribute('geometry','primitive: plane; width: 0.72; height: auto');
+    bg.setAttribute('material',`color:${isDiff?'#052b00':'#000'}; opacity:${isDiff?0.85:0.80}; side: double`);
+    const txt=document.createElement('a-text'); txt.setAttribute('value',`${item.name}: ${item.desc}`);
+    txt.setAttribute('color', isDiff ? '#bfff00' : '#fff'); txt.setAttribute('align','center'); txt.setAttribute('width','1.50'); txt.setAttribute('wrap-count','34');
+
+    const stem=document.createElement('a-entity');
+    stem.setAttribute('geometry','primitive: cylinder; radius: 0.0025; height: 0.12');
+    stem.setAttribute('rotation','90 0 0'); stem.setAttribute('position','0 0.06 0');
+    stem.setAttribute('material', `color:${isDiff?'#39ff14':'#9ad7ff'}; opacity:0.9`);
+
+    tip.appendChild(bg); tip.appendChild(txt);
+
+    const showThis = labelsOn && (!soloOn || idx===selectedIndex);
+    tip.setAttribute('visible', showThis);
+    if (showThis) wrap.appendChild(stem);
+
+    wrap.appendChild(dot); wrap.appendChild(tip);
+
+    wrap.addEventListener('click', ()=>{
+      dot.emit('ping');
+      if (btnSolo.classList.contains('active')) {
+        compSelect.value = idx;
+        applySoloFilter();
+      } else {
+        tip.setAttribute('visible','true');
+        setTimeout(()=> tip.setAttribute('visible','false'), 2200);
+      }
+    });
+    dot.setAttribute('animation__ping','property: scale; startEvents: ping; dir: alternate; dur:240; loop:2; to:1.5 1.5 1.5; easing:easeOutSine');
+
+    hsRoot.appendChild(wrap); hsRecords.push({name:item.name, wrap, dot, tip, stem, idx});
+  });
+
+  populateSelect(items);
+}
+
+/* Solo seleccionado */
+function applySoloFilter(){
+  const solo = btnSolo.classList.contains('active');
+  const idx = parseInt(compSelect.value||0,10)||0;
+  hsRecords.forEach(r=>{
+    const show = !solo ? btnTags.classList.contains('active') : (r.idx===idx);
+    r.tip.setAttribute('visible', show);
+    if (show && !r.stem.parentNode) r.wrap.appendChild(r.stem);
+    if (!show && r.stem.parentNode) r.wrap.removeChild(r.stem);
+  });
+}
+
+/* Enfocar hotspot */
+function focusHotspot(index){
+  const rec = hsRecords[index]; if(!rec) return;
+  const p = rec.wrap.object3D.position.clone();
+  const angle = Math.atan2(p.x, p.z);
+  const start = modelEl.object3D.rotation.y;
+  const end = angle;
+  const dur = 450; const t0 = performance.now();
+  function anim(now){
+    const k=Math.min(1,(now-t0)/dur);
+    modelEl.object3D.rotation.y = THREE.MathUtils.lerp(start,end,k);
+    if(k<1) requestAnimationFrame(anim);
+  }
+  requestAnimationFrame(anim);
+  rec.dot.emit('ping');
+}
+
+/* ====== Modelo ====== */
+async function exists(u){ try{ const r=await fetch(u+'?t='+Date.now(),{method:'HEAD'}); return r.ok; }catch{return false;} }
+async function pick(){ const e=MAP[kind]; return (await exists(e.draco))?e.draco:e.normal; }
+
+async function load(){
+  showProgress(0);
+  const url=(await pick())+'#'+Date.now();
+  const init=INIT[kind]||INIT.animal;
+
+  modelEl.removeAttribute('gltf-model');
+  modelEl.object3D.scale.set(init.scale,init.scale,init.scale);
+  modelEl.object3D.rotation.set(0,THREE.MathUtils.degToRad(init.rotYdeg),0);
+  modelEl.object3D.position.set(0,0,0);
+  scaleRange.value=init.scale;
+
+  modelEl.setAttribute('auto-rotator',`enabled:${btnAuto.classList.contains('active')}; speed:${parseFloat(speedRange.value)}`);
+  clearHotspots();
+  setTimeout(()=>modelEl.setAttribute('gltf-model',url),30);
+}
+
+/* ====== UI helpers (persistencia) ====== */
+function restoreTogglesFromStorage(){
+  const tags   = localStorage.getItem('vh_tags');   if(tags!==null) btnTags.classList.toggle('active', tags==='1');
+  const diff   = localStorage.getItem('vh_diff');   if(diff!==null) btnDiff.classList.toggle('active', diff==='1');
+  const solo   = localStorage.getItem('vh_solo');   if(solo!==null) btnSolo.classList.toggle('active', solo==='1');
+  const auto   = localStorage.getItem('vh_auto');   if(auto!==null) btnAuto.classList.toggle('active', auto==='1');
+
+  const infoOn = localStorage.getItem('vh_info');
+  if (infoOn !== null) {
+    const on = infoOn === '1';
+    btnInfo.classList.toggle('active', on);
+    infoPanel.style.display = on ? 'block' : 'none';
+  } else {
+    btnInfo.classList.remove('active');
+    infoPanel.style.display = 'none';
+  }
+
+  const pinch  = localStorage.getItem('vh_pinch') || 'model'; setPinchMode(pinch);
+
+  const sc = localStorage.getItem('vh_scale'); if(sc) { const v=parseFloat(sc); if(!isNaN(v)) scaleRange.value=v; }
+  const sp = localStorage.getItem('vh_speed'); if(sp){ const v=parseFloat(sp); if(!isNaN(v)) speedRange.value=v; }
+
+  const hv = localStorage.getItem('vh_help_auto'); if(hv===null){ localStorage.setItem('vh_help_auto','1'); }
+}
+function saveToggle(id, val){ localStorage.setItem(id, val ? '1' : '0'); }
+
+/* ====== Botones ====== */
+function setUIAndURL(){ setUI(); const u=new URL(location.href); u.searchParams.set('m',kind); history.replaceState(null,'',u.toString()); localStorage.setItem('vh_kind',kind); }
+
+btnA.onclick=()=>{ kind='animal'; setUIAndURL(); load(); };
+btnV.onclick=()=>{ kind='vegetal'; setUIAndURL(); load(); };
+btnAuto.onclick=()=>{ const en=!btnAuto.classList.contains('active'); btnAuto.classList.toggle('active',en);
+  modelEl.setAttribute('auto-rotator',`enabled:${en}; speed:${parseFloat(speedRange.value)}`); saveToggle('vh_auto', en); };
+btnInfo.onclick=()=>{ const v=infoPanel.style.display!=='none'; infoPanel.style.display=v?'none':'block'; const on=!v; btnInfo.classList.toggle('active',on); saveToggle('vh_info', on); };
+btnTags.onclick=()=>{ const st = !btnTags.classList.contains('active'); btnTags.classList.toggle('active', st); saveToggle('vh_tags', st); makeHotspots(kind); };
+btnDiff.onclick=()=>{ const st = !btnDiff.classList.contains('active'); btnDiff.classList.toggle('active', st); saveToggle('vh_diff', st); makeHotspots(kind); };
+btnSolo.onclick=()=>{ const st = !btnSolo.classList.contains('active'); btnSolo.classList.toggle('active', st); saveToggle('vh_solo', st); applySoloFilter(); };
+btnPinchPage.onclick=()=>{ const page = window.PINCH_MODE!=='page'; btnPinchPage.classList.toggle('active', page); setPinchMode(page?'page':'model'); };
+
+/* Lista acciones */
+compSelect.addEventListener('change', applySoloFilter);
+btnFocus.onclick = ()=> focusHotspot(parseInt(compSelect.value||0,10)||0);
+btnPing.onclick  = ()=> { const rec=hsRecords[parseInt(compSelect.value||0,10)||0]; rec && rec.dot.emit('ping'); };
+
+/* Carga del modelo */
+modelEl.addEventListener('model-loaded',()=>{ hideProgress(); normalizeAndFrame(); makeHotspots(kind); });
+modelEl.addEventListener('model-error',e=>{ hideProgress(); alert('No se pudo cargar el modelo. Revisa las rutas de GLB.'); console.error(e.detail);});
+
+/* Controles */
+function clampScale(s){ return Math.min(Math.max(s,MIN_SCALE),MAX_SCALE); }
+function setScaleUniform(s){ s=clampScale(s); modelEl.object3D.scale.set(s,s,s); scaleRange.value=s.toFixed(2); localStorage.setItem('vh_scale', s.toFixed(2)); if (DEFAULT_SCALE>0){ USER_MULT = s/DEFAULT_SCALE; } }
+rotL.addEventListener('click',()=>{ modelEl.object3D.rotation.y+=THREE.MathUtils.degToRad(ROT_STEP_DEG); });
+rotR.addEventListener('click',()=>{ modelEl.object3D.rotation.y-=THREE.MathUtils.degToRad(ROT_STEP_DEG); });
+zoomIn.addEventListener('click',()=> setScaleUniform(modelEl.object3D.scale.x*ZOOM_STEP));
+zoomOut.addEventListener('click',()=> setScaleUniform(modelEl.object3D.scale.x/ZOOM_STEP));
+resetBtn.addEventListener('click',()=>{ const init=INIT[kind]||INIT.animal; modelEl.object3D.scale.set(DEFAULT_SCALE,DEFAULT_SCALE,DEFAULT_SCALE); USER_MULT=1.0;
+  modelEl.object3D.rotation.set(0,THREE.MathUtils.degToRad(init.rotYdeg),0); scaleRange.value=DEFAULT_SCALE.toFixed(2); localStorage.setItem('vh_scale', DEFAULT_SCALE.toFixed(2)); });
+centerBtn.addEventListener('click',()=> modelEl.object3D.position.set(0,0,0));
+scaleRange.addEventListener('input',()=> setScaleUniform(parseFloat(scaleRange.value)));
+speedRange.addEventListener('input',()=>{ const en=btnAuto.classList.contains('active'); modelEl.setAttribute('auto-rotator',`enabled:${en}; speed:${parseFloat(speedRange.value)}`); localStorage.setItem('vh_speed', parseFloat(speedRange.value)); });
+
+/* ====== Inicio ====== */
+(function init(){
+  restoreTogglesFromStorage();
+  setUI();
+  load();
+
+  const scene = document.querySelector('a-scene');
+  const autoHelp = () => {
+    const shouldShow = localStorage.getItem('vh_help_auto') !== '0';
+    if (shouldShow) openHelpVR();
+  };
+  scene.addEventListener('enter-vr', autoHelp, false);
+})();
+</script>
+
+<!-- ====== CONTROLES VR ====== -->
+<script>
+AFRAME.registerComponent('vr-grab-rotate-scale', {
+  schema: {
+    target: {type: 'selector'},
+    rotateSpeed: {default: 1.8},
+    scaleSpeed: {default: 0.003},
+    minScale: {default: 0.05},
+    maxScale: {default: 5.0}
+  },
+  init: function () {
+    this.right = document.getElementById('rightHand');
+    this.grabbing = false;
+    this.grabDistance = 0;
+    this.ray = new THREE.Raycaster();
+    this.tmpDir = new THREE.Vector3();
+    this.localHit = new THREE.Vector3();
+
+    if (this.right) {
+      this.right.addEventListener('triggerdown', () => this.startGrab());
+      this.right.addEventListener('triggerup',   () => this.endGrab());
+      this.right.addEventListener('axismove', (e) => this.onAxisMove(e));
+    }
+    this.el.sceneEl.addEventListener('exit-vr', () => this.endGrab());
+  },
+  startGrab: function () {
+    const tgt = this.data.target; if (!tgt || !this.right) return;
+    const hand = this.right.object3D;
+    hand.getWorldDirection(this.tmpDir).normalize().negate();
+    const origin = hand.getWorldPosition(new THREE.Vector3());
+    this.ray.set(origin, this.tmpDir);
+
+    const mesh = tgt.getObject3D('mesh'); if (!mesh) return;
+    const hit = this.ray.intersectObject(mesh, true);
+    if (hit.length) {
+      this.grabbing = true;
+      this.grabDistance = hit[0].distance;
+      const worldPoint = hit[0].point.clone();
+      const obj = tgt.object3D;
+      obj.worldToLocal(this.localHit.copy(worldPoint));
+      try {
+        const gp = (this.right.components['oculus-touch-controls']||{}).controller;
+        gp?.hapticActuators?.[0]?.pulse(0.4, 80);
+      } catch(e){}
+    }
+  },
+  endGrab: function () { this.grabbing = false; },
+  onAxisMove: function (evt) {
+    const tgt = this.data.target; if (!tgt) return;
+    const axis = evt.detail && evt.detail.axis; // [x,y]
+    if (!axis) return;
+    const o = tgt.object3D;
+
+    if (Math.abs(axis[0]) > 0.05) {
+      o.rotation.y -= axis[0] * this.data.rotateSpeed * (Math.PI/180) * 5;
+    }
+    if (Math.abs(axis[1]) > 0.05) {
+      const s = 1 - (axis[1] * this.data.scaleSpeed * 10);
+      const ns = new THREE.Vector3(o.scale.x*s, o.scale.y*s, o.scale.z*s);
+      ns.set(
+        THREE.MathUtils.clamp(ns.x, this.data.minScale, this.data.maxScale),
+        THREE.MathUtils.clamp(ns.y, this.data.minScale, this.data.maxScale),
+        THREE.MathUtils.clamp(ns.z, this.data.minScale, this.data.maxScale)
+      );
+      o.scale.copy(ns);
+      if (typeof scaleRange!=='undefined') scaleRange.value = o.scale.x.toFixed(2);
+    }
+  },
+  tick: function () {
+    if (!this.grabbing || !this.right || !this.data.target) return;
+    const tgt = this.data.target.object3D;
+    const hand = this.right.object3D;
+
+    hand.getWorldDirection(this.tmpDir).normalize().negate();
+    const origin = hand.getWorldPosition(new THREE.Vector3());
+    const grabPoint = origin.add(this.tmpDir.multiplyScalar(this.grabDistance));
+
+    const parent = tgt.parent || this.el.object3D;
+    const invParent = new THREE.Matrix4().copy(parent.matrixWorld).invert();
+    const localGrab = grabPoint.clone().applyMatrix4(invParent);
+
+    const worldToLocalTarget = new THREE.Matrix4().copy(tgt.matrixWorld).invert();
+    const localOffset = this.localHit.clone().applyMatrix4(worldToLocalTarget).applyMatrix4(tgt.matrix);
+    tgt.position.copy(localGrab.sub(localOffset));
+  }
+});
+
+AFRAME.registerComponent('vr-autoplace', {
+  schema: { y: {default: 1.2}, z: {default: -1.6} },
+  init: function () {
+    this.onEnter = () => {
+      const o = this.el.object3D;
+      if (o.position.y < 0.3 && Math.abs(o.position.z) < 0.6) {
+        o.position.set(0, this.data.y, this.data.z);
+      }
+    };
+    this.el.sceneEl.addEventListener('enter-vr', this.onEnter);
+  },
+  remove: function () {
+    this.el.sceneEl.removeEventListener('enter-vr', this.onEnter);
+  }
+});
+</script>
+
+  <script src="./assets/js/legal-footer.js" defer></script>
+  <script src="./assets/js/anti-copy.js" defer></script>
+</body>
+</html>

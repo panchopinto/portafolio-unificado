@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <title>AR.js — Célula Animal (GLB)</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+  <!-- A-Frame estable -->
+  <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+  <!-- Build de AR.js para A-Frame (CDN del proyecto) -->
+  <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/aframe-ar.js"></script>
+  <style>
+    html,body{margin:0;overflow:hidden;background:#000}
+    .legend{position:fixed;left:0;right:0;bottom:0;background:rgba(0,0,0,.6);color:#fff;
+      font-family:system-ui,Arial,sans-serif;padding:.6rem .9rem;line-height:1.2}
+    .legend b{display:inline-block;width:12px;height:12px;margin-right:6px;vertical-align:middle;border-radius:2px}
+  </style>
+</head>
+<body>
+  <!-- Nota: todo por HTTPS; no mezclar http:// -->
+  <a-scene
+    embedded
+    vr-mode-ui="enabled: false"
+    renderer="logarithmicDepthBuffer: true; colorManagement: true; physicallyCorrectLights: true"
+    arjs="trackingMethod: best; sourceType: webcam; debugUIEnabled: false;">
+    
+    <!-- Luces: evita modelo negro -->
+    <a-entity light="type: ambient; intensity: 1"></a-entity>
+    <a-entity light="type: directional; intensity: 0.8" position="1 2 1"></a-entity>
+
+    <!-- Activos (preload). AJUSTA la ruta al GLB según tu repo -->
+    <a-assets timeout="20000">
+      <a-asset-item id="modelGLB" src="../assets/celula_animal.glb" crossorigin="anonymous"></a-asset-item>
+    </a-assets>
+
+    <!-- Marcador HIRO -->
+    <a-marker preset="hiro">
+      <a-entity
+        gltf-model="#modelGLB"
+        scale="0.2 0.2 0.2"
+        rotation="0 0 0"
+        position="0 0 0">
+      </a-entity>
+    </a-marker>
+
+    <!-- Cámara controlada por AR.js -->
+    <a-entity camera></a-entity>
+  </a-scene>
+
+  <div class="legend">
+    Imprime el marcador <a href="../arjs-demo/hiro_marker.png" target="_blank" rel="noopener">HIRO</a>,
+    acepta el permiso de cámara y apunta al marcador. Si no ves nada, sube la luz del entorno ↑.
+  </div>
+</body>
+</html>

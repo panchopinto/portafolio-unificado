@@ -1,0 +1,20 @@
+<!DOCTYPE html><html><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>MindAR - Célula Vegetal</title>
+<script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+<style>body,html{margin:0;height:100%;overflow:hidden;background:#000}</style>
+</head><body>
+<a-scene mindar-image="imageTargetSrc: ../targets/vegetal.mind;" vr-mode-ui="enabled:false" device-orientation-permission-ui="enabled:true" embedded renderer="antialias:true; colorManagement:true;">
+  <a-entity light="type: ambient; intensity: 1"></a-entity>
+  <a-entity light="type: directional; intensity: 0.6" position="0 1 1"></a-entity>
+  <a-camera look-controls="enabled:false"></a-camera>
+
+  <a-entity mindar-image-target="targetIndex: 0">
+    <a-text value="Cloroplastos" position="0 0.6 0" align="center" width="2"></a-text>
+    <a-entity position="0 0 0">
+      <a-sphere radius="0.25"></a-sphere>
+    </a-entity>
+  </a-entity>
+</a-scene>
+</body></html>

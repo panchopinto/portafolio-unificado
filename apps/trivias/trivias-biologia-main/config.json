@@ -1,0 +1,15 @@
+{
+  "studentsSheetUrl": "REEMPLAZA-ESTO-POR-CSV-PUBLICADO-DE-GOOGLE-SHEETS",
+  "appsScriptUrl": "REEMPLAZA-ESTO-POR-TU-URL-DE-APPS-SCRIPT",
+  "teacherApiKey": "CAMBIA-ESTE-VALOR",
+  "columns": {
+    "rut": "RUT",
+    "nombres": "Nombres",
+    "apellidos": "Apellidos",
+    "curso": "Curso",
+    "email": "Email",
+    "pie_estado": "PIE_Estado",
+    "pie_diagnostico": "PIE_Diagnostico",
+    "paes": "PAES"
+  }
+}

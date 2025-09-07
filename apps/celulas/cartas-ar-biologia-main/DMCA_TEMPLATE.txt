@@ -1,0 +1,47 @@
+Asunto: Solicitud de retirada por infracción de copyright (DMCA)
+
+A la atención del equipo legal de [PROVEEDOR/HOST]:
+
+Yo, Pancho Pinto, soy el titular de derechos de autor de los contenidos en:
+
+https://panchopinto.github.io/cartas-ar-biologia/viewer.html?m=animal
+
+https://panchopinto.github.io/cartas-ar-biologia/viewer.html?m=vegetal
+
+https://panchopinto.github.io/cartas-ar-biologia/quiz_labels.html?m=animal
+
+https://panchopinto.github.io/cartas-ar-biologia/quiz_labels.html?m=vegetal
+
+https://panchopinto.github.io/cartas-ar-biologia/quiz_mcq.html
+
+https://panchopinto.github.io/cartas-ar-biologia/help.html
+
+https://panchopinto.github.io/cartas-ar-biologia/viewer_hotspots.html?m=animal
+
+https://panchopinto.github.io/cartas-ar-biologia/viewer_hotspots.html?m=vegetal
+
+https://panchopinto.github.io/cartas-ar-biologia/arjs-demo/animal_glb.html?v=2&m=animal
+
+https://panchopinto.github.io/cartas-ar-biologia/arjs-demo/vegetal_glb.html?v=2&m=vegetal
+
+(Repositorio original: https://panchopinto.github.io/cartas-ar-biologia/)
+
+Se ha publicado sin autorización el siguiente contenido infractor:
+[URL INFRINGENTE 1]
+[URL INFRINGENTE 2]
+
+Los materiales copiados incluyen (no limitativo): código fuente, modelos 3D, imágenes, textos. 
+Identificadores internos (canary): “Proyecto AR Biología — build:AAAA-MM-DD — hash:XXXXXX”.
+
+Solicito la retirada o deshabilitación inmediata del acceso a dicho contenido, al amparo de la DMCA.
+
+Declaro bajo pena de perjurio que:
+1) La información contenida en este aviso es exacta.
+2) Soy el propietario del derecho o estoy autorizado a actuar en su nombre.
+
+Firma:
+Nombre: Pancho Pinto
+Email: franciscoandresp@gmail.com
+Fecha: 01/07/2025
+
+

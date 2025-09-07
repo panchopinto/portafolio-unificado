@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+<title>Ayuda — Realidad Aumentada y Realidad Virtual - Biología</title>
+<link rel="icon" href="./assets/img/favicon.png">
+<style>
+  :root{
+    --bg:#08090c; --panel:#0f1117; --line:#263040; --text:#f5f7fb; --muted:#c9d5ea;
+    --accent:#3cc9ff; --diff:#39ff14; --radius:16px; --shadow:0 10px 30px rgba(0,0,0,.35);
+  }
+  *{box-sizing:border-box} html,body{height:100%}
+  body{margin:0; background:radial-gradient(1200px 600px at 70% -10%,#112033 0%,transparent 60%), var(--bg);
+       color:var(--text); font:500 16px/1.45 system-ui,Segoe UI,Roboto,Arial,sans-serif;}
+  a{color:var(--accent); text-decoration:none}
+  .container{max-width:980px;margin:0 auto;padding:20px}
+  .top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px}
+  .brand{display:flex;align-items:center;gap:10px}
+  .logo{width:34px;height:34px;border-radius:10px;background: radial-gradient(14px 14px at 30% 30%, var(--diff) 0%, transparent 60%), #0d1420;border:1px solid #25415a}
+  .lang .btn{cursor:pointer;border:1px solid #2a3a4e;background:linear-gradient(180deg,#132132,#0d1623);color:#e8f7ff;
+             padding:6px 10px;border-radius:10px;font-weight:700}
+  .lang .btn.active{background:rgba(60,201,255,.15); border-color:var(--accent)}
+  h1{margin:8px 0 12px;font:800 26px/1.2 system-ui}
+  h2{margin:18px 0 8px;font:800 20px/1.2 system-ui}
+  p{margin:8px 0;color:var(--muted)}
+
+  .panel{border:1px solid var(--line);border-radius:var(--radius);background:linear-gradient(180deg,#0b0f16,#0a0d13);padding:14px;margin:12px 0;box-shadow:var(--shadow)}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .kbd{display:inline-block;padding:2px 8px;border:1px solid #3a4e66;border-radius:8px;background:#0b1622;color:#cfe6ff;font:700 12px system-ui}
+  ul{margin:8px 0 0 20px;color:var(--muted)}
+  li{margin:4px 0}
+  .chip{display:inline-block;padding:6px 8px;border-radius:999px;border:1px solid #39536d;color:#d7e9ff;font:700 12px;margin-right:6px}
+  .chip.diff{border-color:#2d9c2d;color:#c5ffb8;box-shadow:0 0 10px rgba(57,255,20,.25) inset}
+  .links a{display:inline-block;margin-right:10px}
+  footer{margin:26px 0 10px; color:#9fb3c9; font:13px; display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; border-top:1px solid var(--line); padding-top:14px}
+  @media (max-width:860px){ .grid{grid-template-columns:1fr} }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="top">
+    <div class="brand">
+      <div class="logo" aria-hidden="true"></div>
+      <div>
+        <div id="t_site" style="font-weight:800">Cartas AR Biología</div>
+        <div id="t_site_sub" style="font-size:13px;color:var(--muted)">Guía rápida de uso</div>
+      </div>
+    </div>
+    <div class="lang" aria-label="Idioma / Language">
+      <button class="btn" id="langES">ES</button>
+      <button class="btn" id="langEN">EN</button>
+    </div>
+  </div>
+
+  <h1 id="t_title">Ayuda y guía de uso</h1>
+  <p id="t_intro">Esta guía explica los controles de las vistas 3D (simple y etiquetas) y cómo usar la vista de Realidad Aumentada con el marcador HIRO.</p>
+
+  <div class="panel">
+    <h2 id="t_3d_simple">3D (Simple)</h2>
+    <div class="grid">
+      <div>
+        <ul>
+          <li><span class="kbd">Arrastrar</span> — <span id="t_drag">gira el modelo</span></li>
+          <li><span class="kbd">Pellizcar</span> — <span id="t_pinch_model">zoom del modelo</span></li>
+          <li><span class="kbd">Doble toque</span> — <span id="t_reset">reset (rotación/escala)</span></li>
+          <li><span class="kbd">Botones</span> — <span id="t_buttons">↶ ↷ rotar, ⟲ reset, ± zoom, ◎ centrar</span></li>
+          <li><span class="kbd">Auto</span> — <span id="t_auto">activa auto-rotación (regula velocidad)</span></li>
+          <li><span class="kbd">Info</span> — <span id="t_info">muestra ficha educativa</span></li>
+        </ul>
+      </div>
+      <div>
+        <p><b>Consejos:</b></p>
+        <ul>
+          <li id="t_tip_light">Mejor iluminación: luz lateral para ver volumen.</li>
+          <li id="t_tip_center">Usa ◎ si perdiste el modelo fuera de cuadro.</li>
+          <li id="t_tip_perf">En móvil, cierra apps en segundo plano para mejor rendimiento.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2 id="t_ra">Realidad Aumentada (HIRO)</h2>
+    <div class="grid">
+      <div>
+        <ul>
+          <li id="t_perm">Permite el acceso a la <b>cámara</b> cuando el navegador lo pida.</li>
+          <li id="t_marker">Usa el marcador <b>HIRO</b> impreso o en otro dispositivo (manténlo plano).</li>
+          <li id="t_distance">Coloca el marcador a ~20–40 cm de la cámara; evita reflejos fuertes.</li>
+          <li id="t_light">Luz uniforme sin brillos; no tapes el borde del marcador.</li>
+        </ul>
+      </div>
+      <div>
+        <p><b id="t_trouble_title">Si algo falla</b></p>
+        <ul>
+          <li id="t_https">Asegúrate de usar <b>HTTPS</b> (GitHub Pages lo usa por defecto) para que la cámara funcione.</li>
+          <li id="t_black">¿Pantalla negra? Toca “Iniciar cámara” (algunos móviles requieren interacción).</li>
+          <li id="t_reload">Recarga la página o prueba con otro navegador si no detecta el marcador.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2 id="t_shortcuts">Enlaces rápidos</h2>
+    <div class="links">
+      <a href="./viewer.html?m=animal">3D simple — Animal</a> ·
+      <a href="./viewer.html?m=vegetal">3D simple — Vegetal</a> ·
+      <a href="./viewer_hotspots.html?m=animal">3D etiquetas — Animal</a> ·
+      <a href="./viewer_hotspots.html?m=vegetal">3D etiquetas — Vegetal</a> ·
+      <a href="./arjs-demo/animal_glb.html?v=2&m=animal">RA — Animal</a> ·
+      <a href="./arjs-demo/vegetal_glb.html?v=2&m=vegetal">RA — Vegetal</a>
+    </div>
+  </div>
+
+  <footer>
+    <div>© <span id="year"></span> Proyecto AR Biología</div>
+    <div id="t_footer">Para RA usa el marcador HIRO. Funciona en navegadores modernos.</div>
+  </footer>
+</div>
+
+<script>
+/* ===== i18n ===== */
+const i18n = {
+  es: {
+    t_site:"Cartas AR Biología", t_site_sub:"Guía rápida de uso",
+    t_title:"Ayuda y guía de uso", t_intro:"Esta guía explica los controles de las vistas 3D (simple y etiquetas) y cómo usar la vista de Realidad Aumentada con el marcador HIRO.",
+    t_3d_simple:"3D (Simple)", t_drag:"gira el modelo", t_pinch_model:"zoom del modelo", t_reset:"reset (rotación/escala)", t_buttons:"↶ ↷ rotar, ⟲ reset, ± zoom, ◎ centrar", t_auto:"activa auto-rotación (regula velocidad)", t_info:"muestra ficha educativa",
+    t_tip_light:"Mejor iluminación: luz lateral para ver volumen.", t_tip_center:"Usa ◎ si perdiste el modelo fuera de cuadro.", t_tip_perf:"En móvil, cierra apps en segundo plano para mejor rendimiento.",
+    t_tags:"3D (Etiquetas)", t_labels:"muestra/oculta nombres y funciones", t_diff:"resalta componentes diferenciales", t_solo:"muestra sólo la etiqueta del componente seleccionado", t_focus:"gira suavemente hacia el componente", t_pinch_page:"activo: pellizcar hace zoom de la UI/textos; apagado: pellizcar escala el modelo", t_ping:"Toca un punto para “ping” (pequeña animación).", t_reset2:"Usa ⟲ para volver a la vista inicial si rotaste mucho.",
+    t_ra:"Realidad Aumentada (HIRO)", t_perm:"Permite el acceso a la cámara cuando el navegador lo pida.", t_marker:"Usa el marcador HIRO impreso o en otro dispositivo (manténlo plano).", t_distance:"Coloca el marcador a ~20–40 cm de la cámara; evita reflejos fuertes.", t_light:"Luz uniforme sin brillos; no tapes el borde del marcador.",
+    t_trouble_title:"Si algo falla", t_https:"Asegúrate de usar HTTPS (GitHub Pages lo usa por defecto) para que la cámara funcione.", t_black:"¿Pantalla negra? Toca “Iniciar cámara” (algunos móviles requieren interacción).", t_reload:"Recarga la página o prueba con otro navegador si no detecta el marcador.",
+    t_shortcuts:"Enlaces rápidos", t_footer:"Para RA usa el marcador HIRO. Funciona en navegadores modernos."
+  },
+  en: {
+    t_site:"AR Biology Cards", t_site_sub:"Quick Start Guide",
+    t_title:"Help & Quick Guide", t_intro:"This guide explains the controls of the 3D views (simple and labels) and how to use the AR view with the HIRO marker.",
+    t_3d_simple:"3D (Simple)", t_drag:"rotate the model", t_pinch_model:"model zoom", t_reset:"reset (rotation/scale)", t_buttons:"↶ ↷ rotate, ⟲ reset, ± zoom, ◎ center", t_auto:"enable auto-rotate (adjust speed)", t_info:"show educational panel",
+    t_tip_light:"Side light helps volumes pop.", t_tip_center:"Use ◎ if you lost the model off-frame.", t_tip_perf:"On mobile, close background apps for better performance.",
+    t_tags:"3D (Labels)", t_labels:"toggle names & functions", t_diff:"highlight differential components", t_solo:"show only the selected label", t_focus:"softly orients the model to the component", t_pinch_page:"on: pinch zooms the UI/texts; off: pinch scales the model", t_ping:"Tap a dot to “ping” (small animation).", t_reset2:"Use ⟲ to return to the initial view.",
+    t_ra:"Augmented Reality (HIRO)", t_perm:"Allow camera access when prompted.", t_marker:"Use the HIRO marker (printed or on another screen). Keep it flat.", t_distance:"Place the marker ~20–40 cm from camera; avoid glares.", t_light:"Even lighting, avoid covering the border.",
+    t_trouble_title:"If something fails", t_https:"Ensure you’re on HTTPS (GitHub Pages is).", t_black:"Black screen? Tap “Start camera” (some phones require interaction).", t_reload:"Reload or try another browser if the marker isn’t detected.",
+    t_shortcuts:"Quick links", t_footer:"Use the HIRO marker for AR. Works on modern browsers."
+  }
+};
+function setLang(lc){
+  const d=i18n[lc]||i18n.es;
+  for(const k in d){ const el=document.getElementById(k); if(el) el.textContent=d[k]; }
+  document.getElementById('langES').classList.toggle('active', lc==='es');
+  document.getElementById('langEN').classList.toggle('active', lc==='en');
+  localStorage.setItem('lang', lc);
+}
+const saved=(localStorage.getItem('lang')||'es').slice(0,2);
+setLang(saved==='en'?'en':'es');
+document.getElementById('langES').onclick=()=>setLang('es');
+document.getElementById('langEN').onclick=()=>setLang('en');
+
+/* Año */
+document.getElementById('year').textContent=new Date().getFullYear();
+</script>
+  <script src="./assets/js/legal-footer.js" defer></script>
+  <script src="./assets/js/anti-copy.js" defer></script>
+</body>
+</html>

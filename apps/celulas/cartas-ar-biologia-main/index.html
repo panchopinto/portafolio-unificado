@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+<title>Realidad Aumentada - Biología — Célula Animal y Vegetal</title>
+
+<!-- Open Graph -->
+<meta property="og:title" content="Realidad Aumentada Biología — Célula Animal y Vegetal">
+<meta property="og:description" content="Explora células Animal y Vegetal en 3D, con etiquetas y Realidad Aumentada (HIRO).">
+<meta property="og:image" content="./assets/img/og_cover.jpg">
+<meta property="og:type" content="website">
+
+<link rel="icon" href="./assets/img/favicon.png">
+<script src="https://unpkg.com/qrious@4.0.2/dist/qrious.min.js"></script>
+
+<!-- legal-footer (inyecta meta canary + footer legal) -->
+<script src="./assets/js/legal-footer.js" defer></script>
+
+<style>
+  :root{
+    --bg:#08090c; --panel:#0f1117; --panel-2:#0b0e13; --text:#f5f7fb; --muted:#c9d5ea; --line:#263040;
+    --accent:#3cc9ff; --accent-2:#6fe0ff; --accent-press:#2fb3e6; --diff:#39ff14;
+    --radius:18px; --shadow:0 10px 30px rgba(0,0,0,.35);
+  }
+  *{box-sizing:border-box} html,body{height:100%}
+  body{
+    margin:0; background:radial-gradient(1200px 600px at 70% -10%,#112033 0%,transparent 60%), var(--bg);
+    color:var(--text); font:500 16px/1.45 system-ui,Segoe UI,Roboto,Arial,sans-serif;
+  }
+  a{color:inherit; text-decoration:none}
+  .container{max-width:1100px;margin:0 auto;padding:24px}
+
+  /* Topbar */
+  .topbar{display:flex; align-items:center; justify-content:space-between; gap:12px; padding:10px 0 8px}
+  .brand{display:flex; align-items:center; gap:10px}
+  .brand .logo{width:36px;height:36px;border-radius:10px; background: radial-gradient(16px 16px at 30% 30%, #39ff14 0%, transparent 60%), #0d1420; border:1px solid #25415a}
+
+  /* Lado derecho: fila (Ayuda | ES | EN) */
+  .right{display:flex; flex-direction:column; align-items:flex-end; gap:8px}
+  .actionsRow{display:flex; gap:8px; flex-wrap:nowrap}
+  @media (max-width:520px){ .actionsRow{flex-wrap:wrap; max-width:100%} }
+
+  /* Botones básicos */
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:8px; cursor:pointer;
+    padding:8px 12px; border-radius:12px; border:1px solid #2a3a4e; background:linear-gradient(180deg,#132132,#0d1623);
+    color:#e8f7ff; font-weight:700; box-shadow:var(--shadow); transition:.15s transform ease,.15s background ease;
+  }
+  .btn:hover{transform:translateY(-1px); background:linear-gradient(180deg,#18314a,#0f1a29)}
+  .btn:active{transform:translateY(0); background:#0e1726}
+  .btn.accent{border-color:#2f93b7; background:linear-gradient(180deg,var(--accent),var(--accent-2)); color:#0b1020}
+  .btn.accent:hover{filter:saturate(1.1) brightness(1.02)}
+  .btn.ghost{background:transparent;border-color:#39536d}
+  .btn.active{background:rgba(60,201,255,.15); color:#e7f7ff; border-color:var(--accent)}
+
+  /* ====== Barra de botones bajo el topbar ====== */
+  .menuBar{
+    display:flex; gap:8px; flex-wrap:wrap;
+    padding:8px 0 2px; margin-bottom:8px;
+    border-bottom:1px solid #263040;
+  }
+  .menuBar .m{ position:relative }
+  .menuBar .m > button,
+  .menuCompact .m > button{
+    height:36px; padding:0 12px; border-radius:12px; cursor:pointer;
+    border:1px solid #2a3a4e;
+    background:linear-gradient(180deg,#132132,#0d1623);
+    color:#e8f7ff; font:700 13px/34px system-ui;
+  }
+  .menuBar .m > button:hover,
+  .menuCompact .m > button:hover{ background:linear-gradient(180deg,#18314a,#0f1a29) }
+  .menuBar .m.open > button,
+  .menuCompact .m.open > button{ background:rgba(60,201,255,.15); border-color:#3cc9ff }
+
+  .menuBar .dd,
+  .menuCompact .dd{
+    position:absolute; top:40px; left:0; min-width:240px; z-index:1200;
+    background:linear-gradient(180deg,#0b0f16,#0a0d13);
+    border:1px solid #2a3a4e; border-radius:12px; padding:8px; display:none;
+    box-shadow:0 10px 26px rgba(0,0,0,.35);
+  }
+  .menuBar .m.open .dd,
+  .menuCompact .m.open .dd{ display:block; }
+  .menuBar .dd a,
+  .menuCompact .dd a{
+    display:block; padding:8px 10px; border-radius:8px; margin:6px 0;
+    color:#eaf6ff; text-decoration:none; border:1px solid transparent; font:700 13px;
+  }
+  .menuBar .dd a:hover,
+  .menuCompact .dd a:hover{ background:linear-gradient(180deg,#18314a,#0f1a29); border-color:#3cc9ff }
+  .menuBar .dd .sep,
+  .menuCompact .dd .sep{ border:0; height:1px; background:#263040; margin:4px 2px }
+  @media (max-width:520px){
+    .menuBar .dd, .menuCompact .dd{ min-width:200px }
+    .menuBar .m > button, .menuCompact .m > button{ padding:0 10px; font-size:12px }
+  }
+
+  /* Hero */
+  .hero{display:grid; grid-template-columns:1.2fr .8fr; gap:20px; align-items:center; padding:18px 0 8px}
+  .h-title{font-weight:800; letter-spacing:.2px; font-size:clamp(26px,4.5vw,40px); margin:0 0 8px}
+  .h-sub{color:var(--muted); margin:0 0 16px}
+  .cta{display:flex; gap:10px; flex-wrap:wrap}
+  .heroCard{
+    height:100%; border:1px solid var(--line); border-radius:var(--radius); background:linear-gradient(180deg,#0d121a,#0a0e14);
+    box-shadow:var(--shadow); padding:16px; display:grid; grid-template-rows:auto 1fr; gap:12px;
+  }
+  .heroCard .badge{display:inline-block; font:700 12px/1 system-ui; padding:6px 10px;border-radius:999px;
+    background:rgba(60,201,255,.15); border:1px solid var(--accent); color:#bfeeff}
+
+  /* Grid de tarjetas */
+  .grid{display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:20px 0 12px}
+  .card{border:1px solid var(--line); border-radius:var(--radius); background:linear-gradient(180deg,#0b0f16,#0a0d13);
+    overflow:hidden; box-shadow:var(--shadow); display:grid; grid-template-rows:auto auto 1fr auto; min-height:320px}
+  .thumb{position:relative; height:230px; background:linear-gradient(135deg,#203348,#0f1a2a)}
+  .thumb img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover}
+  .thumb .tag{position:absolute; top:10px;left:10px; background:rgba(0,0,0,.5); border:1px solid #3a4e66; color:#cfe6ff;
+    font:700 12px system-ui; padding:6px 10px; border-radius:999px}
+  .content{padding:14px}
+  .title{font:800 18px/1.2 system-ui; margin:0 0 6px}
+  .desc{color:var(--muted); font-size:14px; margin:0}
+  .chips{display:flex; gap:8px; flex-wrap:wrap; margin:10px 0 0}
+  .chip{padding:6px 8px;border-radius:999px;border:1px solid #39536d; color:#d7e9ff; font:700 12px}
+  .chip.diff{border-color:#2d9c2d; color:#c5ffb8; box-shadow:0 0 10px rgba(57,255,20,.25) inset}
+  .card .actions{display:flex; gap:8px; padding:12px 14px 16px}
+  .card .actions .btn{flex:1}
+
+  /* QRs */
+  .qrSection{margin:26px 0 10px}
+  .qrGrid{display:grid; grid-template-columns:1fr 1fr; gap:16px}
+  .qr{border:1px solid var(--line); border-radius:16px; background:linear-gradient(180deg,#0b0f16,#0a0d13);
+    padding:14px; display:grid; grid-template-rows:auto 1fr auto; gap:8px; align-items:center; justify-items:center}
+  .qr h3{margin:0; font:800 16px system-ui}
+  .qr p{margin:0; color:#9fb3c9; font:13px; text-align:center}
+  canvas.qrCanvas{width:min(280px,80%); height:auto; border-radius:12px; background:#fff}
+  .qr .mini{font:700 12px system-ui; color:#96b7d6}
+
+  footer{margin:26px 0 10px; color:#9fb3c9; font:13px; display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; border-top:1px solid var(--line); padding-top:14px}
+  @media (max-width:900px){ .hero{grid-template-columns:1fr} .grid{grid-template-columns:1fr} .qrGrid{grid-template-columns:1fr} }
+
+  /* ====== Sticky: top-right y top-left ====== */
+  #topActionsRow { transition: transform .18s ease, opacity .18s ease; }
+  #topActionsRow.stick{
+    position: fixed; top: 8px; right: 12px; z-index: 1100;
+    display: flex; gap: 8px; padding: 6px;
+    border: 1px solid #2a3a4e; border-radius: 12px;
+    background: rgba(7, 12, 20, .65); backdrop-filter: blur(8px); box-shadow: var(--shadow);
+  }
+  #topActionsRow.stick .btn{ background: transparent; border-color: #39536d; box-shadow: none; }
+  #topActionsRow.stick .btn:hover{ background: linear-gradient(180deg,#18314a,#0f1a29); }
+
+  /* Barra compacta a la izquierda (clon de VER 3D / RA / RV / TRIVIA) */
+  #stickyLeft{
+    position: fixed; top: 8px; left: 12px; z-index: 1100; display:none;
+  }
+  #stickyLeft.show{ display:block; }
+  #stickyLeft .menuCompact{
+    display:flex; gap:8px; flex-wrap:wrap; padding:6px;
+    border: 1px solid #2a3a4e; border-radius:12px;
+    background: rgba(7,12,20,.65); backdrop-filter: blur(8px); box-shadow: var(--shadow);
+  }
+
+  @media (max-width: 820px){
+    #stickyLeft{ left: 8px; right: 8px; }
+    #stickyLeft .menuCompact{ justify-content:center; }
+    #topActionsRow.stick{ left:auto; right:8px; }
+  }
+</style>
+
+</head>
+<body>
+  <div class="container">
+    <!-- Topbar (marca + Ayuda | ES | EN) -->
+    <div class="topbar">
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <div>
+          <div id="t_site" style="font-weight:800">Realidad Aumentada y Realidad Virtual - Biología</div>
+          <div id="t_site_sub" style="font-size:13px;color:var(--muted)">Célula Animal y Vegetal en 3D y RA</div>
+        </div>
+      </div>
+      <div class="right" aria-label="Acciones">
+        <div class="actionsRow" id="topActionsRow">
+          <a class="btn ghost" href="./help.html" id="btnHelp"><span id="t_help">Ayuda</span></a>
+          <button class="btn" id="langES">ES</button>
+          <button class="btn" id="langEN">EN</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== Barra de botones bajo el topbar (VER 3D, VER RA, VER RV, TRIVIA) ====== -->
+    <nav class="menuBar" aria-label="Acceso rápido">
+      <div class="m" data-menu="3d">
+        <button type="button" aria-haspopup="true" aria-expanded="false">VER 3D</button>
+        <div class="dd" role="menu">
+          <a role="menuitem" href="./viewer.html?m=animal">Célula Animal (3D)</a>
+          <a role="menuitem" href="./viewer.html?m=vegetal">Célula Vegetal (3D)</a>
+        </div>
+      </div>
+      <div class="m" data-menu="ra">
+        <button type="button" aria-haspopup="true" aria-expanded="false">VER RA</button>
+        <div class="dd" role="menu">
+          <a role="menuitem" href="./arjs-demo/animal_glb.html?v=2&m=animal">Célula Animal (RA)</a>
+          <a role="menuitem" href="./arjs-demo/vegetal_glb.html?v=2&m=vegetal">Célula Vegetal (RA)</a>
+        </div>
+      </div>
+      <div class="m" data-menu="rv">
+        <button type="button" aria-haspopup="true" aria-expanded="false">VER RV</button>
+        <div class="dd" role="menu">
+          <a role="menuitem" href="./viewer.html?m=animal&mode=vr">Célula Animal (VR)</a>
+          <a role="menuitem" href="./viewer.html?m=vegetal&mode=vr">Célula Vegetal (VR)</a>
+        </div>
+      </div>
+      <div class="m" data-menu="trivia">
+        <button type="button" aria-haspopup="true" aria-expanded="false">TRIVIA</button>
+        <div class="dd" role="menu">
+          <a role="menuitem" href="./quiz_labels.html?m=animal">Etiquetas — Célula Animal</a>
+          <a role="menuitem" href="./quiz_labels.html?m=vegetal">Etiquetas — Célula Vegetal</a>
+          <hr class="sep">
+          <a role="menuitem" href="./quiz_mcq.html?m=animal">Alternativas (MCQ) — Animal</a>
+          <a role="menuitem" href="./quiz_mcq.html?m=vegetal">Alternativas (MCQ) — Vegetal</a>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="hero">
+      <div>
+        <h1 class="h-title" id="t_hero_title">Explora la célula en 3D y Realidad Aumentada</h1>
+        <p class="h-sub" id="t_hero_sub">Elige Célula Animal o Vegetal, mira sus componentes, aprende sus funciones y compárala con diferencias clave.</p>
+        <div class="cta">
+          <a class="btn accent" id="ctaAnimal" href="./viewer.html?m=animal">Ver Animal</a>
+          <a class="btn" id="ctaVegetal" href="./viewer.html?m=vegetal">Ver Vegetal</a>
+        </div>
+      </div>
+      <div class="heroCard">
+        <span class="badge" id="t_badge">Educativo</span>
+        <div style="color:var(--muted);font-size:14px">
+          <ul style="margin:0 0 8px 18px; padding:0">
+            <li id="t_point1">Hotspots con nombre y función</li>
+            <li id="t_point2">Resaltado de diferencias</li>
+            <li id="t_point3">Auto-rotación, centrar y zoom</li>
+            <li id="t_point4">Modo Realidad Aumentada con marcador HIRO</li>
+          </ul>
+          <div class="chips">
+            <span class="chip">3D</span>
+            <span class="chip">Etiquetas</span>
+            <span class="chip diff">Diferencias</span>
+            <span class="chip">RA (HIRO)</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tarjetas Animal / Vegetal -->
+    <section class="grid" aria-label="Explorar células">
+      <!-- Animal -->
+      <article class="card">
+        <div class="thumb">
+          <img src="./assets/img/animal.webp" alt="Miniatura célula animal" onerror="this.style.display='none'">
+          <span class="tag">Animal</span>
+        </div>
+        <div class="content">
+          <h3 class="title" id="t_animal_title">Célula Animal</h3>
+          <p class="desc" id="t_animal_desc">Estructuras típicas: lisosomas y centriolos. Sin pared celular ni cloroplastos.</p>
+          <div class="chips">
+            <span class="chip">Núcleo</span>
+            <span class="chip">Mitocondrias</span>
+            <span class="chip diff">Lisosomas</span>
+            <span class="chip diff">Centriolos</span>
+          </div>
+        </div>
+        <div class="actions">
+          <a class="btn" href="./viewer.html?m=animal" id="t_ver_simple_animal">3D simple</a>
+          <a class="btn" href="./viewer_hotspots.html?m=animal" id="t_ver_tags_animal">3D etiquetas</a>
+          <a class="btn" href="./arjs-demo/animal_glb.html?v=2&m=animal" id="t_ra_animal">Ver en Realidad Aumentada</a>
+        </div>
+      </article>
+
+      <!-- Vegetal -->
+      <article class="card">
+        <div class="thumb">
+          <img src="./assets/img/vegetal.webp" alt="Miniatura célula vegetal" onerror="this.style.display='none'">
+          <span class="tag">Vegetal</span>
+        </div>
+        <div class="content">
+          <h3 class="title" id="t_veg_title">Célula Vegetal</h3>
+          <p class="desc" id="t_veg_desc">Diferenciales: pared celular, cloroplastos y gran vacuola central.</p>
+          <div class="chips">
+            <span class="chip diff">Pared celular</span>
+            <span class="chip diff">Cloroplastos</span>
+            <span class="chip">Mitocondrias</span>
+          </div>
+        </div>
+        <div class="actions">
+          <a class="btn" href="./viewer.html?m=vegetal" id="t_ver_simple_veg">3D simple</a>
+          <a class="btn" href="./viewer_hotspots.html?m=vegetal" id="t_ver_tags_veg">3D etiquetas</a>
+          <a class="btn" href="./arjs-demo/vegetal_glb.html?v=2&m=vegetal" id="t_ra_veg">Ver en Realidad Aumentada</a>
+        </div>
+      </article>
+    </section>
+
+    <!-- QRs para RA -->
+    <section class="qrSection" aria-label="Códigos QR">
+      <h2 style="margin:0 0 10px;font:800 20px system-ui" id="t_qr_title">Códigos QR (Realidad Aumentada con HIRO)</h2>
+      <div class="qrGrid">
+        <div class="qr">
+          <h3 id="t_qr_animal">Realidad Aumentada — Célula Animal</h3>
+          <canvas class="qrCanvas" id="qrAnimal" width="512" height="512" aria-label="QR para RA animal"></canvas>
+          <p class="mini" id="t_qr_tip">Escanéame con tu cámara</p>
+        </div>
+        <div class="qr">
+          <h3 id="t_qr_vegetal">Realidad Aumentada — Célula Vegetal</h3>
+          <canvas class="qrCanvas" id="qrVegetal" width="512" height="512" aria-label="QR para RA vegetal"></canvas>
+          <p class="mini" id="t_qr_tip2">Escanéame con tu cámara</p>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <div id="t_created_by">Creado por: Belén Acuña Perez - belen.acpe@gmail.com y Francisco Pinto Aravena - franciscoandresp@gmail.com</div>
+      <div>© <span class="year"></span> <span id="t_project_name">Proyecto de Realidad Aumentada y Realidad Virtual - Biología.</span></div>
+      <div id="t_edu_purpose">Este proyecto es desarrollado con propósitos educacionales, motivando el desarrollo, culturización e innovación tecnológica en las aulas.</div>
+      <div id="t_footer">Funciona en navegadores modernos. Para Realidad Aumentada (RA) usa el marcador HIRO.</div>
+      <div>© <span class="year"></span> <span id="t_copy_prohibited">Queda prohibida la copia, redistribución o adaptación de los contenidos, modelos 3D, imágenes y código aquí publicados sin autorización expresa por escrito.</span></div>
+      <div id="t_all_rights">Todos los derechos reservados.</div>
+    </footer>
+  </div>
+
+<!-- contenedor de barra compacta (izquierda) -->
+<div id="stickyLeft" aria-label="Acceso rápido (fijo)"></div>
+
+<script>
+/* ========= Rutas ========= */
+const links = {
+  simple_animal: './viewer.html?m=animal',
+  simple_veg: './viewer.html?m=vegetal',
+  tags_animal: './viewer_hotspots.html?m=animal',
+  tags_veg: './viewer_hotspots.html?m=vegetal',
+  ra_animal: './arjs-demo/animal_glb.html?v=2&m=animal',
+  ra_veg: './arjs-demo/vegetal_glb.html?v=2&m=vegetal',
+  trivia_animal_labels: './quiz_labels.html?m=animal',
+  trivia_veg_labels: './quiz_labels.html?m=vegetal',
+  trivia_animal_mcq: './quiz_mcq.html?m=animal',
+  trivia_veg_mcq: './quiz_mcq.html?m=vegetal'
+};
+
+/* ========= QR ========= */
+function makeQR(canvasId, text){
+  const el = document.getElementById(canvasId);
+  if (!el) return;
+  new QRious({
+    element: el,
+    value: location.origin + location.pathname.replace(/index\.html?$/,'') + text.replace(/^\.\//,'/'),
+    size: 512, background: 'white', foreground: '#0b1a2b', level: 'H'
+  });
+}
+makeQR('qrAnimal', links.ra_animal);
+makeQR('qrVegetal', links.ra_veg);
+
+/* ========= Idiomas ========= */
+const i18n = {
+  es: {
+    t_site: "Realidad Aumentada y Realidad Virtual - Biología",
+    t_site_sub: "Célula Animal y Vegetal en 3D y RA",
+    t_help: "Ayuda",
+    t_trivia: "Trivia",
+    t_trivia_animal: "Trivia Célula Animal",
+    t_trivia_veg: "Trivia Célula Vegetal",
+    t_trivia_mcq: "Trivia de alternativas (MCQ)",
+    t_hero_title: "Explora la célula en 3D y Realidad Aumentada",
+    t_hero_sub: "Elige Célula Animal o Vegetal, mira sus componentes, aprende sus funciones y compárala con diferencias clave.",
+    t_badge: "Educativo",
+    t_point1: "Hotspots con nombre y función",
+    t_point2: "Resaltado de diferencias",
+    t_point3: "Auto-rotación, centrar y zoom",
+    t_point4: "Modo Realidad Aumentada con marcador HIRO",
+    t_animal_title: "Célula Animal",
+    t_animal_desc: "Estructuras típicas: lisosomas y centriolos. Sin pared celular ni cloroplastos.",
+    t_veg_title: "Célula Vegetal",
+    t_veg_desc: "Diferenciales: pared celular, cloroplastos y gran vacuola central.",
+    t_ver_simple_animal: "3D simple",
+    t_ver_tags_animal: "3D etiquetas",
+    t_ra_animal: "Ver en Realidad Aumentada",
+    t_ver_simple_veg: "3D simple",
+    t_ver_tags_veg: "3D etiquetas",
+    t_ra_veg: "Ver en Realidad Aumentada",
+    t_qr_title: "Códigos QR (Realidad Aumentada con HIRO)",
+    t_qr_animal: "Realidad Aumentada — Célula Animal",
+    t_qr_vegetal: "Realidad Aumentada — Célula Vegetal",
+    t_qr_tip: "Escanéame con tu cámara",
+    t_qr_tip2: "Escanéame con tu cámara",
+    t_footer: "Funciona en navegadores modernos. Para Realidad Aumentada (RA) usa el marcador HIRO.",
+    /* === Footer extendido === */
+    t_created_by: "Creado por: Belén Acuña Perez - belen.acpe@gmail.com y Francisco Pinto Aravena - franciscoandresp@gmail.com",
+    t_project_name: "Proyecto de Realidad Aumentada y Realidad Virtual - Biología.",
+    t_edu_purpose: "Este proyecto es desarrollado con propósitos educacionales, motivando el desarrollo, culturización e innovación tecnológica en las aulas.",
+    t_copy_prohibited: "Queda prohibida la copia, redistribución o adaptación de los contenidos, modelos 3D, imágenes y código aquí publicados sin autorización expresa por escrito.",
+    t_all_rights: "Todos los derechos reservados."
+  },
+  en: {
+    t_site: "Virtual Reality and Augmented Reality — Biology",
+    t_site_sub: "Animal and Plant Cell in 3D & AR",
+    t_help: "Help",
+    t_trivia: "Trivia",
+    t_trivia_animal: "Animal Cell Trivia",
+    t_trivia_veg: "Plant Cell Trivia",
+    t_trivia_mcq: "Multiple-choice Trivia (MCQ)",
+    t_hero_title: "Explore the Cell in 3D and Augmented Reality",
+    t_hero_sub: "Choose Animal or Plant Cell, see their components, learn their functions, and compare key differences.",
+    t_badge: "Educational",
+    t_point1: "Hotspots with names and functions",
+    t_point2: "Highlighted differences",
+    t_point3: "Auto-rotation, center, and zoom",
+    t_point4: "Augmented Reality mode with HIRO marker",
+    t_animal_title: "Animal Cell",
+    t_animal_desc: "Typical structures: lysosomes and centrioles. No cell wall or chloroplasts.",
+    t_veg_title: "Plant Cell",
+    t_veg_desc: "Distinctive features: cell wall, chloroplasts, and a large central vacuole.",
+    t_ver_simple_animal: "Simple 3D",
+    t_ver_tags_animal: "3D with labels",
+    t_ra_animal: "View in Augmented Reality",
+    t_ver_simple_veg: "Simple 3D",
+    t_ver_tags_veg: "3D with labels",
+    t_ra_veg: "View in Augmented Reality",
+    t_qr_title: "QR Codes (Augmented Reality with HIRO)",
+    t_qr_animal: "Augmented Reality — Animal Cell",
+    t_qr_vegetal: "Augmented Reality — Plant Cell",
+    t_qr_tip: "Scan me with your camera",
+    t_qr_tip2: "Scan me with your camera",
+    t_footer: "Works in modern browsers. For Augmented Reality (AR), use the HIRO marker.",
+    /* === Footer extended === */
+    t_created_by: "Created by: Belén Acuña Perez — belen.acpe@gmail.com and Francisco Pinto Aravena — franciscoandresp@gmail.com",
+    t_project_name: "Augmented and Virtual Reality Project — Biology.",
+    t_edu_purpose: "This project is developed for educational purposes, encouraging development, cultural enrichment, and technological innovation in classrooms.",
+    t_copy_prohibited: "Copying, redistribution, or adaptation of the contents, 3D models, images, and code published here is prohibited without prior written authorization.",
+    t_all_rights: "All rights reserved."
+  }
+};
+
+function setLang(lc){
+  const dict = i18n[lc] || i18n.es;
+  for (const k of Object.keys(dict)){
+    const el = document.getElementById(k);
+    if (el) el.textContent = dict[k];
+  }
+  document.getElementById('langES').classList.toggle('active', lc==='es');
+  document.getElementById('langEN').classList.toggle('active', lc==='en');
+  localStorage.setItem('lang', lc);
+}
+const savedLang = localStorage.getItem('lang') || (navigator.language||'es').slice(0,2);
+setLang(savedLang === 'en' ? 'en' : 'es');
+document.getElementById('langES').onclick = ()=> setLang('es');
+document.getElementById('langEN').onclick = ()=> setLang('en');
+
+/* ========= Años en footer ========= */
+document.querySelectorAll('.year').forEach(el=> el.textContent = new Date().getFullYear());
+
+/* ========= CTA enlaces ========= */
+document.getElementById('ctaAnimal').href = links.simple_animal;
+document.getElementById('ctaVegetal').href = links.simple_veg; // <-- corregido
+
+/* ========= Wire de menús (reutilizable) ========= */
+function wireMenus(rootSel){
+  const root = document.querySelector(rootSel);
+  if (!root) return;
+  const menus = [...root.querySelectorAll('.m')];
+  const closeAll = ()=> menus.forEach(m => {
+    m.classList.remove('open');
+    m.querySelector('button')?.setAttribute('aria-expanded','false');
+  });
+  menus.forEach(m=>{
+    const btn = m.querySelector('button');
+    if(!btn) return;
+    if(btn.__wired) return; btn.__wired = true;
+    btn.addEventListener('click', ()=>{
+      const wasOpen = m.classList.contains('open');
+      closeAll();
+      if(!wasOpen){ m.classList.add('open'); btn.setAttribute('aria-expanded','true'); }
+    });
+    btn.addEventListener('keydown', (e)=>{
+      if(e.key==='ArrowDown'){ m.classList.add('open'); btn.setAttribute('aria-expanded','true'); m.querySelector('.dd a')?.focus(); }
+    });
+  });
+  if(!document.__globalMenuClose){
+    document.__globalMenuClose = true;
+    document.addEventListener('click', (e)=>{ if(!e.target.closest('.menuBar') && !e.target.closest('#stickyLeft')) {
+      document.querySelectorAll('.m.open').forEach(m=> m.classList.remove('open'));
+    }});
+    document.addEventListener('keydown',(e)=>{ if(e.key==='Escape'){
+      document.querySelectorAll('.m.open').forEach(m=> m.classList.remove('open'));
+    }});
+  }
+}
+wireMenus('.menuBar');
+
+/* ====== Sticky izquierda (VER...) + derecha (Ayuda/ES/EN) ====== */
+(function stickyBars(){
+  const row = document.getElementById('topActionsRow');
+  const stickyLeft = document.getElementById('stickyLeft');
+
+  function getTrigger(){
+    const bar = document.querySelector('.menuBar');
+    return bar ? (bar.offsetTop || 0) + (bar.offsetHeight || 0) : 0;
+  }
+  let triggerY = 0, built = false;
+
+  function buildLeft(){
+    if (built) return;
+    const src = document.querySelector('.menuBar');
+    if (!src) return;
+    stickyLeft.innerHTML = `<nav class="menuCompact" aria-label="Acceso rápido (compacto)">${src.innerHTML}</nav>`;
+    wireMenus('#stickyLeft'); // engancha dropdowns en la barra compacta
+    built = true;
+  }
+
+  function recompute(){ triggerY = getTrigger(); onScroll(); }
+  function onScroll(){
+    if (window.scrollY > triggerY){
+      if(row) row.classList.add('stick');
+      buildLeft();
+      stickyLeft.classList.add('show');
+    } else {
+      if(row) row.classList.remove('stick');
+      stickyLeft.classList.remove('show');
+    }
+  }
+  window.addEventListener('load', recompute);
+  window.addEventListener('resize', recompute);
+  window.addEventListener('scroll', onScroll, { passive:true });
+})();
+
+/* === Parche de seguridad: si faltara la .menuBar original, recrearla === */
+(function restoreMenuBarIfMissing(){
+  if (document.querySelector('.menuBar')) return;
+  const html = `
+  <nav class="menuBar" aria-label="Acceso rápido">
+    <div class="m" data-menu="3d">
+      <button type="button" aria-haspopup="true" aria-expanded="false">VER 3D</button>
+      <div class="dd" role="menu">
+        <a role="menuitem" href="./viewer.html?m=animal">Célula Animal (3D)</a>
+        <a role="menuitem" href="./viewer.html?m=vegetal">Célula Vegetal (3D)</a>
+      </div>
+    </div>
+    <div class="m" data-menu="ra">
+      <button type="button" aria-haspopup="true" aria-expanded="false">VER RA</button>
+      <div class="dd" role="menu">
+        <a role="menuitem" href="./arjs-demo/animal_glb.html?v=2&m=animal">Célula Animal (RA)</a>
+        <a role="menuitem" href="./arjs-demo/vegetal_glb.html?v=2&m=vegetal">Célula Vegetal (RA)</a>
+      </div>
+    </div>
+    <div class="m" data-menu="rv">
+      <button type="button" aria-haspopup="true" aria-expanded="false">VER RV</button>
+      <div class="dd" role="menu">
+        <a role="menuitem" href="./viewer.html?m=animal&mode=vr">Célula Animal (VR)</a>
+        <a role="menuitem" href="./viewer.html?m=vegetal&mode=vr">Célula Vegetal (VR)</a>
+      </div>
+    </div>
+    <div class="m" data-menu="trivia">
+      <button type="button" aria-haspopup="true" aria-expanded="false">TRIVIA</button>
+      <div class="dd" role="menu">
+        <a role="menuitem" href="./quiz_labels.html?m=animal">Etiquetas — Célula Animal</a>
+        <a role="menuitem" href="./quiz_labels.html?m=vegetal">Etiquetas — Célula Vegetal</a>
+        <hr class="sep">
+        <a role="menuitem" href="./quiz_mcq.html?m=animal">Alternativas (MCQ) — Animal</a>
+        <a role="menuitem" href="./quiz_mcq.html?m=vegetal">Alternativas (MCQ) — Vegetal</a>
+      </div>
+    </div>
+  </nav>`;
+  const topbar = document.querySelector('.topbar') || document.body;
+  topbar.insertAdjacentHTML('afterend', html);
+  wireMenus('.menuBar');
+  // recalcular sticky
+  setTimeout(()=> window.dispatchEvent(new Event('resize')), 0);
+  setTimeout(()=> window.dispatchEvent(new Event('resize')), 200);
+})();
+</script>
+
+<!-- Anti-copia -->
+<script src="./assets/js/anti-copy.js" defer></script>
+
+  <script defer src="../../js/guard.js"></script>
+</body>
+</html>

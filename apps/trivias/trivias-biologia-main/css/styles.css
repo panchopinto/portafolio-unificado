@@ -1,0 +1,81 @@
+
+/* Reset básico */
+*{box-sizing:border-box}body{margin:0;font:16px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Arial, sans-serif;color:#e5e7eb;background:#0b1220}
+h1,h2,h3{margin:.2rem 0 .6rem 0} h1{font-size:1.7rem} h2{font-size:1.3rem} .small{font-size:.9rem;opacity:.9}
+.container{max-width:1100px;margin:0 auto;padding:14px}
+.grid{display:grid;gap:14px}.grid-3{grid-template-columns:repeat(3,1fr)}@media(max-width:900px){.grid-3{grid-template-columns:1fr}}
+.card{background:#0f1723;border:1px solid #2a3b52;border-radius:16px;padding:16px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+label{display:block;margin-top:8px}.kbd{display:inline-block;border:1px solid #2a3b52;border-radius:6px;padding:0 6px;background:#0b1422}
+input,select,textarea{width:100%;padding:.6rem .7rem;border:1px solid #2a3b52;border-radius:12px;background:#0b1422;color:#e5e7eb}
+
+/* --- Buttons Revamp --- */
+.btn{background:linear-gradient(135deg,#1f2937,#0b1220);border:1px solid #2b3b51;color:#e5e7eb;border-radius:12px;padding:.65rem 1.05rem;font-weight:700;letter-spacing:.2px;transition:transform .12s ease, box-shadow .12s ease, border-color .2s ease, opacity .2s ease;box-shadow:0 6px 18px rgba(0,0,0,.25)}
+.btn:hover{ transform: translateY(-1px); box-shadow:0 10px 24px rgba(0,0,0,.35); border-color:#3b4f70 }
+.btn:active{ transform: translateY(0); box-shadow:0 6px 18px rgba(0,0,0,.25) }
+.btn-primary{ background: linear-gradient(135deg,#0ea5e9,#22c55e); border: 0; color: #fff; box-shadow: 0 10px 28px rgba(34,197,94,.35) }
+.btn-primary:hover{ box-shadow:0 14px 34px rgba(34,197,94,.45); transform:translateY(-1px) }
+.btn-success{ background: linear-gradient(135deg,#16a34a,#22c55e); border:0; color:#fff; box-shadow:0 10px 24px rgba(22,163,74,.35) }
+.btn-warning{ background: linear-gradient(135deg,#f59e0b,#f97316); border:0; color:#0b0e13; box-shadow:0 10px 24px rgba(249,115,22,.35) }
+.btn-info{ background: linear-gradient(135deg,#3b82f6,#06b6d4); border:0; color:#fff; box-shadow:0 10px 24px rgba(59,130,246,.35) }
+
+/* Toggle chips */
+.access .toggle{background:linear-gradient(135deg,#0d1728,#111c2e);border:1px solid #365072;color:#dbeafe;border-radius:10px;padding:.4rem .6rem}
+.access .toggle:hover{ border-color:#4b6a94; transform:translateY(-1px) }
+
+/* Accommodations + guía */
+#accom{margin-top:.5rem}
+#timerBox{margin-top:.5rem;border:1px dashed #33506e;padding:.5rem;border-radius:10px;background:#0f1723}
+#timerBox .t{font-weight:700}
+#guideOverlay{position:fixed;inset:0;background:rgba(0,0,0,.78);backdrop-filter:blur(3px);display:none;z-index:99}
+#guideCard{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);max-width:720px;width:min(92vw,720px);max-height:80vh;overflow:auto;background:#0f1723;border:1px solid #2a3b52;border-radius:16px;padding:20px 18px;box-shadow:0 20px 50px rgba(0,0,0,.5);z-index:100;text-align:center}
+#guideCard .steps{counter-reset:s;display:grid;gap:10px;text-align:center;justify-items:center}
+#guideCard .steps div::before{counter-increment:s;content:counter(s) '. ';color:#93c5fd;font-weight:700;margin-right:.25rem}
+#guideCard.guide-tdah{ border-color:#f59e0b; box-shadow:0 20px 50px rgba(245,158,11,.35) }#guideCard.guide-tdah h3{ color:#f59e0b }
+#guideCard.guide-tdah::before{ content:''; display:block; height:6px; background:linear-gradient(90deg,#f59e0b,#f97316); border-radius:999px; margin-bottom:10px }
+#guideCard.guide-tel{ border-color:#06b6d4; box-shadow:0 20px 50px rgba(6,182,212,.35) }#guideCard.guide-tel h3{ color:#06b6d4 }
+#guideCard.guide-tel::before{ content:''; display:block; height:6px; background:linear-gradient(90deg,#06b6d4,#3b82f6); border-radius:999px; margin-bottom:10px }
+#guideCard.guide-tea{ border-color:#a78bfa; box-shadow:0 20px 50px rgba(167,139,250,.35) }#guideCard.guide-tea h3{ color:#a78bfa }
+#guideCard.guide-tea::before{ content:''; display:block; height:6px; background:linear-gradient(90deg,#a78bfa,#60a5fa); border-radius:999px; margin-bottom:10px }
+
+
+/* ===== Accesibilidad / Temas ===== */
+:root{
+  --bg:#08090c; --panel:#0f1117; --panel-2:#0b0e13;
+  --text:#f5f7fb; --muted:#c9d5ea; --line:#263040; --accent:#22c55e;
+}
+html, body{ background: var(--bg); color: var(--text); }
+
+.toggle, .chip{
+  font: 600 14px/1.2 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  padding: 8px 10px; border-radius: 10px; cursor: pointer;
+  border: 1px solid var(--line); background: var(--panel); color: var(--text);
+}
+
+.btn{
+  border:1px solid var(--line); color:var(--text);
+  background:var(--panel-2); border-radius:12px; padding:8px 12px;
+  font:700 14px/1.2 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+}
+.btn:hover{ filter: brightness(1.05); }
+.btn-primary{ background:#0ea5e9; border-color:#0a80b5; color:#001018; }
+.btn-success{ background:#22c55e; border-color:#1a9a49; color:#00210e; }
+.btn-warning{ background:#f59e0b; border-color:#c27b09; color:#2b1800; }
+.btn-info{ background:#38bdf8; border-color:#2a9acc; color:#001623; }
+
+/* Guía */
+#guideCard.card{
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 14px;
+}
+#guideCard .steps > div{ padding:6px 0; border-bottom:1px dashed var(--line); }
+#guideCard .steps > div:last-child{ border-bottom:0; }
+
+/* Responsivo de la barra flotante */
+@media (max-width: 640px){
+  .sticky-actions{ left: 8px; right: 8px; transform: none; }
+  .sticky-actions .btn{ padding:8px 10px; font-size:13px; }
+}
+

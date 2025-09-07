@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="default">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Trivias CN08 OA 02 — Célula (PIE + PAES)</title>
+
+<!-- Estilos base (tu hoja). Este archivo puede quedarse como está. -->
+<link rel="stylesheet" href="./css/styles.css"/>
+
+<!-- Tipografía accesible -->
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+
+<!-- Librerías -->
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<!-- ===== Estilos de refuerzo (override) ===== -->
+<style>
+  /* Utilidades */
+  .hidden { display: none !important; }
+
+  /* ===== Variables por defecto (si tu CSS no las define) ===== */
+  :root{
+    --bg:#08090c; --panel:#0f1117; --panel-2:#0b0e13;
+    --text:#f5f7fb; --muted:#c9d5ea; --line:#263040; --accent:#22c55e;
+  }
+  html, body{ background:var(--bg); color:var(--text); }
+
+  /* Tarjetas y botones con variables */
+  .card{ background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:14px; }
+  .btn{
+    border:1px solid var(--line); color:var(--text);
+    background:var(--panel-2); border-radius:12px; padding:8px 12px;
+    font:700 14px/1.2 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+    cursor:pointer;
+  }
+  .btn:hover{ filter:brightness(1.05); }
+  .btn-guide{ background: #2563eb; color:#fff; border-color: #1f4fc7; }
+  .btn-primary{ background:#0ea5e9; border-color:#0a80b5; color:#001018; }
+  .btn-success{ background:#22c55e; border-color:#1a9a49; color:#00210e; }
+  .btn-warning{ background:#f59e0b; border-color:#c27b09; color:#2b1800; }
+  .btn-info{ background:#38bdf8; border-color:#2a9acc; color:#001623; }
+
+  .toggle, .chip{
+    font:600 14px/1.2 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+    padding:8px 10px; border-radius:10px; cursor:pointer;
+    border:1px solid var(--line); background:var(--panel); color:var(--text);
+  }
+  .toggle[aria-pressed="true"], .theme-mini .chip[aria-pressed="true"]{ outline:2px solid var(--accent); }
+
+  /* Accesibilidad */
+  .dyslexia *{
+    font-family:"Atkinson Hyperlegible",system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif!important;
+    letter-spacing:.2px;
+  }
+  .high-contrast{
+    --bg:#000; --panel:#000; --panel-2:#000; --text:#fff; --muted:#fff; --line:#fff; --accent:#0ff;
+    filter: contrast(1.05);
+  }
+  body.high-contrast{ background:#000 !important; color:#fff !important; }
+
+  /* ===== Header responsive ===== */
+  header .row{ display:flex; gap:8px; align-items:center; justify-content:space-between; flex-wrap:wrap; }
+  .access{ display:flex; gap:8px; flex-wrap:wrap; }
+
+  /* Tema PIE selector */
+  .theme-mini{ display:flex; gap:8px; align-items:center; flex-wrap:wrap }
+  .theme-mini .chip{ user-select:none; }
+
+  /* ===== Overlay Guía: arriba y centrado ===== */
+  #guideOverlay{
+    position: fixed; inset: 0; z-index: 90;
+    background: rgba(0,0,0,.45); backdrop-filter: blur(2px);
+    display: none;                 /* se activa con openGuide() => flex */
+    align-items: flex-start;       /* arriba */
+    justify-content: center;       /* centrado horizontal */
+    padding-top: clamp(24px, 6vh, 72px); /* margen superior adaptable */
+  }
+  #guideCard{
+    position: relative; z-index: 99;
+    width: min(92vw, 720px);
+    background: var(--panel);
+    color: var(--text);
+    border: 1px solid var(--line);
+    border-radius: 14px; padding: 14px;
+    box-shadow: 0 14px 40px rgba(0,0,0,.45);
+  }
+  #guideCard .steps > div{ padding:6px 0; border-bottom:1px dashed var(--line); }
+  #guideCard .steps > div:last-child{ border-bottom:0; }
+
+  /* ===== Barra flotante accesible ===== */
+  .sticky-actions{
+    position: fixed; left: 50%; transform: translateX(-50%);
+    bottom: 14px; z-index: 95; display: flex; gap: 8px; flex-wrap: wrap;
+    background: var(--panel, #121420cc); padding: 10px 12px;
+    border: 1px solid var(--line, #2b3445); border-radius: 14px;
+    box-shadow: 0 8px 24px rgba(0,0,0,.35); backdrop-filter: blur(8px);
+  }
+
+  /* ===== Espaciado entre Actividad y Comenzar trivia ===== */
+  #activity { margin-bottom: 14px; }
+  .footer-actions { margin-top: 14px; }
+
+  /* Un poco más de aire en selects */
+  section.card select{ margin-bottom: 8px; }
+
+  /* ===== Temas PIE: clase + atributo (robusto) ===== */
+  html.theme-default, body.theme-default{ /* usa variables por defecto */ }
+  html.theme-protanopia, body.theme-protanopia{
+    --bg:#0b0f12; --panel:#0e141a; --panel-2:#0b1016;
+    --text:#f0f6fc; --muted:#d6e7f7; --line:#2a3b4e; --accent:#00bcd4;
+  }
+  html.theme-deuteranopia, body.theme-deuteranopia{
+    --bg:#0f0e10; --panel:#141217; --panel-2:#110f14;
+    --text:#f6f5f7; --muted:#e7dff4; --line:#3a2f4a; --accent:#ff9800;
+  }
+  html.theme-tritanopia, body.theme-tritanopia{
+    --bg:#0f1012; --panel:#14161b; --panel-2:#101319;
+    --text:#f4f7fb; --muted:#e3e8f4; --line:#2f3b55; --accent:#9c27b0;
+  }
+
+  /* ===== Móvil ===== */
+  @media (max-width: 640px){
+    /* accesibilidad y chips en rejilla */
+    .access { width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .theme-mini { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+    .theme-mini .chip { width: 100%; text-align: center; }
+
+    /* Botonera derecha (Terminar/Descargar/Enviar) apilada en 2 col */
+    header .row:last-of-type > .row {
+      width: 100%;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: 8px;
+      justify-content: stretch;
+    }
+    header .row:last-of-type > .row .btn { width: 100%; }
+
+    /* Botón “Guía” en su propia fila */
+    header .row:last-of-type > div:first-child { width: 100%; margin-bottom: 8px; }
+    header .row:last-of-type > div:first-child .btn { width: 100%; }
+
+    /* Barra flotante con poco margen inferior */
+    .sticky-actions{ left: 8px; right: 8px; transform: none; bottom: 10px; }
+    .sticky-actions .btn{ padding:8px 10px; font-size:13px; }
+  }
+</style>
+</head>
+<body>
+  <div class="container grid">
+    <header class="card">
+      <h1>Trivias CN08 OA 02 — Célula</h1>
+      <div class="small">Objetivo: Desarrollar modelos que expliquen la relación entre la función de una célula y sus partes.</div>
+
+      <!-- Accesibilidad y tema -->
+      <div class="access">
+        <button class="toggle" id="btnDys" onclick="onToggleDyslexia()" aria-pressed="false">🅰️ Fuente amigable</button>
+        <button class="toggle" id="btnContrast" onclick="onToggleContrast()" aria-pressed="false">🌗 Alto contraste</button>
+
+        <div class="theme-mini" aria-label="Elige color de fondo">
+          <span class="small" style="align-self:center">Elige color de fondo:</span>
+          <button class="chip" onclick="setPieTheme('default')" aria-pressed="false">Default</button>
+          <button class="chip" onclick="setPieTheme('protanopia')" aria-pressed="false">Protanopia</button>
+          <button class="chip" onclick="setPieTheme('deuteranopia')" aria-pressed="false">Deuteranopia</button>
+          <button class="chip" onclick="setPieTheme('tritanopia')" aria-pressed="false">Tritanopia</button>
+        </div>
+      </div>
+
+      <div id="profile"></div>
+      <div id="accom" class="small"></div>
+      <div id="timerBox" class="small hidden">
+        ⏱️ Tiempo sugerido: <span class="t" id="t_suggest">—</span> · Restante: <span class="t" id="t_left">—</span>
+      </div>
+
+      <div class="row" style="margin-top:8px">
+        <div>
+          <button class="btn btn-guide" onclick="openGuide()">👋 Guía</button>
+        </div>
+        <div class="row" style="gap:8px;flex-wrap:wrap;justify-content:flex-end">
+          <button class="btn btn-success" onclick="safeGrade()">Terminar y corregir</button>
+          <button class="btn btn-warning" onclick="safePDF()">Descargar PDF</button>
+          <button class="btn btn-info" onclick="safeEmail()">Enviar resultados por correo</button>
+        </div>
+      </div>
+    </header>
+
+    <section class="card grid grid-3">
+      <div>
+        <h3>Registro del estudiante</h3>
+        <label>RUT</label><input id="i_rut" placeholder="12.345.678-9" autocomplete="off"/>
+        <label>Nombres</label><input id="i_nombres" placeholder="Nombres" autocomplete="off"/>
+        <label>Apellidos</label><input id="i_apellidos" placeholder="Apellidos" autocomplete="off"/>
+        <label>Curso</label><input id="i_curso" placeholder='Ej: "4° Medio A"' autocomplete="off"/>
+        <label>Email</label><input id="i_email" placeholder="correo@ejemplo.com" type="email" autocomplete="off"/>
+        <p class="small">Al presionar <b>Comenzar</b> se verificará automáticamente en la planilla si eres del <b>PIE</b> (permanente o transitorio) y si rendirás <b>PAES</b>, para ajustar la dificultad y apoyos.</p>
+
+        <hr/>
+        <h3>Atajos</h3>
+        <p class="small">Abre tus recursos 3D/AR existentes:</p>
+        <div class="row">
+          <a class="btn" href="./viewer.html?m=animal" target="_blank">3D simple — Animal</a>
+          <a class="btn" href="./viewer.html?m=vegetal" target="_blank">3D simple — Vegetal</a>
+          <a class="btn" href="./arjs-demo/cell_ar.html?m=animal" target="_blank">AR — Animal</a>
+          <a class="btn" href="./arjs-demo/cell_ar.html?m=vegetal" target="_blank">AR — Vegetal</a>
+          <a class="btn" href="./viewer_hotspots.html" target="_blank">Vista con etiquetas</a>
+        </div>
+      </div>
+
+      <div>
+        <h3>Selecciona ambiente de aprendizaje</h3>
+        <label>Ambiente</label>
+        <select id="area">
+          <option value="organelos">Estructuras y funciones de organelos</option>
+          <option value="proeu">Distinción procarionte / eucarionte</option>
+          <option value="ef">Relación estructura-función (modelos)</option>
+          <option value="paes">Banco PAES (Biología)</option>
+        </select>
+        <label>Actividad</label>
+        <select id="activity">
+          <option value="A">Actividad A</option>
+          <option value="B">Actividad B</option>
+        </select>
+        <div class="footer-actions">
+          <button class="btn btn-primary" onclick="startQuiz()">Comenzar trivia</button>
+        </div>
+      </div>
+
+      <div>
+        <h3>Acciones</h3>
+        <p class="small">· <span class="kbd">Ctrl</span> + <span class="kbd">P</span> para imprimir.<br/>· <b>Descargar PDF</b> genera un informe con respuestas.<br/>· <b>Enviar por email</b> usa EmailJS.</p>
+        <div class="footer-actions"></div>
+        <div class="small">Puntaje: <b id="score">—</b></div>
+      </div>
+    </section>
+
+    <section id="quizWrap" class="card hidden" aria-live="polite">
+      <h2>Trivia</h2>
+      <div id="quiz"></div>
+    </section>
+
+    <footer>
+      <div id="t_created_by">Creado por: Belén Acuña Perez - belen.acpe@gmail.com y Francisco Pinto Aravena - franciscoandresp@gmail.com</div>
+      <div>© <span class="year"></span> <span id="t_project_name">Proyecto de Realidad Aumentada y Realidad Virtual - Biología.</span></div>
+      <div id="t_edu_purpose">Este proyecto es desarrollado con propósitos educacionales, motivando el desarrollo, culturización e innovación tecnológica en las aulas.</div>
+      <div id="t_footer">Funciona en navegadores modernos. Para Realidad Aumentada (RA) usa el marcador HIRO.</div>
+      <div>© <span class="year"></span> <span id="t_copy_prohibited">Queda prohibida la copia, redistribución o adaptación de los contenidos, modelos 3D, imágenes y código aquí publicados sin autorización expresa por escrito.</span></div>
+      <div id="t_all_rights">Todos los derechos reservados.</div>
+    </footer>
+  </div>
+
+  <!-- Overlay y tarjeta de Guía (arrancan ocultos) -->
+  <div id="guideOverlay" class="hidden" aria-hidden="true">
+    <div id="guideCard" class="card" role="dialog" aria-modal="true" aria-labelledby="guideTitle">
+      <div class="row" style="justify-content:space-between;align-items:center;gap:8px">
+        <h3 id="guideTitle" style="margin:0">Guía paso a paso</h3>
+        <button id="guideClose" class="btn" onclick="closeGuide()" aria-label="Cerrar guía">Cerrar</button>
+      </div>
+      <div class="steps small" id="guideSteps"></div>
+    </div>
+  </div>
+
+  <!-- Barra flotante permanente -->
+  <nav class="sticky-actions" aria-label="Acciones rápidas">
+    <button class="btn btn-guide" onclick="openGuide()">👋 Guía</button>
+    <button class="btn btn-success" onclick="safeGrade()">Terminar y corregir</button>
+    <button class="btn btn-warning" onclick="safePDF()">Descargar PDF</button>
+    <button class="btn btn-info" onclick="safeEmail()">Enviar resultados por correo</button>
+  </nav>
+
+  <!-- Motor principal -->
+  <script src="./js/engine.js"></script>
+
+  <!-- Inicialización y utilidades -->
+  <script>
+  (function(){
+    // ---------- Tema PIE ----------
+    const paramTheme = new URLSearchParams(location.search).get('theme');
+    const savedTheme = localStorage.getItem('pieTheme');
+    const themeToUse = (paramTheme || savedTheme || 'default').toLowerCase();
+
+    window.setPieTheme = function(name){
+      const n = (name || 'default').toLowerCase();
+      const root = document.documentElement;
+      ['theme-default','theme-protanopia','theme-deuteranopia','theme-tritanopia']
+        .forEach(c => root.classList.remove(c));
+      root.classList.add('theme-' + n);
+      root.setAttribute('data-theme', n);
+      localStorage.setItem('pieTheme', n);
+
+      // Feedback visual en los chips
+      document.querySelectorAll('.theme-mini .chip').forEach(btn=>{
+        const val = (btn.textContent || '').trim().toLowerCase();
+        const token = (val === 'default' ? 'default' : val);
+        btn.setAttribute('aria-pressed', token === n ? 'true':'false');
+      });
+    };
+    setPieTheme(themeToUse);
+
+    // ---------- Accesibilidad ----------
+    const dys = localStorage.getItem('pref_dyslexia') === '1';
+    const hc  = localStorage.getItem('pref_contrast') === '1';
+    if (dys) document.body.classList.add('dyslexia');
+    if (hc)  document.body.classList.add('high-contrast');
+    document.getElementById('btnDys')?.setAttribute('aria-pressed', dys ? 'true':'false');
+    document.getElementById('btnContrast')?.setAttribute('aria-pressed', hc ? 'true':'false');
+
+    window.onToggleDyslexia = function(){
+      const on = !document.body.classList.contains('dyslexia');
+      document.body.classList.toggle('dyslexia', on);
+      localStorage.setItem('pref_dyslexia', on ? '1':'0');
+      document.getElementById('btnDys')?.setAttribute('aria-pressed', on ? 'true':'false');
+    };
+    window.onToggleContrast = function(){
+      const on = !document.body.classList.contains('high-contrast');
+      document.body.classList.toggle('high-contrast', on);
+      localStorage.setItem('pref_contrast', on ? '1':'0');
+      document.getElementById('btnContrast')?.setAttribute('aria-pressed', on ? 'true':'false');
+    };
+
+    // ---------- Guía ----------
+    window.openGuide = function(){
+      const ov = document.getElementById('guideOverlay');
+      const steps = document.getElementById('guideSteps');
+      const arr = [
+        '1) Completa RUT y datos.',
+        '2) Elige ambiente y actividad.',
+        '3) Presiona “Comenzar trivia”.',
+        '4) Responde una a la vez.',
+        '5) Usa “Terminar y corregir”, descarga PDF o envía por correo.'
+      ];
+      if (steps) steps.innerHTML = arr.map(t => '<div>'+t+'</div>').join('');
+      if (ov){ ov.style.display='flex'; ov.classList.remove('hidden'); ov.setAttribute('aria-hidden','false'); }
+      document.getElementById('guideCard')?.focus?.();
+    };
+    window.closeGuide = function(){
+      const ov = document.getElementById('guideOverlay');
+      if (ov){ ov.style.display='none'; ov.classList.add('hidden'); ov.setAttribute('aria-hidden','true'); }
+    };
+    document.getElementById('guideOverlay')?.addEventListener('click', (e)=>{
+      if(e.target.id === 'guideOverlay') closeGuide();
+    });
+    window.addEventListener('keydown', (e)=>{ if(e.key==='Escape') closeGuide(); });
+
+    // ---------- Wrappers seguros (por si engine.js tarda) ----------
+    window.safeGrade = () => (window.grade ? grade() : alert('La función "grade()" no está disponible todavía.'));
+    window.safePDF   = () => (window.toPDF ? toPDF() : alert('La función "toPDF()" no está disponible todavía.'));
+    window.safeEmail = () => (window.sendEmail ? sendEmail() : alert('La función "sendEmail()" no está disponible todavía.'));
+
+    // Año footer
+    document.querySelectorAll('.year').forEach(el => el.textContent = new Date().getFullYear());
+  })();
+  </script>
+
+  <script defer src="../../js/guard.js"></script>
+</body>
+</html>

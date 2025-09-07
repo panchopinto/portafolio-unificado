@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Dashboard Docente — Trivias CN08 OA 02</title>
+<link rel="stylesheet" href="../css/styles.css"/>
+<link rel="stylesheet" href="./dashboard.css"/>
+</head>
+<body>
+<div class="container grid">
+  <header class="card">
+    <h1>Dashboard Docente — Trivias CN08 OA 02</h1>
+    <div class="small">Consolida intentos desde la hoja “Resultados” (Apps Script).</div>
+  </header>
+
+  <section class="card">
+    <div class="grid grid-3">
+      <div>
+        <label>API Key</label>
+        <input id="i_key" placeholder="Ingresa tu clave"/>
+      </div>
+      <div>
+        <label>Desde</label><input id="i_from" type="date"/>
+        <label>Hasta</label><input id="i_to" type="date"/>
+      </div>
+      <div>
+        <label>Curso (contiene)</label><input id="i_curso" placeholder='Ej: "4° Medio" o "A"' />
+        <label>RUT (exacto)</label><input id="i_rut" placeholder="12.345.678-9"/>
+      </div>
+    </div>
+    <div class="grid grid-3" style="margin-top:10px">
+      <div>
+        <label>PIE</label>
+        <select id="i_pie">
+          <option value="">(Todos)</option>
+          <option value="ninguno">ninguno</option>
+          <option value="transitorio">transitorio</option>
+          <option value="permanente">permanente</option>
+        </select>
+      </div>
+      <div>
+        <label>PAES</label>
+        <select id="i_paes">
+          <option value="">(Todos)</option>
+          <option value="si">si</option>
+          <option value="no">no</option>
+        </select>
+      </div>
+      <div>
+        <label>Área</label>
+        <select id="i_area">
+          <option value="">(Todas)</option>
+          <option value="organelos">organelos</option>
+          <option value="proeu">proeu</option>
+          <option value="ef">ef</option>
+          <option value="paes">paes</option>
+        </select>
+        <label>Actividad</label>
+        <select id="i_activity">
+          <option value="">(Todas)</option>
+          <option value="A">A</option>
+          <option value="B">B</option>
+        </select>
+      </div>
+    </div>
+    <div class="footer-actions">
+      <button class="btn btn-primary" id="btnBuscar">Buscar</button>
+      <button class="btn" id="btnExport">Exportar CSV</button>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Resumen</h2>
+    <div class="grid grid-3">
+      <div class="q"><div class="small">Intentos</div><div id="k_count" style="font-size:1.8rem;font-weight:800">—</div></div>
+      <div class="q"><div class="small">Promedio (%)</div><div id="k_avg" style="font-size:1.8rem;font-weight:800">—</div></div>
+      <div class="q"><div class="small">Mediana (%)</div><div id="k_med" style="font-size:1.8rem;font-weight:800">—</div></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Resultados</h2>
+    <div style="overflow:auto">
+      <table id="tbl">
+        <thead>
+          <tr>
+            <th>Fecha</th><th>RUT</th><th>Nombres</th><th>Apellidos</th><th>Curso</th><th>PIE</th><th>Dx</th><th>PAES</th><th>Área</th><th>Act.</th><th>%</th><th>Score</th><th>Auto</th><th>Ítems</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+</div>
+<script src="./dashboard.js"></script>
+</body>
+</html>

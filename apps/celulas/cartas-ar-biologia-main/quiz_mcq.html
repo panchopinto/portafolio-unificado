@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"/>
+<title>Trivia de Alternativas — Célula Animal y Vegetal</title>
+<link rel="icon" href="./assets/img/favicon.png">
+
+<!-- EmailJS (para enviar resultados) -->
+<script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+<!-- html2pdf (para generar PDF adjunto) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"
+  integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg=="
+  crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+<style>
+  :root{
+    --bg:#08090c; --panel:#0f1117; --line:#263040; --text:#f5f7fb; --muted:#c9d5ea;
+    --accent:#3cc9ff; --good:#39ff14; --bad:#ff4d6d;
+    --radius:16px; --shadow:0 10px 30px rgba(0,0,0,.35);
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; background:radial-gradient(1200px 600px at 70% -10%,#112033 0%,transparent 60%), var(--bg);
+    color:var(--text); font:500 16px/1.5 system-ui,Segoe UI,Roboto,Arial,sans-serif;
+  }
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:1000px; margin:0 auto; padding:16px}
+  .panel{border:1px solid var(--line); border-radius:var(--radius); background:linear-gradient(180deg,#0b0f16,#0a0d13); box-shadow:var(--shadow); padding:14px}
+  .top{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:12px}
+  .back{display:inline-flex; align-items:center; gap:6px; padding:8px 12px; border-radius:12px; border:1px solid #2a3a4e; background:linear-gradient(180deg,#132132,#0d1623); color:#e8f7ff; font-weight:800}
+  .title{font:800 18px/1.1 system-ui}
+  .hint{color:var(--muted); font-size:13px}
+
+  .formRow{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:12px 0}
+  .formRow input{padding:10px;border-radius:10px;border:1px solid #39536d;background:#08131f;color:#e8f7ff;font:600 14px system-ui}
+
+  .qCard{border:1px solid #283647; border-radius:12px; padding:12px; margin:10px 0; background:linear-gradient(180deg,#0d1521,#0a1019)}
+  .qTitle{margin:0 0 8px; font:800 16px system-ui}
+  .opts{display:grid; gap:8px}
+  .opt{display:flex; gap:10px; align-items:center; border:1px solid #32465d; background:linear-gradient(180deg,#0e1b2c,#0a1220); padding:8px 10px; border-radius:10px; cursor:pointer}
+  .opt input{margin:0}
+
+  .actions{display:flex; gap:8px; flex-wrap:wrap; margin:12px 0}
+  .btn{cursor:pointer; border:1px solid #39536d; background:linear-gradient(180deg,#122033,#0d1623); color:#e8f7ff; font-weight:800; padding:10px 14px; border-radius:12px}
+  .btn.primary{border-color:#2f93b7; background:linear-gradient(180deg,var(--accent),#6fe0ff); color:#0b1020}
+  .btn.good{border-color:#1e6f29; background:linear-gradient(180deg,#6adf7a,#39ff14); color:#041007}
+  .btn.warn{border-color:#7a5a1f; background:linear-gradient(180deg,#d4ad57,#ffd166); color:#231a00}
+
+  .result{display:none; border:1px solid var(--line); border-radius:12px; padding:12px; margin-top:10px; background:#fff; color:#000}
+  .kpi{display:flex; gap:10px; flex-wrap:wrap}
+  .pill{padding:6px 10px;border-radius:999px;border:1px solid #2d9c2d;color:#1a5a14;background:#eaffea}
+  .pill.bad{border-color:#b23b4a;color:#6b111b;background:#ffe9ec}
+  .sumList{margin:10px 0 0; padding-left:18px; color:#0b0f16}
+  .sumList li.correct{color:#0d6520}
+  .sumList li.wrong{color:#7a1020}
+
+  @media (max-width:900px){ .formRow{grid-template-columns:1fr} }
+  @media print{
+    body{background:#fff;color:#000}
+    .back,.actions{display:none!important}
+    .panel{box-shadow:none;border:1px solid #ccc}
+    .wrap{max-width:800px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <a class="back" href="./index.html">← Volver</a>
+    <div class="title">Trivia de alternativas · Célula Animal y Vegetal</div>
+  </div>
+
+  <div class="panel">
+    <div class="hint">Completa tus datos, responde las preguntas y presiona <b>“Terminar y corregir”</b>. Luego puedes <b>imprimir/guardar PDF</b> o <b>enviar por correo</b> a los/as profes.</div>
+
+    <div class="formRow">
+      <input id="alNombre"  placeholder="Nombre(s)" />
+      <input id="alApellido" placeholder="Apellido(s)" />
+      <input id="alCurso"    placeholder="Curso (ej: 2°B)" />
+    </div>
+
+    <div id="mcqList"></div>
+
+    <div class="actions">
+      <button id="btnFinish" class="btn primary">Terminar y corregir</button>
+      <button id="btnReset" class="btn">Reiniciar</button>
+      <button id="btnPrint" class="btn good">Imprimir / PDF</button>
+      <button id="btnSend" class="btn warn">Enviar resultados por correo</button>
+      <a id="btnOpenForm" class="btn" href="#" target="_blank" rel="noopener">Abrir Google Forms</a>
+    </div>
+
+    <div id="resultBox" class="result">
+      <div class="kpi">
+        <span id="kpiCorrect" class="pill">✔ Correctas: 0</span>
+        <span id="kpiWrong"   class="pill bad">✘ Incorrectas: 0</span>
+        <span id="kpiScore"   class="pill">🏁 Puntaje: 0%</span>
+      </div>
+      <ol id="sumList" class="sumList"></ol>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ===========================
+   CONFIGURA AQUÍ
+   =========================== */
+// URL pública de tu Google Forms (opcional, se guarda en localStorage)
+const FORMS_URL = localStorage.getItem('FORMS_URL') || '';
+
+// EmailJS (OBLIGATORIO para enviar):
+// 1) Crea cuenta en emailjs.com
+// 2) Obtén PUBLIC_KEY (Account), SERVICE_ID (Email Services) y TEMPLATE_ID (Email Templates)
+// 3) En tu plantilla, crea un "Variable Attachment" con:
+//    - Parameter name: pdf_content
+//    - Filename: Resultados_{{alumno}}.pdf (o como prefieras)
+//    - Content type: application/pdf
+const EMAILJS_PUBLIC_KEY = '';   // ej: "U2AbC_xxxxxxxx"
+const EMAILJS_SERVICE_ID = '';   // ej: "service_abc123"
+const EMAILJS_TEMPLATE_ID = '';  // ej: "template_xyz789"
+
+// Correos destino (puedes poner una lista):
+const REPORT_TO = ["franciscopinto@liceosannicolas.cl","belenacuna@liceosannicolas.cl"];
+
+/* ===========================
+   BANCO DE PREGUNTAS
+   =========================== */
+const MCQ = [
+  {q:"¿Qué orgánulo permite a las plantas realizar la fotosíntesis?", opts:["Mitocondria","Cloroplasto","Lisosoma","Núcleo"], a:1},
+  {q:"La pared celular está presente en:", opts:["Célula animal","Célula vegetal","Ambas","Ninguna"], a:1},
+  {q:"¿Qué orgánulo produce energía en forma de ATP?", opts:["Aparato de Golgi","Vacuola","Mitocondria","Retículo endoplasmático"], a:2},
+  {q:"¿Cuál es más grande en la célula vegetal que en la animal?", opts:["Núcleo","Vacuola","Lisosoma","Ribosoma"], a:1},
+  {q:"¿Qué orgánulo elimina desechos en la célula animal?", opts:["Cloroplasto","Lisosoma","Vacuola","Mitocondria"], a:1},
+  {q:"Tanto la célula vegetal como la animal tienen:", opts:["Pared celular","Cloroplastos","Núcleo","Ninguno de los anteriores"], a:2},
+  {q:"La célula animal se diferencia porque no tiene:", opts:["Lisosomas","Cloroplastos","Mitocondrias","Núcleo"], a:1},
+  {q:"¿Qué orgánulo funciona como “centro de control” de la célula?", opts:["Retículo endoplasmático","Núcleo","Aparato de Golgi","Membrana plasmática"], a:1},
+  {q:"La membrana plasmática cumple la función de:", opts:["Dar energía","Controlar el ingreso y salida de sustancias","Producir proteínas","Almacenar agua"], a:1},
+  {q:"En la célula vegetal, los cloroplastos permiten producir energía a través de:", opts:["La respiración","La fotosíntesis","La digestión celular","El transporte activo"], a:1}
+];
+
+/* ===========================
+   RENDER UI
+   =========================== */
+const mcqList   = document.getElementById('mcqList');
+const resultBox = document.getElementById('resultBox');
+const kpiCorrect= document.getElementById('kpiCorrect');
+const kpiWrong  = document.getElementById('kpiWrong');
+const kpiScore  = document.getElementById('kpiScore');
+const sumList   = document.getElementById('sumList');
+const alNombre  = document.getElementById('alNombre');
+const alApellido= document.getElementById('alApellido');
+const alCurso   = document.getElementById('alCurso');
+const btnFinish = document.getElementById('btnFinish');
+const btnReset  = document.getElementById('btnReset');
+const btnPrint  = document.getElementById('btnPrint');
+const btnSend   = document.getElementById('btnSend');
+const btnOpenForm = document.getElementById('btnOpenForm');
+
+if (FORMS_URL) btnOpenForm.href = FORMS_URL; else btnOpenForm.href = '#';
+
+// autocompletar desde localStorage
+(function preloadStudent(){
+  alNombre.value   = localStorage.getItem('alNombre')   || '';
+  alApellido.value = localStorage.getItem('alApellido') || '';
+  alCurso.value    = localStorage.getItem('alCurso')    || '';
+})();
+[alNombre,alApellido,alCurso].forEach(i=> i.addEventListener('change',()=> localStorage.setItem(i.id, i.value.trim())));
+
+function renderMCQ(){
+  mcqList.innerHTML='';
+  MCQ.forEach((item, idx)=>{
+    const card = document.createElement('div'); card.className='qCard';
+    const h = document.createElement('h4'); h.className='qTitle'; h.textContent = `${idx+1}. ${item.q}`; card.appendChild(h);
+    const wrap = document.createElement('div'); wrap.className='opts';
+    item.opts.forEach((opt, i)=>{
+      const id = `q${idx}_o${i}`;
+      const row = document.createElement('label'); row.className='opt'; row.setAttribute('for', id);
+      const radio = document.createElement('input'); radio.type='radio'; radio.name=`q${idx}`; radio.id=id; radio.value=i;
+      const span = document.createElement('span'); span.textContent = opt;
+      row.appendChild(radio); row.appendChild(span);
+      wrap.appendChild(row);
+    });
+    card.appendChild(wrap);
+    mcqList.appendChild(card);
+  });
+  resultBox.style.display='none';
+}
+renderMCQ();
+
+/* ===========================
+   CORREGIR / RESULTADOS
+   =========================== */
+btnFinish.onclick = ()=>{
+  const nombre = alNombre.value.trim(), apellido = alApellido.value.trim(), curso = alCurso.value.trim();
+  if(!nombre || !apellido || !curso){ alert('Completa Nombre, Apellido y Curso.'); return; }
+
+  let correct=0, wrong=0; const detail=[];
+  MCQ.forEach((item, idx)=>{
+    const sel = document.querySelector(`input[name=q${idx}]:checked`);
+    const choice = sel ? parseInt(sel.value,10) : -1;
+    const ok = (choice===item.a); if(ok) correct++; else wrong++;
+    detail.push({i:idx+1, q:item.q, choice, choiceText: choice>=0?item.opts[choice]:'(sin respuesta)', correct:item.opts[item.a], isOK:ok});
+  });
+  const scorePct = Math.round((correct/MCQ.length)*100);
+
+  kpiCorrect.textContent = `✔ Correctas: ${correct}`;
+  kpiWrong.textContent   = `✘ Incorrectas: ${wrong}`;
+  kpiScore.textContent   = `🏁 Puntaje: ${scorePct}%`;
+  sumList.innerHTML='';
+  detail.forEach(d=>{
+    const li=document.createElement('li'); li.className = d.isOK ? 'correct' : 'wrong';
+    li.innerHTML = `<strong>${d.i}.</strong> ${d.q}<br><small>Tu respuesta: ${d.choiceText} · Correcta: ${d.correct}</small>`;
+    sumList.appendChild(li);
+  });
+  resultBox.style.display='block';
+
+  window._lastReport = { nombre, apellido, curso, correct, wrong, scorePct, detail, when:new Date().toISOString() };
+};
+
+btnReset.onclick = ()=>{ renderMCQ(); window._lastReport=null; window.scrollTo({top:0,behavior:'smooth'}); };
+btnPrint.onclick = ()=> window.print();
+
+/* ===========================
+   EMAIL + PDF
+   =========================== */
+function ensureEmailJS(){
+  if(!EMAILJS_PUBLIC_KEY || !EMAILJS_SERVICE_ID || !EMAILJS_TEMPLATE_ID){
+    alert('Configura EMAILJS_PUBLIC_KEY, SERVICE_ID y TEMPLATE_ID antes de enviar.');
+    return false;
+  }
+  try { emailjs.init(EMAILJS_PUBLIC_KEY); } catch(e) {}
+  return true;
+}
+
+// Genera un PDF (data URI base64) a partir del resumen visible
+async function generarPDFasDataURI() {
+  const box = document.getElementById('resultBox');
+  if (!box || box.style.display === 'none') {
+    throw new Error('Primero presiona “Terminar y corregir” para generar el resumen.');
+  }
+
+  // Clon "limpio" del resumen para el PDF
+  const clone = box.cloneNode(true);
+  const header = document.createElement('h2');
+  header.textContent = 'Resultados Trivia — Célula Animal y Vegetal';
+  header.style.margin = '0 0 8px 0';
+  header.style.fontFamily = 'system-ui, Segoe UI, Roboto, Arial, sans-serif';
+  header.style.fontWeight = '800';
+
+  const meta = document.createElement('p');
+  meta.style.margin = '4px 0 12px 0';
+  meta.style.fontSize = '13px';
+  meta.textContent = window._lastReport
+    ? `Estudiante: ${_lastReport.nombre} ${_lastReport.apellido} — Curso: ${_lastReport.curso} — Fecha: ${new Date().toLocaleString()}`
+    : '';
+
+  const wrap = document.createElement('div');
+  wrap.style.padding = '12px';
+  wrap.style.color = '#000';
+  wrap.style.background = '#fff';
+  wrap.appendChild(header);
+  wrap.appendChild(meta);
+  wrap.appendChild(clone);
+
+  const opt = {
+    margin:       10,
+    filename:     'Resultados.pdf',
+    image:        { type: 'jpeg', quality: 0.96 },
+    html2canvas:  { scale: 2, useCORS: true },
+    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+  };
+
+  const dataUri = await html2pdf().set(opt).from(wrap).toPdf().output('datauristring');
+  return dataUri; // "data:application/pdf;base64,JVBERi0xLjcK..."
+}
+
+btnSend.onclick = async ()=>{
+  if (!window._lastReport) { alert('Primero termina y corrige la trivia.'); return; }
+  if (!ensureEmailJS()) return;
+
+  try {
+    const pdfDataUri = await generarPDFasDataURI();
+
+    const r = window._lastReport;
+    const alumno = `${r.nombre} ${r.apellido}`.trim();
+    const curso  = r.curso;
+    const asunto = `Resultados Trivia Células — ${alumno} (${curso})`;
+    const textoPlano = [
+      `Estudiante: ${alumno}`,
+      `Curso: ${curso}`,
+      `Fecha: ${new Date().toLocaleString()}`,
+      `Puntaje: ${r.scorePct}% (✔ ${r.correct} · ✘ ${r.wrong})`,
+      ``,
+      `Detalle en PDF adjunto.`
+    ].join('\n');
+
+    await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+      to: (Array.isArray(REPORT_TO) ? REPORT_TO.join(',') : REPORT_TO),
+      subject: asunto,
+      message: textoPlano,
+      alumno: alumno,
+      curso: curso,
+      puntaje: r.scorePct,
+      // Debe coincidir con el "Parameter name" del Variable Attachment en tu plantilla
+      pdf_content: pdfDataUri
+    });
+
+    alert('¡Enviado! Los resultados fueron enviados por correo con el PDF adjunto.');
+  } catch (err) {
+    console.error(err);
+    alert('No se pudo enviar el correo. Revisa claves de EmailJS o conexión.');
+  }
+};
+
+/* ===========================
+   BONUS: setear URL de Forms vía click derecho
+   =========================== */
+document.getElementById('btnOpenForm').addEventListener('contextmenu',(e)=>{
+  e.preventDefault();
+  const u = prompt('Pega la URL pública de tu Google Forms:', FORMS_URL || '');
+  if (u!==null){ localStorage.setItem('FORMS_URL', u.trim()); location.reload(); }
+});
+</script>
+  <script src="./assets/js/legal-footer.js" defer></script>
+  <script src="./assets/js/anti-copy.js" defer></script>
+</body>
+</html>
+
+

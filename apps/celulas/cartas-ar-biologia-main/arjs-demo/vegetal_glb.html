@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <title>RA — Célula (HIRO) · Vegetal</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+
+  <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@3.4.5/aframe/build/aframe-ar.js"></script>
+
+  <style>
+    html, body { margin:0; padding:0; height:100%; background:transparent; overflow:hidden;
+                 touch-action:none; overscroll-behavior:contain; }
+    #arjs-video, .arjs-video, video[playsinline] {
+      position: fixed !important; top:0; left:0; width:100vw; height:100vh;
+      object-fit: cover; z-index:0; background: transparent;
+    }
+    canvas, .a-canvas {
+      position: fixed !important; top:0; left:0; width:100vw !important; height:100vh !important;
+      z-index:2; touch-action:none !important; background: transparent !important;
+    }
+
+    .hud{position:fixed;left:0;right:0;top:0;padding:.55rem .8rem;color:#fff;
+         font-family:system-ui,Arial,sans-serif;background:linear-gradient(180deg,rgba(0,0,0,.6),rgba(0,0,0,0));z-index:5}
+    .toolbar{position:fixed;right:8px;top:8px;display:flex;gap:8px;z-index:6}
+    .btn{border:1px solid rgba(255,255,255,.25);color:#fff;background:rgba(0,0,0,.35);
+         border-radius:10px;padding:6px 10px;font-family:system-ui,Arial,sans-serif;cursor:pointer}
+    .btn.active{background:rgba(60,201,255,.25);border-color:#3cc9ff}
+    .loading{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);font-family:system-ui,Arial,sans-serif;
+             color:#fff;background:rgba(0,0,0,.5);padding:.6rem .9rem;border-radius:10px;display:none;z-index:7}
+
+    .status{
+      position:fixed;left:8px;
+      top: calc(60px + env(safe-area-inset-top));
+      background:rgba(0,0,0,.40); color:#fff; padding:6px 10px;
+      border:1px solid rgba(255,255,255,.24); border-radius:8px; font:14px system-ui; z-index:9
+    }
+    .status.ok{ background:rgba(16,185,129,.20); border-color:rgba(34,197,94,.45); }
+
+    .controls { position: fixed; right: 10px; bottom: 10px; z-index: 8;
+      display: grid; grid-template-columns: repeat(3, 48px); grid-gap: 8px; user-select: none; }
+    .ctrl { width:48px; height:48px; border-radius:12px; border:1px solid rgba(255,255,255,.28);
+      background:rgba(0,0,0,.45); color:#fff; font:600 20px/48px system-ui,Arial; text-align:center;
+      cursor:pointer; box-shadow:0 4px 14px rgba(0,0,0,.25); }
+
+        /* Panel sliders (compacto) */
+    .panel{
+      position:fixed; left:10px; bottom:10px; z-index:8;
+      padding:8px 10px; background:rgba(0,0,0,.45);
+      border:1px solid rgba(255,255,255,.28); border-radius:10px; min-width:190px
+    }
+    .panel label{display:flex; align-items:center; gap:6px; font:600 12px system-ui; color:#fff; margin:4px 0}
+    .panel input[type="range"]{width:130px}
+    
+    /* Ajuste extra en pantallas pequeñas */
+    @media (max-width:480px){
+      .panel{padding:6px 8px; min-width:170px}
+      .panel input[type="range"]{width:110px}
+      /* opcional: hacer un pelín más pequeños los botones de la derecha */
+      .controls{grid-gap:6px}
+      .ctrl{width:44px; height:44px; font:600 18px/44px system-ui}
+    }
+    .infoPanel{
+      position:fixed; left:10px;
+      top: calc(100px + env(safe-area-inset-top)); z-index:8;
+      width:min(360px, 86vw); max-height:60vh; overflow:auto;
+      padding:12px; background:rgba(0,0,0,.55);
+      border:1px solid rgba(255,255,255,.28); border-radius:14px; backdrop-filter: blur(2px);
+    }
+    .infoPanel h3{margin:0 0 6px 0; font:700 16px system-ui; color:#fff}
+    .infoPanel h4{margin:10px 0 6px 0; font:700 13px system-ui; color:#cfe6ff}
+    .infoPanel ul{margin:0; padding-left:16px}
+    .infoPanel li{margin:2px 0; color:#e9f2ff; font:13px system-ui}
+    .chips{display:flex; flex-wrap:wrap; gap:6px; margin-top:4px}
+    .chip{
+      padding:6px 8px; border-radius:999px; font:700 12px system-ui;
+      color:#132; background:rgba(57,255,20,.15); border:1px solid #39ff14;
+      box-shadow:0 0 8px rgba(57,255,20,.5) inset, 0 0 6px rgba(57,255,20,.25);
+    }
+
+    .progress {
+      position: fixed; left:50%; transform: translateX(-50%);
+      top: calc(90px + env(safe-area-inset-top)); z-index:9;
+      width: min(60vw, 520px); height: 10px;
+      background: rgba(255,255,255,.15); border-radius:999px; overflow:hidden; display:none;
+      border:1px solid rgba(57,255,20,.35);
+    }
+    .progress .bar{
+      width:0%; height:100%;
+      background: linear-gradient(90deg, #39ff14, #bfff00);
+      box-shadow: 0 0 12px #39ff14, 0 0 24px #39ff14;
+      transition: width .15s ease;
+    }
+    .progress .pct{
+      position:absolute; right:0; top:-22px; font:700 12px system-ui; color:#bfff00;
+      text-shadow: 0 0 8px #39ff14;
+    }
+
+    .gate { position:fixed; inset:0; display:none; align-items:center; justify-content:center; background:#000c; z-index:10; }
+    .gate.show { display:flex; }
+    .gate button { font:600 16px system-ui,Arial; padding:12px 18px; border-radius:12px; border:1px solid #fff6; color:#fff; background:#000a; cursor:pointer; }
+  </style>
+</head>
+<body>
+  <div class="hud">RA — Célula <span id="labelKind" style="opacity:.9">Vegetal</span> · Marcador <b>HIRO</b></div>
+  <div class="toolbar">
+    <button id="btnAnimal" class="btn">Animal</button>
+    <button id="btnVegetal" class="btn active">Vegetal</button>
+    <button id="btnAuto" class="btn" title="Auto-rotación">Auto</button>
+    <button id="btnInfo" class="btn active" title="Ver/Ocultar ficha">Info</button>
+  </div>
+  <div id="loading" class="loading">Cargando modelo…</div>
+  <div id="status" class="status">Buscando marcador…</div>
+
+  <div class="progress" id="progress">
+    <div class="bar" id="progressBar"></div>
+    <div class="pct" id="progressPct">0%</div>
+  </div>
+
+  <div class="infoPanel" id="infoPanel"></div>
+
+  <div class="controls" id="controls">
+    <div class="ctrl" id="rotL"   title="Rotar izquierda">↶</div>
+    <div class="ctrl" id="reset"  title="Reset">⟲</div>
+    <div class="ctrl" id="rotR"   title="Rotar derecha">↷</div>
+    <div class="ctrl" id="zoomOut" title="Zoom -">−</div>
+    <div class="ctrl" id="center"  title="Centrar">◎</div>
+    <div class="ctrl" id="zoomIn"  title="Zoom +">+</div>
+  </div>
+
+  <div class="panel" id="panel">
+    <label>Zoom
+      <input type="range" id="scaleRange" min="0.20" max="3.00" step="0.01" value="0.36">
+    </label>
+    <label>Vel. rotación
+      <input type="range" id="speedRange" min="-60" max="60" step="1" value="20">
+    </label>
+  </div>
+
+  <div id="gate" class="gate"><button id="startBtn">Iniciar cámara</button></div>
+
+  <a-scene
+    embedded
+    vr-mode-ui="enabled: false"
+    device-orientation-permission-ui="enabled: false"
+    renderer="antialias: true; precision: mediump"
+    arjs="sourceType: webcam; sourceWidth: 1280; sourceHeight: 720; debugUIEnabled: false;"
+    style="background:#000">
+
+    <a-entity light="type: ambient; intensity: 0.9"></a-entity>
+    <a-entity light="type: directional; intensity: 0.7" position="1 1 0"></a-entity>
+
+    <a-marker preset="hiro" id="hiro" smooth="true" smoothCount="10" smoothTolerance="0.01" smoothThreshold="5">
+      <a-entity id="cellModel"
+        position="0 0 0" rotation="0 0 0" scale="0.36 0.36 0.36"
+        gesture-handler="minScale:0.20; maxScale:3.0; rotFactor:0.5"
+        pinch-scale="min:0.20; max:3.0; factor:1"
+        tap-reset="scale:0.36; rotYdeg:0"
+        auto-rotator="enabled:false; speed:20"></a-entity>
+    </a-marker>
+
+    <!-- Cámara con cursor para clicks -->
+    <a-entity camera cursor="rayOrigin: mouse" raycaster="objects: .hs-click"></a-entity>
+  </a-scene>
+
+  <script>
+    /* ====== Gestos / Billboard / Hotspots ====== */
+    AFRAME.registerComponent('gesture-handler',{schema:{rotFactor:{default:0.45},minScale:{default:0.05},maxScale:{default:3.0}},
+      init:function(){this.oneFinger=false;this.lastX=0;const s=this.el.sceneEl;const add=()=>{const t=s.canvas||s;
+        t.addEventListener('touchstart',e=>{if(e.touches.length===1){this.oneFinger=true;this.lastX=e.touches[0].clientX;}},{passive:false});
+        t.addEventListener('touchmove',e=>{if(this.oneFinger&&e.touches.length===1){const dx=e.touches[0].clientX-this.lastX;this.lastX=e.touches[0].clientX;
+          this.el.object3D.rotation.y-=(dx*this.data.rotFactor)*Math.PI/180;e.preventDefault();}},{passive:false});
+        t.addEventListener('touchend',()=>{this.oneFinger=false;},{passive:false});t.addEventListener('touchcancel',()=>{this.oneFinger=false;},{passive:false});};
+        s.hasLoaded?add():s.addEventListener('loaded',add,{once:true});}});
+    AFRAME.registerComponent('pinch-scale',{schema:{min:{default:0.1},max:{default:4},factor:{default:1}},
+      init:function(){this.active=false;this.startDist=0;this.startScale=this.el.object3D.scale.clone();const s=this.el.sceneEl;const add=()=>{const c=s.canvas||s;
+        c.addEventListener('touchstart',e=>{if(e.touches.length===2){this.active=true;const dx=e.touches[0].clientX-e.touches[1].clientX;const dy=e.touches[0].clientY-e.touches[1].clientY;
+          this.startDist=Math.hypot(dx,dy);this.startScale=this.el.object3D.scale.clone();e.preventDefault();}}, {passive:false});
+        c.addEventListener('touchmove',e=>{if(!this.active||e.touches.length!==2)return;const dx=e.touches[0].clientX-e.touches[1].clientX;const dy=e.touches[0].clientY-e.touches[1].clientY;
+          const dist=Math.hypot(dx,dy);const k=(dist/this.startDist)*this.data.factor;const sX=THREE.MathUtils.clamp(this.startScale.x*k,this.data.min,this.data.max);
+          this.el.object3D.scale.set(sX,sX,sX);e.preventDefault();},{passive:false});
+        const end=()=>{this.active=false;};c.addEventListener('touchend',end,{passive:false});c.addEventListener('touchcancel',end,{passive:false});
+        c.addEventListener('wheel',e=>{e.preventDefault();const dir=e.deltaY>0?0.9:1.1;const sc=this.el.object3D.scale.x*dir;
+          const cl=THREE.MathUtils.clamp(sc,this.data.min,this.data.max);this.el.object3D.scale.set(cl,cl,cl);},{passive:false});};
+        s.hasLoaded?add():s.addEventListener('loaded',add,{once:true});}});
+    AFRAME.registerComponent('tap-reset',{schema:{scale:{default:1},rotYdeg:{default:0}},init:function(){this.lastTap=0;const s=this.el.sceneEl;const add=()=>{const t=s.canvas||s;
+      t.addEventListener('touchend',()=>{const n=performance.now();if(n-this.lastTap<300){const sc=this.data.scale;this.el.object3D.scale.set(sc,sc,sc);
+        this.el.object3D.rotation.y=THREE.MathUtils.degToRad(this.data.rotYdeg);}this.lastTap=n;},{passive:true});};s.hasLoaded?add():s.addEventListener('loaded',add,{once:true});}});
+    AFRAME.registerComponent('billboard',{tick:function(){const cam=this.el.sceneEl&&this.el.sceneEl.camera;if(!cam)return;this.el.object3D.quaternion.copy(cam.el.object3D.quaternion);}});
+
+    const HS = {
+      animal: [
+        {name:'Núcleo', desc:'Controla la célula y guarda el ADN.', pos:[0,0.12,0]},
+        {name:'Mitocondrias', desc:'Producen ATP (energía).', pos:[0.18,0.06,0.04]},
+        {name:'Aparato de Golgi', desc:'Empaqueta y distribuye proteínas/lípidos.', pos:[0.12,0.00,-0.15]},
+        {name:'Ribosomas', desc:'Sintetizan proteínas.', pos:[-0.18,0.08,0]},
+        {name:'Lisosomas', desc:'Digestión celular de desechos.', pos:[-0.12,-0.02,0.14], diff:true},
+        {name:'Centriolos', desc:'Organizan huso mitótico.', pos:[0.16,0.14,-0.02], diff:true},
+        {name:'Membrana plasmática', desc:'Delimita e intercambia.', pos:[0,-0.08,0.2]},
+        {name:'Citoplasma', desc:'Medio de reacciones químicas.', pos:[-0.06,0.02,-0.18]}
+      ],
+      vegetal: [
+        {name:'Núcleo', desc:'Controla la célula y guarda el ADN.', pos:[0,0.12,0]},
+        {name:'Cloroplastos', desc:'Fotosíntesis: luz → energía química.', pos:[0.18,0.05,0], diff:true},
+        {name:'Vacuola central', desc:'Almacenamiento y turgencia.', pos:[-0.12,0.02,-0.1], diff:true},
+        {name:'Pared celular', desc:'Rigidez y protección (celulosa).', pos:[0,0,-0.22], diff:true},
+        {name:'Plasmodesmos', desc:'Comunicación entre células vegetales.', pos:[-0.20,0.00,0.12], diff:true},
+        {name:'Aparato de Golgi', desc:'Empaque y secreción.', pos:[0.12,0,-0.15]},
+        {name:'Mitocondrias', desc:'Producción de ATP.', pos:[-0.18,0.06,0.02]},
+        {name:'Ribosomas', desc:'Síntesis de proteínas.', pos:[0.0,0.16,0.16]}
+      ]
+    };
+
+    function clearHotspots(){ const old=document.getElementById('hsRoot'); if(old&&old.parentNode) old.parentNode.removeChild(old); }
+    function makeHotspots(kind){
+      clearHotspots(); const items=HS[kind]||[];
+      const root=document.createElement('a-entity'); root.setAttribute('id','hsRoot'); modelEl.appendChild(root);
+      items.forEach(item=>{
+        const wrap=document.createElement('a-entity'); wrap.setAttribute('position', item.pos.join(' '));
+        const dot=document.createElement('a-entity'); dot.classList.add('hs-click');
+        dot.setAttribute('geometry', `primitive: sphere; radius: ${item.diff?0.055:0.035}`);
+        dot.setAttribute('material', `color:${item.diff?'#39ff14':'#00d4ff'}; emissive:${item.diff?'#39ff14':'#00a0ff'}; emissiveIntensity:0.85; metalness:0; roughness:0.3; side: double`);
+        if(item.diff){ dot.setAttribute('animation','property: scale; dir: alternate; dur:800; loop:true; to:1.25 1.25 1.25; easing:easeInOutSine'); }
+        const tip=document.createElement('a-entity'); tip.setAttribute('position','0 0.12 0'); tip.setAttribute('visible','false'); tip.setAttribute('billboard','');
+        const bg=document.createElement('a-entity'); bg.setAttribute('geometry','primitive: plane; width: 0.60; height: auto'); bg.setAttribute('material','color:#000; opacity:0.78; side: double');
+        const txt=document.createElement('a-text'); txt.setAttribute('value',`${item.name}: ${item.desc}`); txt.setAttribute('color','#fff'); txt.setAttribute('align','center'); txt.setAttribute('width','1.3'); txt.setAttribute('wrap-count','30');
+        tip.appendChild(bg); tip.appendChild(txt); wrap.appendChild(dot); wrap.appendChild(tip);
+        wrap.addEventListener('click', ()=>{ root.querySelectorAll('[visible="true"]').forEach(el=> el.setAttribute('visible','false')); tip.setAttribute('visible','true'); setTimeout(()=>{ if(tip.getAttribute('visible')==='true') tip.setAttribute('visible','false'); }, 5000); });
+        root.appendChild(wrap);
+      });
+    }
+
+    AFRAME.registerComponent('auto-rotator',{schema:{speed:{default:20},enabled:{default:false}},tick:function(t,dt){
+      if(!this.data.enabled)return; this.el.object3D.rotation.y+=THREE.MathUtils.degToRad(this.data.speed)*(dt/1000);
+    }});
+
+    /* ====== App ====== */
+    const INIT={ animal:{scale:0.40,rotYdeg:0}, vegetal:{scale:0.36,rotYdeg:0} };
+    const MIN_SCALE=0.20, MAX_SCALE=3.0, ROT_STEP_DEG=8, ZOOM_STEP=1.12;
+    const MAP={ animal:{normal:"../assets/models/animal.glb",draco:"../assets/models/animal_draco.glb"},
+                vegetal:{normal:"../assets/models/vegetal.glb",draco:"../assets/models/vegetal_draco.glb"} };
+
+    const CONTENT = {
+      animal: {
+        titulo: "Célula Animal",
+        componentes: [
+          ["Núcleo","Controla la célula y guarda el ADN."],
+          ["Membrana plasmática","Delimita y regula el intercambio de sustancias."],
+          ["Citoplasma","Medio donde ocurren reacciones químicas."],
+          ["Ribosomas","Fabrican proteínas."],
+          ["R.E. rugoso","Sintetiza y procesa proteínas."],
+          ["R.E. liso","Sintetiza lípidos y detoxifica."],
+          ["Aparato de Golgi","Empaqueta y distribuye proteínas/lípidos."],
+          ["Mitocondrias","Producen ATP (energía)."],
+          ["Lisosomas","Digieren desechos y partículas."],
+          ["Peroxisomas","Metabolismo de peróxidos."],
+          ["Citoesqueleto","Forma, soporte y transporte interno."],
+          ["Centriolos","Organizan huso mitótico en división celular."]
+        ],
+        diferencia: ["Sin pared celular","Sin cloroplastos","Vacuolas pequeñas y múltiples","Centriolos presentes","Lisosomas abundantes"]
+      },
+      vegetal: {
+        titulo: "Célula Vegetal",
+        componentes: [
+          ["Núcleo","Controla la célula y guarda el ADN."],
+          ["Membrana plasmática","Regula el intercambio con el exterior."],
+          ["Pared celular (celulosa)","Aporta rigidez y protección."],
+          ["Citoplasma","Medio de reacciones celulares."],
+          ["Ribosomas","Síntesis de proteínas."],
+          ["R.E. rugoso/liso","Proteínas y lípidos."],
+          ["Aparato de Golgi","Empaque y secreción."],
+          ["Mitocondrias","Producción de ATP."],
+          ["Vacuola central","Almacenamiento y turgencia (presión interna)."],
+          ["Cloroplastos","Fotosíntesis: luz → energía química."],
+          ["Plasmodesmos","Canales de comunicación entre células vegetales."],
+          ["Citoesqueleto","Estructura y transporte."]
+        ],
+        diferencia: ["Pared celular (celulosa)","Cloroplastos (fotosíntesis)","Vacuola central grande","Plasmodesmos","Sin centriolos típicos"]
+      }
+    };
+
+    const params=new URLSearchParams(location.search);
+    let kind=(params.get('m')||'vegetal').toLowerCase(); if(!MAP[kind]) kind='vegetal';
+
+    const modelEl=document.getElementById('cellModel');
+    const labelEl=document.getElementById('labelKind');
+    const btnA=document.getElementById('btnAnimal');
+    const btnV=document.getElementById('btnVegetal');
+    const btnAuto=document.getElementById('btnAuto');
+    const btnInfo=document.getElementById('btnInfo');
+    const loading=document.getElementById('loading');
+    const statusEl=document.getElementById('status');
+    const markerEl=document.getElementById('hiro');
+
+    const rotL=document.getElementById('rotL'), rotR=document.getElementById('rotR');
+    const zoomIn=document.getElementById('zoomIn'), zoomOut=document.getElementById('zoomOut');
+    const resetBtn=document.getElementById('reset'); const centerBtn=document.getElementById('center');
+
+    const scaleRange=document.getElementById('scaleRange'); const speedRange=document.getElementById('speedRange');
+    const infoPanel=document.getElementById('infoPanel');
+
+    const progress=document.getElementById('progress'); const progressBar=document.getElementById('progressBar'); const progressPct=document.getElementById('progressPct');
+    function showProgress(p){ progress.style.display='block'; setProgress(p); }
+    function setProgress(p){ const v=Math.max(0,Math.min(1,p||0)); progressBar.style.width=(v*100).toFixed(0)+'%'; progressPct.textContent=(v*100).toFixed(0)+'%'; }
+    function hideProgress(){ setProgress(1); setTimeout(()=>{progress.style.display='none';},300); }
+    const manager=THREE.DefaultLoadingManager; manager.onStart=function(){showProgress(0);}; manager.onProgress=function(url,l,t){ if(t&&t>0) setProgress(l/t); }; manager.onLoad=function(){hideProgress();};
+
+    function renderInfo(kind){ const c=CONTENT[kind]; if(!c) return;
+      let html=`<h3>${c.titulo}</h3><h4>Componentes y función</h4><ul>`;
+      for(const [n,d] of c.componentes){ html+=`<li><b>${n}:</b> ${d}</li>`; }
+      html+=`</ul><h4>Se diferencia por…</h4><div class="chips">`;
+      for(const it of c.diferencia){ html+=`<span class="chip">${it}</span>`; }
+      html+=`</div>`; infoPanel.innerHTML=html; }
+
+    function setUI(){ btnA.classList.toggle('active',kind==='animal'); btnV.classList.toggle('active',kind==='vegetal');
+      labelEl.textContent=kind==='animal'?'Animal':'Vegetal'; renderInfo(kind);
+      const u=new URL(location.href); u.searchParams.set('m',kind); history.replaceState(null,'',u.toString()); }
+
+    async function exists(u){ try{ const r=await fetch(u+'?t='+Date.now(),{method:'HEAD'}); return r.ok; }catch{return false;} }
+    async function pick(){ const e=MAP[kind]; return (await exists(e.draco))?e.draco:e.normal; }
+
+    async function load(){
+      loading.style.display='block'; showProgress(0);
+      const url=(await pick())+'#'+Date.now(); const init=INIT[kind]||INIT.vegetal;
+
+      modelEl.removeAttribute('gltf-model');
+      modelEl.object3D.scale.set(init.scale,init.scale,init.scale);
+      modelEl.object3D.rotation.set(0,THREE.MathUtils.degToRad(init.rotYdeg),0);
+      modelEl.object3D.position.set(0,0,0);
+      scaleRange.value=init.scale;
+
+      modelEl.setAttribute('auto-rotator', `enabled:${btnAuto.classList.contains('active')}; speed:${parseFloat(speedRange.value)}`);
+      clearHotspots();
+
+      setTimeout(()=>modelEl.setAttribute('gltf-model',url),30);
+    }
+
+    btnA.onclick=()=>{kind='animal'; setUI(); load();};
+    btnV.onclick=()=>{kind='vegetal'; setUI(); load();};
+
+    btnAuto.onclick=()=>{ const enabled=!btnAuto.classList.contains('active'); btnAuto.classList.toggle('active',enabled);
+      modelEl.setAttribute('auto-rotator', `enabled:${enabled}; speed:${parseFloat(speedRange.value)}`); };
+
+    btnInfo.onclick=()=>{ const visible = infoPanel.style.display !== 'none'; infoPanel.style.display = visible ? 'none' : 'block'; btnInfo.classList.toggle('active', !visible); };
+
+    modelEl.addEventListener('model-loaded',()=>{loading.style.display='none'; hideProgress(); makeHotspots(kind);});
+    modelEl.addEventListener('model-error',e=>{loading.style.display='none'; hideProgress(); statusEl.textContent='Error cargando modelo ❌'; statusEl.classList.remove('ok'); alert('No se pudo cargar el modelo.'); console.error(e.detail);});
+
+    markerEl.addEventListener('markerFound',()=>{ statusEl.textContent='Marcador detectado ✅'; statusEl.classList.add('ok'); });
+    markerEl.addEventListener('markerLost', ()=>{ statusEl.textContent='Buscando marcador…'; statusEl.classList.remove('ok'); });
+
+    const scene=document.querySelector('a-scene');
+    scene.addEventListener('loaded',()=>{const r=scene.renderer; if(r&&r.setClearAlpha) r.setClearAlpha(0); else if(r&&r.setClearColor) r.setClearColor(0x000000,0);});
+
+    function styleArVideo(v){ if(!v) return; v.setAttribute('playsinline',''); v.setAttribute('webkit-playsinline',''); v.muted=true; v.autoplay=true;
+      Object.assign(v.style,{position:'fixed',top:'0',left:'0',width:'100vw',height:'100vh',objectFit:'cover',zIndex:'0',background:'transparent'}); }
+    function findArVideo(){ return document.getElementById('arjs-video')||document.querySelector('.arjs-video')||document.querySelector('video'); }
+    async function ensureVideoPlayback(){ const v=findArVideo(); if(!v) return false; styleArVideo(v); try{await v.play(); return true;}catch{return false;} }
+    async function tryStartCameraWithGate(){ let tries=0; while(!findArVideo()&&tries<50){ await new Promise(r=>setTimeout(r,100)); tries++; } const ok=await ensureVideoPlayback(); document.getElementById('gate').classList.toggle('show',!ok); }
+    document.getElementById('startBtn')?.addEventListener('click', async ()=>{ const ok=await ensureVideoPlayback(); if(ok) document.getElementById('gate').classList.remove('show'); });
+
+    function clampScale(s){ return Math.min(Math.max(s,MIN_SCALE),MAX_SCALE); }
+    function setScaleUniform(s){ s=clampScale(s); modelEl.object3D.scale.set(s,s,s); scaleRange.value=s.toFixed(2); }
+    rotL.addEventListener('click',()=>{ modelEl.object3D.rotation.y += THREE.MathUtils.degToRad(ROT_STEP_DEG); });
+    rotR.addEventListener('click',()=>{ modelEl.object3D.rotation.y -= THREE.MathUtils.degToRad(ROT_STEP_DEG); });
+    zoomIn.addEventListener('click',()=>{ setScaleUniform(modelEl.object3D.scale.x * ZOOM_STEP); });
+    zoomOut.addEventListener('click',()=>{ setScaleUniform(modelEl.object3D.scale.x / ZOOM_STEP); });
+    resetBtn.addEventListener('click',()=>{ const init=INIT[kind]||INIT.vegetal; modelEl.object3D.scale.set(init.scale,init.scale,init.scale); modelEl.object3D.rotation.set(0,THREE.MathUtils.degToRad(init.rotYdeg),0); scaleRange.value=init.scale; });
+    centerBtn.addEventListener('click',()=>{ modelEl.object3D.position.set(0,0,0); });
+
+    scaleRange.addEventListener('input', ()=> setScaleUniform(parseFloat(scaleRange.value)) );
+    speedRange.addEventListener('input', ()=>{ const enabled=btnAuto.classList.contains('active'); modelEl.setAttribute('auto-rotator', `enabled:${enabled}; speed:${parseFloat(speedRange.value)}`); });
+
+    document.getElementById('panel').addEventListener('touchstart', e=> e.stopPropagation(), {passive:true});
+    document.getElementById('controls').addEventListener('touchstart', e=> e.stopPropagation(), {passive:true});
+    infoPanel.addEventListener('touchstart', e=> e.stopPropagation(), {passive:true});
+
+    setUI(); load(); tryStartCameraWithGate();
+  </script>
+</body>
+</html>

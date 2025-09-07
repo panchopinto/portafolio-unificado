@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<title>3D — Célula (simple)</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+<script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+<style>
+  :root{
+    /* Offset dinámico para no chocar con footer/badges fijos (se setea vía JS) */
+    --fixedBottomOffset: 0px;
+
+    /* Columna izquierda (ahora se ajusta al contenido) */
+    --leftColMaxW: 260px;  /* ya no limita, pero lo dejamos por compatibilidad */
+    --leftColVW:   34vw;
+    --leftBtnMinLines: 1;  /* ya no se usa para altura */
+
+    /* Tamaños solicitados (físicos): 1 cm alto, 1.2 cm ancho
+       Equivalencias aproximadas: 1cm ≈ 37.80px, 1.2cm ≈ 45.36px */
+    --leftBtnW: 1.2cm; /* ~45.36px */
+    --leftBtnH: 1cm;   /* ~37.80px */
+  }
+
+  html,body{margin:0;height:100%;background:#000;overflow:hidden;touch-action:none;overscroll-behavior:contain}
+  canvas,.a-canvas{position:fixed;inset:0;width:100vw!important;height:100vh!important;background:#000!important}
+
+  /* Título (centrado) */
+  .hud{
+    position:fixed;left:0;right:0;top:0;
+    padding:.55rem .8rem;color:#fff;font:600 14px system-ui;z-index:5;
+    background:linear-gradient(180deg,rgba(0,0,0,.6),rgba(0,0,0,0));
+    text-align:center;
+  }
+
+  /* Toolbar superior: SOLO Animal/Vegetal centrados */
+  .toolbar{
+    position:fixed;
+    top:44px;               /* debajo del HUD */
+    left:50%;
+    transform:translateX(-50%);
+    display:flex;gap:8px;z-index:6
+  }
+
+  /* Columna izquierda (Auto, Info, Editar) */
+  .leftColumn{
+    position:fixed; z-index:6;
+    left:12px;
+    top: 88px; /* debajo de la toolbar superior */
+    display:flex; flex-direction:column; gap:10px;
+    /* Antes: width:min(var(--leftColVW), var(--leftColMaxW));  */
+    width: max-content;           /* ➜ se ajusta exactamente al contenido */
+    max-width: 92vw;
+  }
+  .card{
+    background:rgba(0,0,0,.35); border:1px solid rgba(255,255,255,.18);
+    backdrop-filter: blur(6px); border-radius:14px; box-shadow:0 8px 24px rgba(0,0,0,.25);
+    padding:10px;
+  }
+  .group{ display:flex; flex-direction:column; gap:8px }
+
+  .btn{
+    border:1px solid rgba(255,255,255,.25);color:#fff;background:rgba(0,0,0,.35);
+    border-radius:10px;padding:8px 10px;font:600 13px/1.2 system-ui;cursor:pointer;
+    transition:.15s;
+  }
+  .btn.active{background:rgba(60,201,255,.25);border-color:#3cc9ff}
+
+  /* Botones de la izquierda: tamaño físico fijo solicitado */
+  .leftBtn{
+    display:inline-flex; align-items:center; justify-content:center;
+
+    /* Tamaño EXACTO incluido padding/borde (box-sizing:border-box aplica global) */
+    width: var(--leftBtnW);
+    min-width: var(--leftBtnW);
+    max-width: var(--leftBtnW);
+
+    height: var(--leftBtnH);
+    min-height: var(--leftBtnH);
+    max-height: var(--leftBtnH);
+
+    /* Ajustes para que “Editar” quepa bien en 1.2cm */
+    padding: 4px 6px;          /* más pequeño que el base */
+    font-size: 12px;           /* un pelín más chico que 13px */
+    white-space: nowrap;       /* sin salto de línea */
+    overflow: hidden;          /* evita desbordes raros */
+    text-overflow: ellipsis;   /* por si en otro idioma es más largo */
+  }
+
+  .progress{position:fixed;left:50%;transform:translateX(-50%);top:90px;z-index:9;width:min(60vw,520px);height:10px;
+            background:rgba(255,255,255,.15);border-radius:999px;overflow:hidden;display:none;border:1px solid rgba(57,255,20,.35)}
+  .progress .bar{width:0%;height:100%;background:linear-gradient(90deg,#39ff14,#bfff00);
+                 box-shadow:0 0 12px #39ff14,0 0 24px #39ff14;transition:width .15s ease}
+  .progress .pct{position:absolute;right:0;top:-22px;font:700 12px system-ui;color:#bfff00;text-shadow:0 0 8px #39ff14}
+
+  .infoPanel{position:fixed;left:12px;top:calc(88px + 120px);z-index:8;width:min(360px,86vw);max-height:60vh;overflow:auto;padding:12px;
+             background:rgba(0,0,0,.55);border:1px solid rgba(255,255,255,.28);border-radius:14px;backdrop-filter:blur(2px)}
+  .infoPanel h3{margin:0 0 6px;font:700 16px system-ui;color:#fff}
+  .infoPanel h4{margin:10px 0 6px;font:700 13px system-ui;color:#cfe6ff}
+  .infoPanel ul{margin:0;padding-left:16px}
+  .infoPanel li{margin:2px 0;color:#e9f2ff;font:13px system-ui}
+  .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+  .chip{padding:6px 8px;border-radius:999px;font:700 12px system-ui;color:#d7e9ff;background:rgba(0,0,0,.25);border:1px solid #39536d}
+  .chip--diff{ color:#fff !important; border-color:#39ff14 !important; background:rgba(57,255,20,.15) !important; box-shadow:0 0 10px rgba(57,255,20,.25) inset }
+
+  .controls{position:fixed;right:10px;bottom:10px;z-index:8;display:grid;grid-template-columns:repeat(3,48px);grid-gap:8px}
+  .ctrl{width:48px;height:48px;border-radius:12px;border:1px solid rgba(255,255,255,.28);background:rgba(0,0,0,.45);color:#fff;
+        font:600 20px/48px system-ui;text-align:center;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.25)}
+
+  .panel{
+    position:fixed;left:10px;
+    bottom: calc(10px + var(--fixedBottomOffset));
+    z-index:8;padding:8px 10px;background:rgba(0,0,0,.45);
+    border:1px solid rgba(255,255,255,.28);border-radius:10px;min-width:190px
+  }
+  .panel label{display:flex;align-items:center;gap:6px;font:600 12px system-ui;color:#fff;margin:4px 0}
+  .panel input[type=range]{width:130px}
+
+  /* EDITOR */
+  .editor{position:fixed;right:10px;top:100px;z-index:9;display:none;gap:8px;flex-direction:column;
+          background:rgba(0,0,0,.55);border:1px solid rgba(255,255,255,.28);border-radius:12px;padding:10px;min-width:220px}
+  .editor.show{display:flex}
+  .editor h4{margin:0 0 6px;font:700 13px system-ui;color:#cfe6ff}
+  .row{display:flex;align-items:center;gap:6px}
+  select, input[type=number]{font:600 12px system-ui;padding:4px 6px;border-radius:8px;border:1px solid #3cc9ff;background:#021525;color:#e8fbff}
+  .nudge{display:grid;grid-template-columns:repeat(3,40px);grid-gap:6px;justify-content:center}
+  .nudge button{height:36px;border-radius:10px;border:1px solid rgba(255,255,255,.28);background:rgba(0,0,0,.45);color:#fff;cursor:pointer}
+  .editor .small{font:600 12px system-ui;padding:6px 8px;border-radius:10px;border:1px solid rgba(255,255,255,.28);background:rgba(0,0,0,.4);color:#fff;cursor:pointer}
+
+  @media (max-width:480px){
+    .panel{padding:6px 8px;min-width:170px}
+    .panel input[type=range]{width:110px}
+    .controls{grid-gap:6px}
+    .ctrl{width:44px;height:44px;font:600 18px/44px system-ui}
+    .editor{right:8px;top:90px;min-width:200px}
+  }
+</style>
+</head>
+<body>
+  <div class="hud">3D — Célula <span id="labelKind" style="opacity:.9">Animal</span></div>
+
+  <!-- Toolbar superior CENTRADA: solo Animal / Vegetal -->
+  <div class="toolbar">
+    <button id="btnAnimal" class="btn">Animal</button>
+    <button id="btnVegetal" class="btn">Vegetal</button>
+  </div>
+
+  <!-- Columna izquierda: Auto / Info / Editar -->
+  <div class="leftColumn">
+    <div class="card">
+      <div class="group">
+        <button id="btnAuto" class="btn leftBtn" title="Auto-rotación">Auto</button>
+        <button id="btnInfo" class="btn leftBtn" title="Ver/Ocultar ficha">Info</button>
+        <button id="btnEdit" class="btn leftBtn" title="Editar hotspots">Editar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Progreso -->
+  <div class="progress" id="progress"><div class="bar" id="progressBar"></div><div class="pct" id="progressPct">0%</div></div>
+
+  <!-- Ficha EDU (OCULTA POR DEFECTO) -->
+  <div class="infoPanel" id="infoPanel" style="display:none"></div>
+
+  <!-- Controles -->
+  <div class="controls" id="controls">
+    <div class="ctrl" id="rotL" title="Rotar izquierda">↶</div>
+    <div class="ctrl" id="reset" title="Reset">⟲</div>
+    <div class="ctrl" id="rotR" title="Rotar derecha">↷</div>
+    <div class="ctrl" id="zoomOut" title="Zoom -">−</div>
+    <div class="ctrl" id="center" title="Centrar">◎</div>
+    <div class="ctrl" id="zoomIn" title="Zoom +">+</div>
+  </div>
+
+  <!-- Panel sliders -->
+  <div class="panel" id="panel">
+    <label>Zoom <input type="range" id="scaleRange" min="0.20" max="3.00" step="0.01" value="0.40"></label>
+    <label>Vel. rotación <input type="range" id="speedRange" min="-60" max="60" step="1" value="20"></label>
+  </div>
+
+  <!-- Editor -->
+  <div class="editor" id="editor">
+    <h4>Ajuste de hotspots</h4>
+    <div class="row">
+      <label for="hsSelect" style="color:#e9f2ff;font:600 12px system-ui;">Hotspot:</label>
+      <select id="hsSelect"></select>
+    </div>
+    <div class="row">
+      <label for="step" style="color:#e9f2ff;font:600 12px system-ui;">Paso:</label>
+      <input id="step" type="number" step="0.001" min="0.001" value="0.01" style="width:80px"/>
+      <button id="dragToggle" class="small" title="Arrastrar sobre modelo">Arrastrar: ON</button>
+    </div>
+    <div class="nudge">
+      <button id="upY">+Y</button><button disabled></button><button id="upZ">+Z</button>
+      <button id="leftX">−X</button><button id="centerSel">◎</button><button id="rightX">+X</button>
+      <button id="downY">−Y</button><button disabled></button><button id="downZ">−Z</button>
+    </div>
+    <div class="row" style="justify-content:space-between;margin-top:6px">
+      <button id="saveLocal" class="small">Guardar local</button>
+      <button id="copyJSON" class="small">Copiar JSON</button>
+      <button id="resetHS" class="small">Reset</button>
+    </div>
+  </div>
+
+  <a-scene
+    embedded
+    renderer="antialias:true;precision:mediump"
+    background="color: #000"
+    webxr="optionalFeatures: local-floor, bounded-floor"
+  >
+    <a-entity light="type:ambient; intensity:0.9"></a-entity>
+    <a-entity light="type:directional; intensity:0.8" position="1 1 0"></a-entity>
+
+    <!-- MODELO: ahora marcado como interactable y con autoplace para VR -->
+    <a-entity id="cellModel" class="interactable"
+      position="0 0 0" rotation="0 0 0" scale="0.40 0.40 0.40"
+      gesture-handler="minScale:0.20; maxScale:3.0; rotFactor:0.55"
+      pinch-pan-pe="min:0.20; max:3.0; factor:1; panFactor:1.0"
+      mouse-drag-rotate
+      mouse-pan="panFactor:1.0"
+      tap-reset="scale:0.40; rotYdeg:0"
+      auto-rotator="enabled:false; speed:20"
+      vr-autoplace="y:1.2; z:-1.6"
+    ></a-entity>
+
+    <!-- Cámara / cursor -->
+    <a-entity id="cameraRig">
+      <a-entity camera position="0 0 1.4" cursor="rayOrigin: mouse" raycaster="objects: .hs-click"></a-entity>
+    </a-entity>
+
+    <!-- Controladores Quest 2 -->
+    <a-entity id="rightHand"
+              oculus-touch-controls="hand: right"
+              raycaster="objects: .interactable; far: 20"
+              line="opacity: 0.9"></a-entity>
+
+    <a-entity id="leftHand"
+              oculus-touch-controls="hand: left"></a-entity>
+
+    <!-- Manipulador VR: indica cuál objeto se mueve/rota/escala -->
+    <a-entity id="vrManipulator"
+              vr-grab-rotate-scale="target: #cellModel; rotateSpeed: 2.0; scaleSpeed: 0.003; minScale:0.05; maxScale:4"></a-entity>
+  </a-scene>
+
+<script>
+/* ====== Rotación 1 dedo (X/Y) + rueda ====== */
+AFRAME.registerComponent('gesture-handler',{schema:{rotFactor:{default:0.55},minScale:{default:0.2},maxScale:{default:3.0}},
+  init:function(){
+    this.oneFinger=false; this.lastX=0; this.lastY=0;
+    const s=this.el.sceneEl;
+    const add=()=>{
+      const t=s.canvas||s;
+      t.addEventListener('touchstart',e=>{
+        if(e.touches.length===1){ this.oneFinger=true; this.lastX=e.touches[0].clientX; this.lastY=e.touches[0].clientY; }
+      },{passive:false});
+      t.addEventListener('touchmove',e=>{
+        if(this.oneFinger && e.touches.length===1){
+          const dx=e.touches[0].clientX-this.lastX; const dy=e.touches[0].clientY-this.lastY;
+          this.lastX=e.touches[0].clientX; this.lastY=e.touches[0].clientY;
+          const o=this.el.object3D.rotation;
+          o.y -= (dx*this.data.rotFactor)*Math.PI/180;
+          let nx = o.x - (dy*this.data.rotFactor)*Math.PI/180;
+          const lim = THREE.MathUtils.degToRad(80);
+          o.x = THREE.MathUtils.clamp(nx,-lim,lim);
+          e.preventDefault();
+        }
+      },{passive:false});
+      t.addEventListener('touchend',()=>{this.oneFinger=false;},{passive:false});
+      t.addEventListener('touchcancel',()=>{this.oneFinger=false;},{passive:false});
+      t.addEventListener('wheel',e=>{
+        e.preventDefault();
+        const dir=e.deltaY>0?0.9:1.1;
+        const s=this.el.object3D.scale.x*dir;
+        const cl=THREE.MathUtils.clamp(s,this.data.minScale,this.data.maxScale);
+        this.el.object3D.scale.set(cl,cl,cl);
+        if (typeof DEFAULT_SCALE!=='undefined' && DEFAULT_SCALE>0) { USER_MULT = cl/DEFAULT_SCALE; }
+        if (typeof scaleRange!=='undefined') scaleRange.value=cl.toFixed(2);
+      },{passive:false});
+      // pan con botón derecho permitido
+      t.addEventListener('contextmenu',(e)=>e.preventDefault());
+    };
+    s.hasLoaded?add():s.addEventListener('loaded',add,{once:true});
+  }
+});
+
+/* ====== Pinch (zoom) + Pan (dos dedos) ====== */
+AFRAME.registerComponent('pinch-pan-pe',{schema:{min:{default:0.2},max:{default:3.0},factor:{default:1},panFactor:{default:1}},
+  init:function(){
+    this.pointers=new Map(); this.active=false;
+    this.startDist=0; this.startScale=this.el.object3D.scale.x;
+    this.startCentroid={x:0,y:0}; this.startPos=this.el.object3D.position.clone();
+    const s=this.el.sceneEl;
+
+    const centroid=()=>{const a=[...this.pointers.values()]; return {x:(a[0].x+a[1].x)/2, y:(a[0].y+a[1].y)/2};};
+    const dist=()=>{const a=[...this.pointers.values()]; const dx=a[0].x-a[1].x, dy=a[0].y-a[1].y; return Math.hypot(dx,dy);};
+    const worldPerPixel=()=>{
+      const cam=s.camera; if(!cam||!s.canvas) return {x:0,y:0};
+      const fov=(cam.fov||60)*Math.PI/180;
+      const h=s.canvas.height||window.innerHeight;
+      const z=Math.max(0.001, Math.abs(cam.position.z||1));
+      const worldPerPixY = 2*z*Math.tan(fov/2)/h;
+      const worldPerPixX = worldPerPixY*(cam.aspect||1.777);
+      return {x:worldPerPixX,y:worldPerPixY};
+    };
+
+    const onDown=(e)=>{ const c=s.canvas||s; c.setPointerCapture?.(e.pointerId);
+      this.pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+      if(this.pointers.size===2){ this.active=true; this.startDist=dist(); this.startScale=this.el.object3D.scale.x; this.startCentroid=centroid(); this.startPos=this.el.object3D.position.clone(); }
+    };
+    const onMove=(e)=>{ if(!this.pointers.has(e.pointerId)) return;
+      this.pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+      if(this.active && this.pointers.size===2){
+        e.preventDefault();
+        // Zoom
+        const k=(dist()/this.startDist)*this.data.factor;
+        let sc=THREE.MathUtils.clamp(this.startScale*k, this.data.min, this.data.max);
+        this.el.object3D.scale.set(sc,sc,sc);
+        if (DEFAULT_SCALE>0) USER_MULT=sc/DEFAULT_SCALE;
+        if (typeof scaleRange!=='undefined') scaleRange.value=sc.toFixed(2);
+        // Pan
+        const cen=centroid(); const dx=cen.x-this.startCentroid.x; const dy=cen.y-this.startCentroid.y;
+        const wp=worldPerPixel();
+        const tx=dx*wp.x*this.data.panFactor;
+        const ty=-dy*wp.y*this.data.panFactor;
+        this.el.object3D.position.set(this.startPos.x+tx, this.startPos.y+ty, this.startPos.z);
+      }
+    };
+    const onUp=(e)=>{ this.pointers.delete(e.pointerId); if(this.pointers.size<2) this.active=false; };
+
+    const add=()=>{ const c=s.canvas||s;
+      c.addEventListener('pointerdown',onDown,{passive:false});
+      c.addEventListener('pointermove',onMove,{passive:false});
+      c.addEventListener('pointerup',onUp,{passive:false});
+      c.addEventListener('pointercancel',onUp,{passive:false});
+      c.addEventListener('pointerout',onUp,{passive:false});
+      c.addEventListener('pointerleave',onUp,{passive:false});
+    };
+    s.hasLoaded?add():s.addEventListener('loaded',add,{once:true});
+  }
+});
+
+/* ====== Rotación con mouse + pan en PC ====== */
+AFRAME.registerComponent('mouse-drag-rotate',{schema:{factor:{default:0.45}},
+  init:function(){
+    this.drag=false; this.lastX=0; this.lastY=0;
+    const s=this.el.sceneEl;
+    const add=()=>{
+      const t=s.canvas||s;
+      t.addEventListener('mousedown',e=>{ if(e.button===0){ this.drag=true; this.lastX=e.clientX; this.lastY=e.clientY; }});
+      window.addEventListener('mouseup',()=>{this.drag=false;});
+      window.addEventListener('mousemove',e=>{
+        if(!this.drag) return;
+        const dx=e.clientX-this.lastX; const dy=e.clientY-this.lastY;
+        this.lastX=e.clientX; this.lastY=e.clientY;
+        const o=this.el.object3D.rotation;
+        o.y -= (dx*this.data.factor)*Math.PI/180;
+        let nx = o.x - (dy*this.data.factor)*Math.PI/180;
+        const lim = THREE.MathUtils.degToRad(80);
+        o.x = THREE.MathUtils.clamp(nx,-lim,lim);
+      });
+    };
+    s.hasLoaded?add():s.addEventListener('loaded',add,{once:true});
+  }
+});
+AFRAME.registerComponent('mouse-pan',{schema:{panFactor:{default:1}},
+  init:function(){
+    const s=this.el.sceneEl; let down=false, btn=0, start={x:0,y:0}, startPos=this.el.object3D.position.clone(), shift=false;
+    const worldPerPixel=()=>{
+      const cam=s.camera; if(!cam||!s.canvas) return {x:0,y:0};
+      const fov=(cam.fov||60)*Math.PI/180; const h=s.canvas.height||window.innerHeight;
+      const z=Math.max(0.001, Math.abs(cam.position.z||1));
+      const wpy=2*z*Math.tan(fov/2)/h; const wpx=wpy*(cam.aspect||1.777); return {x:wpx,y:wpy};
+    };
+    const onDown=(e)=>{ shift=e.shiftKey;
+      if(e.button===1 || e.button===2 || (e.button===0 && shift)){ down=true; btn=e.button; start={x:e.clientX,y:e.clientY}; startPos=this.el.object3D.position.clone(); e.preventDefault(); }
+    };
+    const onMove=(e)=>{ if(!down) return; e.preventDefault();
+      const dx=e.clientX-start.x, dy=e.clientY-start.y; const wp=worldPerPixel();
+      const tx=dx*wp.x*this.data.panFactor; const ty=-dy*wp.y*this.data.panFactor;
+      this.el.object3D.position.set(startPos.x+tx, startPos.y+ty, startPos.z);
+    };
+    const onUp=()=>{ down=false; };
+    const add=()=>{ const c=s.canvas||s;
+      c.addEventListener('mousedown',onDown,{passive:false});
+      window.addEventListener('mousemove',onMove,{passive:false});
+      window.addEventListener('mouseup',onUp,{passive:false});
+      c.addEventListener('contextmenu',(e)=>e.preventDefault());
+    };
+    s.hasLoaded?add():s.addEventListener('loaded',add,{once:true});
+  }
+});
+
+AFRAME.registerComponent('tap-reset',{schema:{scale:{default:1},rotYdeg:{default:0}},init:function(){
+  this.lastTap=0; const s=this.el.sceneEl;
+  const add=()=>{const t=s.canvas||s;
+    t.addEventListener('touchend',()=>{
+      const n=performance.now();
+      if(n-this.lastTap<300){
+        const sc=this.data.scale;
+        this.el.object3D.scale.set(sc,sc,sc);
+        this.el.object3D.rotation.set(0,THREE.MathUtils.degToRad(this.data.rotYdeg),0);
+        if (typeof scaleRange!=='undefined') scaleRange.value=sc.toFixed(2);
+      }
+      this.lastTap=n;
+    },{passive:true});
+  };
+  s.hasLoaded?add():s.addEventListener('loaded',add,{once:true});
+}});
+AFRAME.registerComponent('auto-rotator',{schema:{speed:{default:20},enabled:{default:false}},tick:function(t,dt){
+  if(!this.data.enabled)return; this.el.object3D.rotation.y+=THREE.MathUtils.degToRad(this.data.speed)*(dt/1000);}});
+AFRAME.registerComponent('billboard',{tick:function(){const cam=this.el.sceneEl&&this.el.sceneEl.camera;if(!cam)return;this.el.object3D.quaternion.copy(cam.el.object3D.quaternion);}});
+
+/* ====== Hotspots (default) ====== */
+const HS_DEFAULT={
+  animal:[
+    {name:'Núcleo',desc:'Controla la célula y guarda el ADN.',pos:[0,0.12,0]},
+    {name:'Mitocondrias',desc:'Producen ATP (energía).',pos:[0.18,0.06,0.04]},
+    {name:'Aparato de Golgi',desc:'Empaqueta y distribuye proteínas/lípidos.',pos:[0.12,0.00,-0.15]},
+    {name:'Ribosomas',desc:'Sintetizan proteínas.',pos:[-0.18,0.08,0]},
+    {name:'Lisosomas',desc:'Digestión celular de desechos.',pos:[-0.12,-0.02,0.14],diff:true},
+    {name:'Centriolos',desc:'Organizan huso mitótico.',pos:[0.16,0.14,-0.02],diff:true},
+    {name:'Membrana plasmática',desc:'Delimita e intercambio.',pos:[0,-0.08,0.2]},
+    {name:'Citoplasma',desc:'Medio de reacciones químicas.',pos:[-0.06,0.02,-0.18]}
+  ],
+  vegetal:[
+    {name:'Núcleo',desc:'Controla la célula y guarda el ADN.',pos:[0,0.12,0]},
+    {name:'Cloroplastos',desc:'Fotosíntesis: luz → energía química.',pos:[0.18,0.05,0],diff:true},
+    {name:'Vacuola central',desc:'Almacenamiento y turgencia.',pos:[-0.12,0.02,-0.1],diff:true},
+    {name:'Pared celular',desc:'Rigidez y protección (celulosa).',pos:[0,0,-0.22],diff:true},
+    {name:'Plasmodesmos',desc:'Comunicación entre células vegetales.',pos:[-0.20,0.00,0.12],diff:true},
+    {name:'Aparato de Golgi',desc:'Empaque y secreción.',pos:[0.12,0,-0.15]},
+    {name:'Mitocondrias',desc:'Producción de ATP.',pos:[-0.18,0.06,0.02]},
+    {name:'Ribosomas',desc:'Síntesis de proteínas.',pos:[0.0,0.16,0.16]}
+  ]
+};
+const STORAGE_KEY = k => `hs_positions_v1_${k}`;
+function loadCustom(kind){ try{ return JSON.parse(localStorage.getItem(STORAGE_KEY(kind))||'null'); }catch{ return null; } }
+function saveCustom(kind,data){ localStorage.setItem(STORAGE_KEY(kind), JSON.stringify(data)); }
+function getHotspots(kind){
+  const custom = loadCustom(kind);
+  if (!custom) return HS_DEFAULT[kind];
+  const byName = new Map(HS_DEFAULT[kind].map(x=>[x.name,x]));
+  return custom.map(c=>({ ...byName.get(c.name)||{}, ...c }));
+}
+
+/* ====== App ====== */
+const INIT={ animal:{scale:0.40,rotYdeg:0}, vegetal:{scale:0.36,rotYdeg:0} };
+const MIN_SCALE=0.20, MAX_SCALE=3.0, ROT_STEP_DEG=8, ZOOM_STEP=1.12;
+const MAP={
+  animal:{normal:"./assets/models/animal.glb",draco:"./assets/models/animal_draco.glb"},
+  vegetal:{normal:"./assets/models/vegetal.glb",draco:"./assets/models/vegetal_draco.glb"}
+};
+const CONTENT={
+  animal:{titulo:"Célula Animal",
+    componentes:[["Núcleo","Controla la célula y guarda el ADN."],["Membrana plasmática","Delimita y regula el intercambio de sustancias."],["Citoplasma","Medio donde ocurren reacciones químicas."],["Ribosomas","Fabrican proteínas."],["R.E. rugoso","Sintetiza y procesa proteínas."],["R.E. liso","Sintetiza lípidos y detoxifica."],["Aparato de Golgi","Empaqueta y distribuye proteínas/lípidos."],["Mitocondrias","Producen ATP (energía)."],["Lisosomas","Digieren desechos y partículas."],["Peroxisomas","Metabolismo de peróxidos."],["Citoesqueleto","Forma, soporte y transporte interno."],["Centriolos","Organizan huso mitótico en división celular."]],
+    diferencia:["Sin pared celular","Sin cloroplastos","Vacuolas pequeñas y múltiples","Centriolos presentes","Lisosomas abundantes"]},
+  vegetal:{titulo:"Célula Vegetal",
+    componentes:[["Núcleo","Controla la célula y guarda el ADN."],["Membrana plasmática","Regula el intercambio con el exterior."],["Pared celular (celulosa)","Aporta rigidez y protección."],["Citoplasma","Medio de reacciones celulares."],["Ribosomas","Síntesis de proteínas."],["R.E. rugoso/liso","Proteínas y lípidos."],["Aparato de Golgi","Empaque y secreción."],["Mitocondrias","Producción de ATP."],["Vacuola central","Almacenamiento y turgencia (presión interna)."],["Cloroplastos","Fotosíntesis: luz → energía química."],["Plasmodesmos","Canales de comunicación entre células vegetales."],["Citoesqueleto","Estructura y transporte."]],
+    diferencia:["Pared celular (celulosa)","Cloroplastos (fotosíntesis)","Vacuola central grande","Plasmodesmos","Sin centriolos típicos"]}
+};
+
+const params=new URLSearchParams(location.search);
+let kind=(params.get('m')||'animal').toLowerCase(); if(!MAP[kind]) kind='animal';
+
+const modelEl=document.getElementById('cellModel');
+const labelEl=document.getElementById('labelKind');
+const btnA=document.getElementById('btnAnimal');
+const btnV=document.getElementById('btnVegetal');
+const btnAuto=document.getElementById('btnAuto');
+const btnInfo=document.getElementById('btnInfo');   // AHORA inicia desactivado y panel oculto
+const btnEdit=document.getElementById('btnEdit');
+const rotL=document.getElementById('rotL'), rotR=document.getElementById('rotR');
+const zoomIn=document.getElementById('zoomIn'), zoomOut=document.getElementById('zoomOut');
+const resetBtn=document.getElementById('reset'), centerBtn=document.getElementById('center');
+const scaleRange=document.getElementById('scaleRange'), speedRange=document.getElementById('speedRange');
+const infoPanel=document.getElementById('infoPanel');
+const editor=document.getElementById('editor'); const hsSelect=document.getElementById('hsSelect');
+const stepInput=document.getElementById('step'); const dragToggle=document.getElementById('dragToggle');
+
+/* ====== Normalización & encuadre ====== */
+const QP = new URLSearchParams(location.search);
+const TARGET_SIZE = parseFloat(QP.get('size') || '0.30');
+const TARGET_PAD  = parseFloat(QP.get('pad')  || '1.10');
+const ZOOM0       = parseFloat(QP.get('zoom') || '1.00');
+let DEFAULT_SCALE = 1.0;
+let USER_MULT     = 1.0;
+
+function frameCameraOnly(){
+  const scene=modelEl.sceneEl; if(!scene) return;
+  const cam=scene.camera; if(!cam) return;
+  const THREE = window.THREE;
+  const box = new THREE.Box3().setFromObject(modelEl.object3D);
+  const sphere = box.getBoundingSphere(new THREE.Sphere());
+  const radius = sphere.radius * TARGET_PAD;
+
+  const fov = (cam.fov||60)*Math.PI/180;
+  const aspect = cam.aspect || (scene.canvas ? scene.canvas.width/scene.canvas.height : 1.777);
+  const distV = radius / Math.sin(fov/2);
+  const hFov = 2*Math.atan(Math.tan(fov/2)*aspect);
+  const distH = radius / Math.sin(hFov/2);
+  const dist = Math.max(distV,distH);
+
+  if (cam.el) cam.el.setAttribute('position', `0 0 ${dist.toFixed(4)}`); else cam.position.set(0,0,dist);
+  cam.near=Math.max(0.01,dist*0.01); cam.far=dist*10; cam.updateProjectionMatrix();
+}
+function normalizeAndFrame(){
+  const THREE = window.THREE;
+  const mesh = modelEl.getObject3D('mesh'); if(!mesh) return;
+  const box = new THREE.Box3().setFromObject(mesh);
+  const size = box.getSize(new THREE.Vector3());
+  const center = box.getCenter(new THREE.Vector3());
+  const maxDim = Math.max(size.x,size.y,size.z) || 1;
+  mesh.position.sub(center);
+  const s  = TARGET_SIZE / maxDim;
+  const s2 = s * ZOOM0;
+  modelEl.object3D.scale.set(s2,s2,s2);
+  DEFAULT_SCALE = s2;
+  modelEl.object3D.scale.multiplyScalar(USER_MULT);
+  if (typeof scaleRange!=='undefined') scaleRange.value=(DEFAULT_SCALE*USER_MULT).toFixed(2);
+  const init=INIT[kind]||INIT.animal;
+  modelEl.setAttribute('tap-reset', `scale:${DEFAULT_SCALE.toFixed(2)}; rotYdeg:${init.rotYdeg}`);
+  frameCameraOnly();
+}
+window.addEventListener('resize', frameCameraOnly);
+window.addEventListener('orientationchange', frameCameraOnly);
+
+/* ====== Progreso ====== */
+const progress=document.getElementById('progress'); const progressBar=document.getElementById('progressBar'); const progressPct=document.getElementById('progressPct');
+function showProgress(p){ progress.style.display='block'; setProgress(p); }
+function setProgress(p){ const v=Math.max(0,Math.min(1,p||0)); progressBar.style.width=(v*100).toFixed(0)+'%'; progressPct.textContent=(v*100).toFixed(0)+'%'; }
+function hideProgress(){ setProgress(1); setTimeout(()=>{progress.style.display='none';},300); }
+const manager=THREE.DefaultLoadingManager; manager.onStart=()=>showProgress(0); manager.onProgress=(u,l,t)=>{if(t&&t>0)setProgress(l/t)}; manager.onLoad=()=>hideProgress();
+
+/* ====== Ficha EDU ====== */
+function renderInfo(k){
+  const c=CONTENT[k]; let html=`<h3>${c.titulo}</h3><h4>Componentes y función</h4><ul>`;
+  for(const [n,d] of c.componentes){ html+=`<li><b>${n}:</b> ${d}</li>`;}
+  html+=`</ul><h4>Se diferencia por…</h4><div class="chips">`;
+  for(const it of c.diferencia){ html+=`<span class="chip chip--diff">${it}</span>`;}
+  html+=`</div>`; infoPanel.innerHTML=html;
+}
+function setUI(){ btnA.classList.toggle('active',kind==='animal'); btnV.classList.toggle('active',kind==='vegetal');
+  labelEl.textContent=(kind==='animal'?'Animal':'Vegetal'); renderInfo(kind);
+  const u=new URL(location.href); u.searchParams.set('m',kind); history.replaceState(null,'',u.toString());}
+
+/* ====== Hotspots runtime ====== */
+let hsData=[], hsRoot=null, hsRecords=[], selected=0, editMode=false, dragOn=true;
+function clearHotspots(){ const old=document.getElementById('hsRoot'); if(old&&old.parentNode) old.parentNode.removeChild(old); hsRecords=[]; }
+function getCurrentPositions(){ return hsRecords.map(r=>({name:r.name, pos:[r.wrap.object3D.position.x, r.wrap.object3D.position.y, r.wrap.object3D.position.z], diff:r.diff, desc:r.desc})); }
+function populateSelect(){ hsSelect.innerHTML=''; hsRecords.forEach((r,i)=>{ const opt=document.createElement('option'); opt.value=i; opt.textContent=r.name; hsSelect.appendChild(opt); }); hsSelect.value=selected; }
+function highlightSelected(){ hsRecords.forEach((r,i)=> r.halo.setAttribute('visible', i==selected)); }
+function makeHotspots(kind){
+  clearHotspots();
+  hsData = getHotspots(kind);
+  hsRoot = document.createElement('a-entity'); hsRoot.setAttribute('id','hsRoot'); modelEl.appendChild(hsRoot);
+  hsData.forEach(item=>{
+    const wrap=document.createElement('a-entity'); wrap.setAttribute('position', item.pos.join(' '));
+    const dot=document.createElement('a-entity'); dot.classList.add('hs-click');
+    dot.setAttribute('geometry', `primitive: sphere; radius: ${item.diff?0.055:0.035}`);
+    dot.setAttribute('material', `color:${item.diff?'#39ff14':'#00d4ff'}; emissive:${item.diff?'#39ff14':'#00a0ff'}; emissiveIntensity:0.85; metalness:0; roughness:0.3; side: double`);
+    if(item.diff){ dot.setAttribute('animation','property: scale; dir: alternate; dur:800; loop:true; to:1.25 1.25 1.25; easing:easeInOutSine'); }
+    const halo=document.createElement('a-entity'); halo.setAttribute('geometry','primitive: torus; radius: 0.08; radiusTubular: 0.005'); halo.setAttribute('material','color:#fff; emissive:#3cc9ff; emissiveIntensity:0.8; opacity:0.85'); halo.setAttribute('rotation','90 0 0'); halo.setAttribute('visible','false');
+
+    const tip=document.createElement('a-entity'); tip.setAttribute('position','0 0.12 0'); tip.setAttribute('visible','false'); tip.setAttribute('billboard','');
+    const bg=document.createElement('a-entity'); bg.setAttribute('geometry','primitive: plane; width: 0.60; height: auto'); bg.setAttribute('material','color:#000; opacity:0.78; side: double');
+    const txt=document.createElement('a-text'); txt.setAttribute('value',`${item.name}: ${item.desc}`); txt.setAttribute('color','#fff'); txt.setAttribute('align','center'); txt.setAttribute('width','1.3'); txt.setAttribute('wrap-count','30');
+    tip.appendChild(bg); tip.appendChild(txt);
+
+    const rec={name:item.name, diff:item.diff, desc:item.desc, wrap, dot, tip, halo};
+    wrap.appendChild(dot); wrap.appendChild(halo); wrap.appendChild(tip);
+    wrap.addEventListener('click', ()=>{ if(!editMode){
+        hsRoot.querySelectorAll('[visible="true"]').forEach(el=> el.setAttribute('visible','false'));
+        tip.setAttribute('visible','true'); setTimeout(()=>{ if(tip.getAttribute('visible')==='true') tip.setAttribute('visible','false'); }, 5000);
+      }else{ selected = hsRecords.indexOf(rec); populateSelect(); highlightSelected(); }
+    });
+    hsRoot.appendChild(wrap); hsRecords.push(rec);
+  });
+  populateSelect(); highlightSelected();
+}
+
+/* ====== Editor ====== */
+btnEdit.onclick=()=>{ editMode=!editMode; btnEdit.classList.toggle('active',editMode); editor.classList.toggle('show',editMode); };
+hsSelect.addEventListener('change',()=>{ selected=parseInt(hsSelect.value||0,10)||0; highlightSelected(); });
+document.getElementById('centerSel').onclick=()=>{ const r=hsRecords[selected]; r.wrap.object3D.position.set(0,0,0); };
+function stepVal(){ return Math.max(0.001, parseFloat(stepInput.value)||0.01); }
+document.getElementById('leftX').onclick =()=>{ hsRecords[selected].wrap.object3D.position.x -= stepVal(); };
+document.getElementById('rightX').onclick=()=>{ hsRecords[selected].wrap.object3D.position.x += stepVal(); };
+document.getElementById('upY').onclick   =()=>{ hsRecords[selected].wrap.object3D.position.y += stepVal(); };
+document.getElementById('downY').onclick =()=>{ hsRecords[selected].wrap.object3D.position.y -= stepVal(); };
+document.getElementById('upZ').onclick   =()=>{ hsRecords[selected].wrap.object3D.position.z += stepVal(); };
+document.getElementById('downZ').onclick =()=>{ hsRecords[selected].wrap.object3D.position.z -= stepVal(); };
+dragToggle.onclick=()=>{ dragOn=!dragOn; dragToggle.textContent = `Arrastrar: ${dragOn?'ON':'OFF'}`; };
+
+document.getElementById('saveLocal').onclick=()=>{ const data = getCurrentPositions(); saveCustom(kind, data);
+  alert('Hotspots guardados en este navegador para '+kind.toUpperCase()); };
+document.getElementById('copyJSON').onclick=()=>{ const data = JSON.stringify(getCurrentPositions(), null, 2);
+  navigator.clipboard?.writeText(data); alert('JSON copiado al portapapeles'); };
+document.getElementById('resetHS').onclick=()=>{ localStorage.removeItem(STORAGE_KEY(kind));
+  clearHotspots(); makeHotspots(kind); alert('Hotspots reiniciados (valores por defecto).'); };
+
+/* ====== Carga del modelo ====== */
+async function exists(u){ try{ const r=await fetch(u+'?t='+Date.now(),{method:'HEAD'}); return r.ok; }catch{return false;} }
+async function pick(){ const e=MAP[kind]; return (await exists(e.draco))?e.draco:e.normal; }
+
+async function load(){
+  showProgress(0);
+  const url=(await pick())+'#'+Date.now();
+  const init=INIT[kind]||INIT.animal;
+
+  modelEl.removeAttribute('gltf-model');
+  modelEl.object3D.scale.set(init.scale,init.scale,init.scale);
+  modelEl.object3D.rotation.set(0,THREE.MathUtils.degToRad(init.rotYdeg),0);
+  modelEl.object3D.position.set(0,0,0);
+  scaleRange.value=init.scale;
+
+  modelEl.setAttribute('auto-rotator',`enabled:${btnAuto.classList.contains('active')}; speed:${parseFloat(speedRange.value)}`);
+  clearHotspots();
+  setTimeout(()=>modelEl.setAttribute('gltf-model',url),30);
+}
+
+/* ====== UI ====== */
+function setUIAndURL(){ setUI(); const u=new URL(location.href); u.searchParams.set('m',kind); history.replaceState(null,'',u.toString()); }
+function renderInfoAndSelect(){ renderInfo(kind); }
+
+btnA.onclick=()=>{ kind='animal'; setUIAndURL(); load(); renderInfoAndSelect(); };
+btnV.onclick=()=>{ kind='vegetal'; setUIAndURL(); load(); renderInfoAndSelect(); };
+btnAuto.onclick=()=>{ const enabled=!btnAuto.classList.contains('active'); btnAuto.classList.toggle('active',enabled);
+  modelEl.setAttribute('auto-rotator',`enabled:${enabled}; speed:${parseFloat(speedRange.value)}`);};
+btnInfo.onclick=()=>{ const v=infoPanel.style.display!=='none'; infoPanel.style.display=v?'none':'block'; btnInfo.classList.toggle('active',!v);};
+
+modelEl.addEventListener('model-loaded',()=>{ hideProgress(); normalizeAndFrame(); makeHotspots(kind); });
+modelEl.addEventListener('model-error',e=>{ hideProgress(); alert('No se pudo cargar el modelo.'); console.error(e.detail);});
+
+/* ====== Controles extras ====== */
+function clampScale(s){ return Math.min(Math.max(s,MIN_SCALE),MAX_SCALE); }
+function setScaleUniform(s){ s=clampScale(s); modelEl.object3D.scale.set(s,s,s); scaleRange.value=s.toFixed(2); if (DEFAULT_SCALE>0){ USER_MULT = s/DEFAULT_SCALE; } }
+rotL.addEventListener('click',()=>{ modelEl.object3D.rotation.y+=THREE.MathUtils.degToRad(ROT_STEP_DEG); });
+rotR.addEventListener('click',()=>{ modelEl.object3D.rotation.y-=THREE.MathUtils.degToRad(ROT_STEP_DEG); });
+zoomIn.addEventListener('click',()=> setScaleUniform(modelEl.object3D.scale.x*ZOOM_STEP));
+zoomOut.addEventListener('click',()=> setScaleUniform(modelEl.object3D.scale.x/ZOOM_STEP));
+resetBtn.addEventListener('click',()=>{ const init=INIT[kind]||INIT.animal; modelEl.object3D.scale.set(DEFAULT_SCALE,DEFAULT_SCALE,DEFAULT_SCALE); USER_MULT=1.0;
+  modelEl.object3D.rotation.set(0,THREE.MathUtils.degToRad(init.rotYdeg),0); scaleRange.value=DEFAULT_SCALE.toFixed(2); });
+centerBtn.addEventListener('click',()=> modelEl.object3D.position.set(0,0,0));
+scaleRange.addEventListener('input',()=> setScaleUniform(parseFloat(scaleRange.value)));
+speedRange.addEventListener('input',()=>{ const en=btnAuto.classList.contains('active'); modelEl.setAttribute('auto-rotator',`enabled:${en}; speed:${parseFloat(speedRange.value)}`); });
+
+/* ====== Inicio ====== */
+setUI(); renderInfoAndSelect(); load();
+</script>
+
+<!-- Ajuste dinámico para evitar solape con footer/badges fijos -->
+<script>
+(function reserveBottomForFixedBadges(){
+  function h(el){ return el ? Math.ceil(el.getBoundingClientRect().height) : 0; }
+  function apply(){
+    const ids = ['legalFooter','acSourceBadge','acSource','sourceBadge'];
+    let maxH = 0;
+    for(const id of ids){ maxH = Math.max(maxH, h(document.getElementById(id))); }
+    const pad = maxH ? 14 : 0;
+    document.documentElement.style.setProperty('--fixedBottomOffset', (maxH + pad) + 'px');
+  }
+  window.addEventListener('load', ()=>{ apply(); setTimeout(apply,150); });
+  window.addEventListener('resize', apply);
+})();
+</script>
+
+<!-- ====== CONTROLES VR: agarrar/rotar/escalar (Quest 2) + autoplace ====== -->
+<script>
+AFRAME.registerComponent('vr-grab-rotate-scale', {
+  schema: {
+    target: {type: 'selector'},
+    rotateSpeed: {default: 1.8},
+    scaleSpeed: {default: 0.003},
+    minScale: {default: 0.05},
+    maxScale: {default: 5.0}
+  },
+  init: function () {
+    this.right = document.getElementById('rightHand');
+    this.grabbing = false;
+    this.grabDistance = 0;
+    this.ray = new THREE.Raycaster();
+    this.tmpDir = new THREE.Vector3();
+    this.localHit = new THREE.Vector3();
+
+    if (this.right) {
+      this.right.addEventListener('triggerdown', () => this.startGrab());
+      this.right.addEventListener('triggerup',   () => this.endGrab());
+      this.right.addEventListener('axismove', (e) => this.onAxisMove(e));
+    }
+    this.el.sceneEl.addEventListener('exit-vr', () => this.endGrab());
+  },
+  startGrab: function () {
+    const tgt = this.data.target; if (!tgt || !this.right) return;
+    const hand = this.right.object3D;
+    hand.getWorldDirection(this.tmpDir).normalize().negate();
+    const origin = hand.getWorldPosition(new THREE.Vector3());
+    this.ray.set(origin, this.tmpDir);
+
+    const mesh = tgt.getObject3D('mesh'); if (!mesh) return;
+    const hit = this.ray.intersectObject(mesh, true);
+    if (hit.length) {
+      this.grabbing = true;
+      this.grabDistance = hit[0].distance;
+      const worldPoint = hit[0].point.clone();
+      const obj = tgt.object3D;
+      obj.worldToLocal(this.localHit.copy(worldPoint));
+    }
+  },
+  endGrab: function () { this.grabbing = false; },
+  onAxisMove: function (evt) {
+    const tgt = this.data.target; if (!tgt) return;
+    const axis = evt.detail && evt.detail.axis; // [x,y] del stick derecho
+    if (!axis) return;
+    const o = tgt.object3D;
+
+    if (Math.abs(axis[0]) > 0.05) {
+      o.rotation.y -= axis[0] * this.data.rotateSpeed * (Math.PI/180) * 5;
+    }
+    if (Math.abs(axis[1]) > 0.05) {
+      const s = 1 - (axis[1]) * this.data.scaleSpeed * 10;
+      const ns = new THREE.Vector3(o.scale.x*s, o.scale.y*s, o.scale.z*s);
+      ns.set(
+        THREE.MathUtils.clamp(ns.x, this.data.minScale, this.data.maxScale),
+        THREE.MathUtils.clamp(ns.y, this.data.minScale, this.data.maxScale),
+        THREE.MathUtils.clamp(ns.z, this.data.minScale, this.data.maxScale)
+      );
+      o.scale.copy(ns);
+      if (typeof scaleRange!=='undefined') scaleRange.value = o.scale.x.toFixed(2);
+    }
+  },
+  tick: function () {
+    if (!this.grabbing || !this.right || !this.data.target) return;
+    const tgt = this.data.target.object3D;
+    const hand = this.right.object3D;
+
+    hand.getWorldDirection(this.tmpDir).normalize().negate();
+    const origin = hand.getWorldPosition(new THREE.Vector3());
+    const grabPoint = origin.add(this.tmpDir.multiplyScalar(this.grabDistance));
+
+    const parent = tgt.parent || this.el.object3D;
+    const invParent = new THREE.Matrix4().copy(parent.matrixWorld).invert();
+    const localGrab = grabPoint.clone().applyMatrix4(invParent);
+
+    const worldToLocalTarget = new THREE.Matrix4().copy(tgt.matrixWorld).invert();
+    const localOffset = this.localHit.clone().applyMatrix4(worldToLocalTarget).applyMatrix4(tgt.matrix);
+    tgt.position.copy(localGrab.sub(localOffset));
+  }
+});
+
+AFRAME.registerComponent('vr-autoplace', {
+  schema: { y: {default: 1.2}, z: {default: -1.6} },
+  init: function () {
+    this.onEnter = () => {
+      const o = this.el.object3D;
+      if (o.position.y < 0.3 && Math.abs(o.position.z) < 0.6) {
+        o.position.set(0, this.data.y, this.data.z);
+      }
+    };
+    this.el.sceneEl.addEventListener('enter-vr', this.onEnter);
+  },
+  remove: function () {
+    this.el.sceneEl.removeEventListener('enter-vr', this.onEnter);
+  }
+});
+</script>
+
+  <script src="./assets/js/legal-footer.js" defer></script>
+  <script src="./assets/js/anti-copy.js" defer></script>
+</body>
+</html>

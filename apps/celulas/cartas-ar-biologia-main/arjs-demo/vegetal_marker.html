@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>AR.js - Célula Vegetal (color)</title>
+<script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/aframe-ar.js"></script>
+<style>
+  html,body{margin:0;height:100%;overflow:hidden;background:#000}
+  .legend{position:fixed;left:0;right:0;bottom:0;background:rgba(0,0,0,.6);color:#fff;
+          font-family:system-ui,Arial,sans-serif;padding:.6rem .9rem;line-height:1.2}
+  .legend b{display:inline-block;width:12px;height:12px;margin-right:6px;vertical-align:middle;border-radius:2px}
+  .chips{display:flex;gap:10px;flex-wrap:wrap;margin:.3rem 0}
+  .chip{background:#111;border:1px solid #333;border-radius:12px;padding:.15rem .5rem;font-size:.9rem}
+</style>
+</head>
+<body>
+
+<a-scene
+  embedded
+  renderer="alpha:true; antialias:true; precision:mediump"
+  vr-mode-ui="enabled:false"
+  arjs="sourceType: webcam; facingMode: environment; videoTexture: true; debugUIEnabled:false; trackingMethod: best; sourceWidth:1280; sourceHeight:720; displayWidth:1280; displayHeight:720">
+
+  <!-- luces -->
+  <a-entity light="type: ambient; intensity: 0.9"></a-entity>
+  <a-entity light="type: directional; intensity: 0.7" position="-1 1 0"></a-entity>
+
+  <a-marker preset="hiro">
+    <!-- Pared celular -->
+    <a-box depth="1.8" height="1.4" width="1.2" position="0 0.5 0"
+           material="color:#27ae60; opacity:0.20; transparent:true; roughness:0.9"></a-box>
+    <a-text value="Pared celular" color="#ffffff" position="0 1.32 0" align="center" width="2"></a-text>
+
+    <!-- Vacuola central -->
+    <a-box depth="1.0" height="0.9" width="0.7" position="0 0.5 0"
+           material="color:#8e44ad; opacity:0.18; transparent:true; roughness:0.9"></a-box>
+    <a-text value="Vacuola" color="#ffffff" position="0 1.12 0" align="center" width="2"></a-text>
+
+    <!-- Núcleo -->
+    <a-sphere radius="0.26" position="-0.3 0.66 0.2"
+              material="color:#3498db; metalness:0.2; roughness:0.7"></a-sphere>
+    <a-text value="Núcleo" color="#ffffff" position="-0.3 1.16 0.2" align="center" width="2"></a-text>
+
+    <!-- Cloroplastos -->
+    <a-cylinder radius="0.09" height="0.26" position="0.45 0.55 0.25" rotation="90 0 0"
+                material="color:#2ecc71; metalness:0.1; roughness:0.8"></a-cylinder>
+    <a-cylinder radius="0.09" height="0.26" position="0.45 0.45 -0.25" rotation="90 0 0"
+                material="color:#2ecc71; metalness:0.1; roughness:0.8"></a-cylinder>
+    <a-cylinder radius="0.09" height="0.26" position="-0.45 0.55 -0.2" rotation="0 90 0"
+                material="color:#2ecc71; metalness:0.1; roughness:0.8"></a-cylinder>
+    <a-text value="Cloroplastos" color="#ffffff" position="0 1.26 0" align="center" width="2"></a-text>
+
+    <!-- Mitocondria -->
+    <a-torus radius="0.21" radius-tubular="0.05" position="-0.1 0.36 0.35" rotation="90 0 0"
+             material="color:#e67e22; metalness:0.2; roughness:0.6"></a-torus>
+    <a-text value="Mitocondria" color="#ffffff" position="-0.1 0.96 0.35" align="center" width="2"></a-text>
+  </a-marker>
+
+  <!-- cámara explícita -->
+  <a-entity camera></a-entity>
+</a-scene>
+
+<!-- Leyenda / descripciones -->
+<div class="legend">
+  <div class="chips">
+    <span class="chip"><b style="background:#27ae60"></b>Pared celular: rigidez y protección</span>
+    <span class="chip"><b style="background:#8e44ad"></b>Vacuola: almacena agua y solutos</span>
+    <span class="chip"><b style="background:#3498db"></b>Núcleo: ADN y control</span>
+    <span class="chip"><b style="background:#2ecc71"></b>Cloroplastos: fotosíntesis</span>
+    <span class="chip"><b style="background:#e67e22"></b>Mitocondria: energía (ATP)</span>
+  </div>
+</div>
+
+<!-- Forzar transparencia real del canvas cuando la escena ya está lista -->
+<script>
+  window.addEventListener('DOMContentLoaded', () => {
+    const scene = document.querySelector('a-scene');
+    scene.addEventListener('loaded', () => {
+      const r = scene.renderer;
+      if (r && r.getClearAlpha && r.setClearAlpha) {
+        r.setClearAlpha(0);
+      } else if (r && r.setClearColor) {
+        // alternativa para motores sin setClearAlpha
+        r.setClearColor(0x000000, 0);
+      }
+    });
+  });
+</script>
+</body>
+</html>

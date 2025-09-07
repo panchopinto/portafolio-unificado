@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+<title>Trivia — Célula Animal y Vegetal</title>
+<link rel="icon" href="./assets/img/favicon.png">
+<script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+<style>
+  :root{
+    --bg:#08090c; --panel:#0f1117; --line:#263040; --text:#f5f7fb; --muted:#c9d5ea;
+    --accent:#3cc9ff; --good:#39ff14; --bad:#ff4d6d; --radius:16px; --shadow:0 10px 30px rgba(0,0,0,.35);
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; background:radial-gradient(1200px 600px at 70% -10%,#112033 0%,transparent 60%), var(--bg);
+    color:var(--text); font:500 16px/1.45 system-ui,Segoe UI,Roboto,Arial,sans-serif;
+    overflow:hidden;
+  }
+  a{color:inherit;text-decoration:none}
+  .wrap{display:grid; grid-template-columns:340px 1fr; gap:14px; height:100vh; padding:12px; max-width:1400px; margin:0 auto}
+  .side{display:grid; grid-template-rows:auto auto 1fr auto; gap:10px}
+  .panel{border:1px solid var(--line); border-radius:var(--radius); background:linear-gradient(180deg,#0b0f16,#0a0d13); box-shadow:var(--shadow); padding:12px}
+  .topbar{display:flex; align-items:center; justify-content:space-between; gap:8px}
+  .back{display:inline-flex; align-items:center; gap:6px; padding:8px 12px; border-radius:12px; border:1px solid #2a3a4e; background:linear-gradient(180deg,#132132,#0d1623); color:#e8f7ff; font-weight:800}
+  .modes{display:flex; gap:8px}
+  .btn{cursor:pointer; border:1px solid #39536d; background:linear-gradient(180deg,#122033,#0d1623); color:#e8f7ff; font-weight:800; padding:8px 12px; border-radius:12px}
+  .btn.active{background:rgba(60,201,255,.15); border-color:var(--accent)}
+  .score{display:flex; align-items:center; justify-content:space-between; gap:8px; font-weight:800}
+  .score .good{color:#b7ffb7} .score .bad{color:#ffb0be}
+  .list{display:flex; flex-wrap:wrap; gap:8px}
+  .chip{
+    padding:8px 10px; border-radius:999px; border:1px solid #3a4e66; color:#cfe6ff; font:700 13px system-ui;
+    background:linear-gradient(180deg,#0f1b2a,#0a1320); user-select:none; touch-action:none; cursor:grab;
+  }
+  .chip.dragging{opacity:.9; transform:scale(1.04)}
+  .chip.lock{opacity:.5; cursor:default}
+  .hint{color:var(--muted); font-size:13px; margin:4px 0 0}
+  .bottom{display:flex; align-items:center; justify-content:space-between; gap:8px}
+  .legend{display:flex; gap:8px; flex-wrap:wrap; font-size:13px; color:var(--muted)}
+  .dot{width:10px;height:10px;border-radius:999px;display:inline-block;vertical-align:middle;margin-right:6px}
+  .ok{background:var(--good)} .ko{background:var(--bad)} .target{background:#9ec6ff}
+
+  /* Área 3D */
+  .stage{position:relative; border:1px solid var(--line); border-radius:var(--radius); overflow:hidden}
+  a-scene{position:absolute; inset:0}
+  .hud{
+    position:absolute; left:10px; top:10px; display:flex; gap:8px; z-index:5;
+  }
+  .hud .btn{padding:6px 10px}
+  .toast{
+    position:absolute; right:12px; top:12px; z-index:6; padding:8px 12px; border-radius:12px;
+    border:1px solid #2a3a4e; background:linear-gradient(180deg,#122033,#0d1623); color:#e8f7ff; font-weight:800; display:none
+  }
+  .toast.show{display:block; animation:pop .25s ease}
+  @keyframes pop{from{transform:translateY(-6px);opacity:0}to{transform:translateY(0);opacity:1}}
+
+  /* Responsive */
+  @media (max-width:960px){
+    .wrap{grid-template-columns:1fr; grid-template-rows:auto 1fr; padding:10px}
+    .stage{height:58vh}
+  }
+  @media (min-width:961px){
+    .stage{height:calc(100vh - 24px)}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <!-- LADO IZQUIERDO -->
+  <aside class="side">
+    <div class="panel topbar">
+      <a class="back" href="./index.html">← Volver</a>
+      <div class="modes" role="tablist" aria-label="Modo de trivia">
+        <button id="modeAnimal" class="btn active" role="tab" aria-selected="true">Animal</button>
+        <button id="modeVegetal" class="btn" role="tab" aria-selected="false">Vegetal</button>
+      </div>
+    </div>
+
+    <div class="panel score">
+      <div>Correctas: <span id="ok">0</span> · Incorrectas: <span id="ko">0</span></div>
+      <div id="progressMini">0 / <span id="total">0</span></div>
+    </div>
+
+    <div class="panel">
+      <div style="font-weight:800;margin-bottom:6px">Arrastra los componentes a su lugar</div>
+      <div id="chips" class="list" aria-live="polite"></div>
+      <div class="hint">Tip: rota con un dedo / mouse, haz zoom con pellizco o rueda, y puedes mover el modelo con dos dedos o Shift+arrastre.</div>
+    </div>
+
+    <div class="panel bottom">
+      <div class="legend">
+        <span><i class="dot target"></i>Zona objetivo</span>
+        <span><i class="dot ok"></i>Correcto</span>
+        <span><i class="dot ko"></i>Incorrecto</span>
+      </div>
+      <button id="btnReset" class="btn">Reiniciar</button>
+    </div>
+  </aside>
+
+  <!-- ESCENA 3D -->
+  <main class="stage">
+    <div class="hud">
+      <button id="btnAuto" class="btn" title="Auto-rotación">Auto</button>
+      <button id="btnCenter" class="btn" title="Centrar">◎</button>
+      <button id="btnResetView" class="btn" title="Reset vista">⟲</button>
+    </div>
+    <div id="toast" class="toast">¡Bien!</div>
+
+    <a-scene embedded renderer="antialias:true;precision:mediump" background="color:#000">
+      <a-entity light="type:ambient; intensity:0.9"></a-entity>
+      <a-entity light="type:directional; intensity:0.8" position="1 1 0"></a-entity>
+
+      <a-entity id="cellModel"
+        position="0 0 0" rotation="0 0 0" scale="0.40 0.40 0.40"
+        gesture-handler="minScale:0.20; maxScale:3.0; rotFactor:0.5"
+        pinch-pan-pe="min:0.20; max:3.0; factor:1; panFactor:1.0"
+        mouse-drag-rotate
+        mouse-pan="panFactor:1.0"
+        tap-reset="scale:0.40; rotYdeg:0"
+        auto-rotator="enabled:false; speed:18"></a-entity>
+
+      <a-entity id="cameraRig">
+        <a-entity camera position="0 0 1.6" cursor="rayOrigin: mouse"></a-entity>
+      </a-entity>
+    </a-scene>
+  </main>
+</div>
+
+<script>
+/* ========= Controles de gestos (móvil/PC) ========= */
+AFRAME.registerComponent('gesture-handler',{schema:{rotFactor:{default:0.45},minScale:{default:0.05},maxScale:{default:3.0}},
+  init:function(){this.oneFinger=false;this.lastX=0;const s=this.el.sceneEl;const add=()=>{const t=s.canvas||s;
+    t.addEventListener('touchstart',e=>{if(e.touches.length===1){this.oneFinger=true;this.lastX=e.touches[0].clientX;}},{passive:false});
+    t.addEventListener('touchmove',e=>{if(this.oneFinger&&e.touches.length===1){const dx=e.touches[0].clientX-this.lastX;this.lastX=e.touches[0].clientX;
+      this.el.object3D.rotation.y-=(dx*this.data.rotFactor)*Math.PI/180;e.preventDefault();}},{passive:false});
+    t.addEventListener('touchend',()=>{this.oneFinger=false;},{passive:false});
+    t.addEventListener('touchcancel',()=>{this.oneFinger=false;},{passive:false});
+    t.addEventListener('wheel',e=>{e.preventDefault();const dir=e.deltaY>0?0.9:1.1;const s=this.el.object3D.scale.x*dir;
+      const cl=THREE.MathUtils.clamp(s,this.data.min,this.data.max);this.el.object3D.scale.set(cl,cl,cl);
+      if (typeof DEFAULT_SCALE!=='undefined' && DEFAULT_SCALE>0) { USER_MULT = cl/DEFAULT_SCALE; }},{passive:false});
+    t.addEventListener('contextmenu',(e)=>e.preventDefault());
+  }; s.hasLoaded?add():s.addEventListener('loaded',add,{once:true});}});
+
+AFRAME.registerComponent('mouse-drag-rotate',{schema:{factor:{default:0.45}},
+  init:function(){this.drag=false;this.lastX=0;const s=this.el.sceneEl;const add=()=>{const t=s.canvas||s;
+    t.addEventListener('mousedown',e=>{if(e.button===0){this.drag=true;this.lastX=e.clientX;}});
+    window.addEventListener('mouseup',()=>{this.drag=false;});
+    window.addEventListener('mousemove',e=>{ if(!this.drag) return; const dx=e.clientX-this.lastX; this.lastX=e.clientX;
+      this.el.object3D.rotation.y -= (dx*this.data.factor)*Math.PI/180; });
+  }; s.hasLoaded?add():s.addEventListener('loaded',add,{once:true});}});
+
+AFRAME.registerComponent('pinch-pan-pe',{schema:{min:{default:0.2},max:{default:3.0},factor:{default:1},panFactor:{default:1}},
+  init:function(){
+    this.pointers=new Map(); this.active=false; this.startDist=0; this.startScale=this.el.object3D.scale.x;
+    this.startCentroid={x:0,y:0}; this.startPos=this.el.object3D.position.clone();
+    const s=this.el.sceneEl;
+    const centroid=()=>{ const a=[...this.pointers.values()]; return {x:(a[0].x+a[1].x)/2, y:(a[0].y+a[1].y)/2}; };
+    const dist=()=>{ const a=[...this.pointers.values()]; const dx=a[0].x-a[1].x, dy=a[0].y-a[1].y; return Math.hypot(dx,dy); };
+    const worldPerPixel = ()=>{ const cam = s.camera; if(!cam || !s.canvas) return {x:0,y:0};
+      const fov = (cam.fov||60)*Math.PI/180; const h = s.canvas.height || window.innerHeight;
+      const worldPerPixY = 2 * cam.position.length() * Math.tan(fov/2) / h; const worldPerPixX = worldPerPixY * cam.aspect; return {x:worldPerPixX, y:worldPerPixY}; };
+    const onDown=(e)=>{ const c=s.canvas||s; c.setPointerCapture?.(e.pointerId); this.pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+      if(this.pointers.size===2){ this.active=true; this.startDist=dist(); this.startScale=this.el.object3D.scale.x; this.startCentroid=centroid(); this.startPos=this.el.object3D.position.clone(); } };
+    const onMove=(e)=>{ if(!this.pointers.has(e.pointerId)) return; this.pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+      if(this.active && this.pointers.size===2){ e.preventDefault(); const k=(dist()/this.startDist)*this.data.factor;
+        let sc=THREE.MathUtils.clamp(this.startScale*k, this.data.min, this.data.max); this.el.object3D.scale.set(sc,sc,sc);
+        if (DEFAULT_SCALE>0) { USER_MULT = sc/DEFAULT_SCALE; }
+        const cen=centroid(); const dx=cen.x-this.startCentroid.x; const dy=cen.y-this.startCentroid.y; const wp=worldPerPixel();
+        const tx = dx * wp.x * this.data.panFactor; const ty = -dy * wp.y * this.data.panFactor;
+        this.el.object3D.position.set(this.startPos.x + tx, this.startPos.y + ty, this.startPos.z); } };
+    const onUp=(e)=>{ this.pointers.delete(e.pointerId); if(this.pointers.size<2) this.active=false; };
+    const add=()=>{ const c=s.canvas||s; c.addEventListener('pointerdown',onDown,{passive:false});
+      c.addEventListener('pointermove',onMove,{passive:false}); c.addEventListener('pointerup',onUp,{passive:false});
+      c.addEventListener('pointercancel',onUp,{passive:false}); c.addEventListener('pointerout',onUp,{passive:false}); c.addEventListener('pointerleave',onUp,{passive:false}); };
+    s.hasLoaded?add():s.addEventListener('loaded',add,{once:true});
+  }
+});
+
+AFRAME.registerComponent('mouse-pan',{schema:{panFactor:{default:1}},
+  init:function(){
+    const s=this.el.sceneEl; let down=false, btn=0, start={x:0,y:0}, startPos=this.el.object3D.position.clone(), shift=false;
+    const worldPerPixel = ()=>{ const cam = s.camera; if(!cam || !s.canvas) return {x:0,y:0}; const fov = (cam.fov||60)*Math.PI/180;
+      const h = s.canvas.height || window.innerHeight; const y = 2 * cam.position.length() * Math.tan(fov/2) / h; const x = y * cam.aspect; return {x, y}; };
+    const onDown=(e)=>{ shift=e.shiftKey; if (e.button===1 || e.button===2 || (e.button===0 && shift)){ down=true; btn=e.button; start={x:e.clientX,y:e.clientY}; startPos=this.el.object3D.position.clone(); e.preventDefault(); } };
+    const onMove=(e)=>{ if(!down) return; e.preventDefault(); const dx=e.clientX-start.x, dy=e.clientY-start.y; const wp=worldPerPixel();
+      const tx = dx * wp.x * this.data.panFactor; const ty = -dy * wp.y * this.data.panFactor; this.el.object3D.position.set(startPos.x + tx, startPos.y + ty, startPos.z); };
+    const onUp=()=>{ down=false; };
+    const add=()=>{ const c=s.canvas||s; c.addEventListener('mousedown',onDown,{passive:false}); window.addEventListener('mousemove',onMove,{passive:false});
+      window.addEventListener('mouseup',onUp,{passive:false}); c.addEventListener('contextmenu',(e)=>e.preventDefault()); };
+    s.hasLoaded?add():s.addEventListener('loaded',add,{once:true});
+  }
+});
+
+AFRAME.registerComponent('tap-reset',{schema:{scale:{default:1},rotYdeg:{default:0}},init:function(){this.lastTap=0;const s=this.el.sceneEl;const add=()=>{const t=s.canvas||s;
+  t.addEventListener('touchend',()=>{const n=performance.now();if(n-this.lastTap<300){const sc=this.data.scale;this.el.object3D.scale.set(sc,sc,sc);
+    this.el.object3D.rotation.y=THREE.MathUtils.degToRad(this.data.rotYdeg);}this.lastTap=n;},{passive:true});};s.hasLoaded?add():s.addEventListener('loaded',add,{once:true});}});
+AFRAME.registerComponent('auto-rotator',{schema:{speed:{default:18},enabled:{default:false}},tick:function(t,dt){ if(!this.data.enabled)return; this.el.object3D.rotation.y+=THREE.MathUtils.degToRad(this.data.speed)*(dt/1000); }});
+
+/* ========= Datos de juego ========= */
+const MAP={ 
+  animal:{normal:"./assets/models/animal.glb",draco:"./assets/models/animal_draco.glb"},
+  vegetal:{normal:"./assets/models/vegetal.glb",draco:"./assets/models/vegetal_draco.glb"}
+};
+const TARGETS={
+  animal:[
+    {name:'Núcleo',pos:[0,0.12,0]},
+    {name:'Mitocondrias',pos:[0.18,0.06,0.04]},
+    {name:'Aparato de Golgi',pos:[0.12,0.00,-0.15]},
+    {name:'Ribosomas',pos:[-0.18,0.08,0]},
+    {name:'Lisosomas',pos:[-0.12,-0.02,0.14]},
+    {name:'Centriolos',pos:[0.16,0.14,-0.02]}
+  ],
+  vegetal:[
+    {name:'Núcleo',pos:[0,0.12,0]},
+    {name:'Cloroplastos',pos:[0.18,0.05,0]},
+    {name:'Vacuola central',pos:[-0.12,0.02,-0.1]},
+    {name:'Pared celular',pos:[0,0,-0.22]},
+    {name:'Plasmodesmos',pos:[-0.20,0.00,0.12]},
+    {name:'Aparato de Golgi',pos:[0.12,0,-0.15]}
+  ]
+};
+
+/* ========= Estado ========= */
+const modeAnimalBtn = document.getElementById('modeAnimal');
+const modeVegetalBtn = document.getElementById('modeVegetal');
+const chipsBox = document.getElementById('chips');
+const okEl = document.getElementById('ok'); const koEl = document.getElementById('ko');
+const totalEl = document.getElementById('total'); const progressMini = document.getElementById('progressMini');
+const toast = document.getElementById('toast');
+const btnAuto = document.getElementById('btnAuto');
+const btnCenter = document.getElementById('btnCenter');
+const btnResetView = document.getElementById('btnResetView');
+const btnReset = document.getElementById('btnReset');
+
+const modelEl = document.getElementById('cellModel');
+let kind = 'animal';               // animal | vegetal
+let done = new Set();              // nombres correctos
+let wrong = 0;
+let DEFAULT_SCALE = 1.0, USER_MULT = 1.0;
+let preview=null, targetDots=[];
+
+/* ========= Utilidades ========= */
+function showToast(msg){ toast.textContent = msg; toast.classList.add('show'); clearTimeout(showToast._t); showToast._t=setTimeout(()=>toast.classList.remove('show'),1000); }
+function resetScore(){ done.clear(); wrong=0; okEl.textContent='0'; koEl.textContent='0'; progressMini.firstChild ? progressMini.firstChild.textContent='0' : (progressMini.innerHTML='0 / <span id="total">'+(TARGETS[kind].length)+'</span>'); }
+function updateScore(){ okEl.textContent = done.size; koEl.textContent = wrong; progressMini.innerHTML = `${done.size} / <span id="total">${TARGETS[kind].length}</span>`; }
+function clamp(v,min,max){ return Math.min(Math.max(v,min),max); }
+
+/* ========= Normalización y encuadre ========= */
+function frameCameraOnly(){
+  const THREE = window.THREE; const scene = modelEl.sceneEl; if(!scene) return; const cam = scene.camera; if(!cam) return;
+  const box = new THREE.Box3().setFromObject(modelEl.object3D);
+  const sphere = box.getBoundingSphere(new THREE.Sphere());
+  const radius = sphere.radius * 1.12;
+  const fov = (cam.fov||60) * Math.PI/180; const aspect = cam.aspect || (scene.canvas ? scene.canvas.width/scene.canvas.height : 1.777);
+  const distV = radius / Math.sin(fov/2);
+  const hFov = 2 * Math.atan(Math.tan(fov/2) * aspect);
+  const distH = radius / Math.sin(hFov/2);
+  const dist = Math.max(distV, distH);
+  cam.el.setAttribute('position', `0 0 ${dist.toFixed(4)}`); cam.near = Math.max(0.01, dist*0.01); cam.far  = dist*10; cam.updateProjectionMatrix();
+}
+function normalizeAndFrame(){
+  const THREE = window.THREE; const mesh = modelEl.getObject3D('mesh'); if(!mesh) return;
+  const box = new THREE.Box3().setFromObject(mesh);
+  const size = box.getSize(new THREE.Vector3());
+  const center = box.getCenter(new THREE.Vector3());
+  const maxDim = Math.max(size.x,size.y,size.z) || 1;
+  mesh.position.sub(center);
+  const s  = 0.30 / maxDim; // tamaño objetivo común
+  modelEl.object3D.scale.set(s,s,s); DEFAULT_SCALE = s; USER_MULT=1.0;
+  frameCameraOnly();
+  // puntos objetivo visibles (ayuda)
+  makeTargetDots();
+}
+
+/* ========= Puntos objetivo visibles ========= */
+function clearTargetDots(){ targetDots.forEach(e=>e.parentNode && e.parentNode.removeChild(e)); targetDots=[]; }
+function makeTargetDots(){
+  clearTargetDots();
+  TARGETS[kind].forEach(t=>{
+    const dot=document.createElement('a-entity');
+    dot.setAttribute('geometry','primitive: sphere; radius: 0.018');
+    dot.setAttribute('material','color:#9ec6ff; emissive:#1a9fff; emissiveIntensity:0.7; opacity:0.9');
+    dot.setAttribute('position', t.pos.join(' '));
+    dot.setAttribute('visible','true');
+    modelEl.appendChild(dot);
+    targetDots.push(dot);
+  });
+}
+
+/* ========= Carga de modelo ========= */
+async function exists(u){ try{ const r=await fetch(u+'?t='+Date.now(),{method:'HEAD'}); return r.ok; }catch{return false;} }
+async function pick(){ const e=MAP[kind]; return (await exists(e.draco))?e.draco:e.normal; }
+async function loadModel(){
+  const url=(await pick())+'#'+Date.now();
+  modelEl.removeAttribute('gltf-model');
+  modelEl.object3D.position.set(0,0,0);
+  modelEl.object3D.rotation.set(0,0,0);
+  modelEl.object3D.scale.set(0.4,0.4,0.4);
+  setTimeout(()=>modelEl.setAttribute('gltf-model',url),30);
+}
+
+/* ========= Chips (draggable) ========= */
+function renderChips(){
+  chipsBox.innerHTML='';
+  const arr = TARGETS[kind].map(t=>t.name);
+  // Mezcla simple
+  arr.sort(()=>Math.random()-0.5);
+  arr.forEach(name=>{
+    const el=document.createElement('div');
+    el.className='chip';
+    el.textContent=name;
+    el.dataset.name=name;
+    el.tabIndex=0;
+    chipsBox.appendChild(el);
+  });
+  totalEl.textContent = TARGETS[kind].length;
+}
+function lockChip(name){
+  const chip=[...chipsBox.children].find(c=>c.dataset.name===name);
+  if(chip){ chip.classList.add('lock'); chip.setAttribute('aria-disabled','true'); chip.style.pointerEvents='none'; }
+}
+
+/* ========= Drag & Drop hacia el modelo ========= */
+const scene = document.querySelector('a-scene');
+const raycaster = new THREE.Raycaster();
+const mouse = new THREE.Vector2();
+let dragging=null, dragGhost=null;
+
+function worldPointFromClient(x,y){
+  const canvas = scene.canvas; if(!canvas) return null;
+  const rect = canvas.getBoundingClientRect();
+  const nx = ( (x - rect.left) / rect.width ) * 2 - 1;
+  const ny = - ( (y - rect.top) / rect.height ) * 2 + 1;
+  mouse.set(nx, ny);
+  raycaster.setFromCamera(mouse, scene.camera);
+  const mesh = modelEl.getObject3D('mesh'); if(!mesh) return null;
+  const intersects = raycaster.intersectObject(mesh, true);
+  return (intersects && intersects[0]) ? intersects[0].point : null;
+}
+function toLocal(pWorld){
+  const p = pWorld.clone();
+  modelEl.object3D.worldToLocal(p);
+  return p;
+}
+function ensurePreview(){
+  if(preview) return preview;
+  const e=document.createElement('a-entity');
+  e.setAttribute('geometry','primitive:sphere; radius:0.018');
+  e.setAttribute('material','color:#fff; emissive:#fff; emissiveIntensity:0.8; opacity:0.85');
+  e.setAttribute('visible','false');
+  modelEl.appendChild(e);
+  preview=e; return e;
+}
+function startDrag(chip, x, y){
+  if(chip.classList.contains('lock')) return;
+  dragging = chip.dataset.name;
+  chip.classList.add('dragging');
+  dragGhost = chip.cloneNode(true);
+  dragGhost.style.position='fixed'; dragGhost.style.left=(x-10)+'px'; dragGhost.style.top=(y-10)+'px';
+  dragGhost.style.opacity='0.85'; dragGhost.style.pointerEvents='none'; dragGhost.style.transform='scale(1.06)';
+  document.body.appendChild(dragGhost);
+  ensurePreview();
+}
+function moveDrag(x,y){
+  if(!dragging) return;
+  dragGhost.style.left=(x-10)+'px'; dragGhost.style.top=(y-10)+'px';
+  const p = worldPointFromClient(x,y);
+  if(p){ preview.setAttribute('position', p); preview.setAttribute('visible','true'); }
+  else{ preview.setAttribute('visible','false'); }
+}
+function endDrag(x,y){
+  if(!dragging) return;
+  const name = dragging; dragging=null;
+  const chip = [...chipsBox.children].find(c=>c.classList.contains('dragging'));
+  chip && chip.classList.remove('dragging');
+  if(dragGhost){ dragGhost.remove(); dragGhost=null; }
+  const p = worldPointFromClient(x,y);
+  preview && preview.setAttribute('visible','false');
+  if(!p) { shake(chip); wrong++; updateScore(); return; }
+  const local = toLocal(p);
+  const target = TARGETS[kind].find(t=>t.name===name);
+  if(!target){ wrong++; updateScore(); return; }
+  const dist = Math.hypot(local.x - target.pos[0], local.y - target.pos[1], local.z - target.pos[2]);
+  const ok = dist <= 0.10; // tolerancia
+  if(ok){
+    done.add(name); updateScore(); lockChip(name); pingMark(target.pos); showToast('¡Correcto!');
+    if(done.size === TARGETS[kind].length){ showToast('¡Perfecto!'); }
+  }else{
+    shake(chip); wrong++; updateScore(); showToast('Intenta de nuevo');
+  }
+}
+function shake(el){
+  if(!el) return;
+  el.animate([{transform:'translateX(0)'},{transform:'translateX(-6px)'},{transform:'translateX(6px)'},{transform:'translateX(0)'}],{duration:250});
+}
+function pingMark(pos){
+  const e=document.createElement('a-entity');
+  e.setAttribute('geometry','primitive: torus; radius: 0.05; radiusTubular: 0.006');
+  e.setAttribute('material',`color:${'#b0ffb0'}; emissive:${'#39ff14'}; emissiveIntensity:0.9; opacity:0.9`);
+  e.setAttribute('rotation','90 0 0'); e.setAttribute('position', pos.join(' '));
+  modelEl.appendChild(e);
+  setTimeout(()=>{ e.parentNode && e.parentNode.removeChild(e); }, 1200);
+}
+
+/* Eventos globales de drag */
+chipsBox.addEventListener('pointerdown', (e)=>{
+  const tgt = e.target.closest('.chip'); if(!tgt) return;
+  tgt.setPointerCapture?.(e.pointerId);
+  startDrag(tgt, e.clientX, e.clientY);
+});
+window.addEventListener('pointermove', e=> moveDrag(e.clientX, e.clientY));
+window.addEventListener('pointerup',   e=> endDrag(e.clientX, e.clientY));
+
+/* ========= UI superior ========= */
+btnAuto.addEventListener('click', ()=>{
+  const on = btnAuto.classList.toggle('active');
+  modelEl.setAttribute('auto-rotator',`enabled:${on}; speed:18`);
+});
+btnCenter.addEventListener('click', ()=> modelEl.object3D.position.set(0,0,0));
+btnResetView.addEventListener('click', ()=>{
+  modelEl.object3D.position.set(0,0,0);
+  modelEl.object3D.rotation.set(0,0,0);
+  modelEl.object3D.scale.set(DEFAULT_SCALE,DEFAULT_SCALE,DEFAULT_SCALE);
+  USER_MULT=1.0;
+});
+
+/* ========= Cambio de modo ========= */
+function setMode(newKind){
+  if(kind===newKind) return;
+  kind=newKind;
+  modeAnimalBtn.classList.toggle('active', kind==='animal');
+  modeVegetalBtn.classList.toggle('active', kind==='vegetal');
+  resetScore();
+  renderChips();
+  clearTargetDots();
+  loadModel();
+}
+modeAnimalBtn.onclick = ()=> setMode('animal');
+modeVegetalBtn.onclick = ()=> setMode('vegetal');
+
+/* ========= Reiniciar ========= */
+btnReset.onclick = ()=>{
+  resetScore();
+  renderChips();
+  clearTargetDots();
+  makeTargetDots();
+};
+
+/* ========= Carga inicial ========= */
+modelEl.addEventListener('model-loaded', ()=>{ normalizeAndFrame(); makeTargetDots(); });
+modelEl.addEventListener('model-error', e=>{ alert('No se pudo cargar el modelo'); console.error(e.detail); });
+
+(function init(){
+  resetScore();
+  renderChips();
+  loadModel();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,4 @@
+RUT,Nombres,Apellidos,Curso,Email,PIE_Estado,PIE_Diagnostico,PAES
+12.345.678-9,Belén,Acuña,4° Medio A,belen@example.com,transitorio,TDAH,si
+9.999.999-9,Francisco Andrés,Pinto Aravena,3° Medio B,pancho@example.com,ninguno,,no
+20.111.222-3,Macarena,Álvarez,2° Medio C,macarena@example.com,permanente,TEL,no

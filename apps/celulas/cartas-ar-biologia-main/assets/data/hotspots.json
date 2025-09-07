@@ -1,0 +1,74 @@
+[
+  {
+    "name": "Núcleo",
+    "description": "Contiene el ADN y regula las funciones celulares.",
+    "offset": {
+      "x": 0.0,
+      "y": 0.25,
+      "z": 0.0
+    }
+  },
+  {
+    "name": "Mitocondria",
+    "description": "Genera ATP mediante la respiración celular.",
+    "offset": {
+      "x": -0.4,
+      "y": 0.05,
+      "z": 0.1
+    }
+  },
+  {
+    "name": "Aparato de Golgi",
+    "description": "Modifica y empaqueta proteínas y lípidos.",
+    "offset": {
+      "x": 0.35,
+      "y": 0.05,
+      "z": 0.2
+    }
+  },
+  {
+    "name": "R.E. Rugoso",
+    "description": "Sintetiza proteínas con ribosomas adheridos.",
+    "offset": {
+      "x": 0.2,
+      "y": -0.05,
+      "z": -0.25
+    }
+  },
+  {
+    "name": "R.E. Liso",
+    "description": "Sintetiza lípidos y realiza detoxificación.",
+    "offset": {
+      "x": -0.25,
+      "y": -0.08,
+      "z": -0.25
+    }
+  },
+  {
+    "name": "Lisosoma",
+    "description": "Digestión de desechos y reciclaje celular.",
+    "offset": {
+      "x": -0.05,
+      "y": -0.18,
+      "z": 0.25
+    }
+  },
+  {
+    "name": "Membrana",
+    "description": "Delimita la célula y regula el intercambio.",
+    "offset": {
+      "x": 0.0,
+      "y": -0.28,
+      "z": 0.0
+    }
+  },
+  {
+    "name": "Citoesqueleto",
+    "description": "Da forma y soporta movimiento intracelular.",
+    "offset": {
+      "x": 0.15,
+      "y": 0.0,
+      "z": 0.35
+    }
+  }
+]
