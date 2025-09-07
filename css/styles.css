@@ -181,3 +181,12 @@ html[data-pie-theme="tritanopia"] { --pie-contrast: 1.05; --pie-saturate: 0.9; -
 }
 .subject-emoji{font-size:1.25rem; margin-right:6px}
 
+
+
+
+/* --- Nav tab icons --- */
+.nav .tab{display:inline-flex; align-items:center; gap:8px}
+.nav .tab .icon{display:inline-flex; width:18px; height:18px}
+.nav .tab svg{width:18px; height:18px}
+.nav .tab .label{display:inline-block}
+
