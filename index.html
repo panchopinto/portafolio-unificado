@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Acceso — Portafolio Privado (UNIFICADO)</title>
+  <link rel="stylesheet" href="css/styles.css"/>
+  <script defer src="js/config.js"></script>
+  <script defer src="js/auth.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">Portafolio Privado</div>
+    <nav class="nav">
+      <a class="tab" href="#" onclick="alert('Inicia sesión para continuar')">Inicio</a>
+      <a class="tab" href="https://panchopinto.github.io/PROYECTOS-PANCHOPINTO/seremi.html" target="_blank">SEREMI</a>
+      <a class="tab" href="https://panchopinto.github.io/Proyectos-Educativos/" target="_blank">Liceo</a>
+    </nav>
+  </header>
+
+  <main class="main-center">
+    <section class="glass split" style="max-width:1100px">
+      <div class="cover">
+        <span class="logo-badge">Innovación Educativa</span>
+        <h1>Portafolio Privado — UNIFICADO</h1>
+        <p>Órtesis 3D · Cartas‑AR Biología · Trivias · Hidroponía · Acuaponía · SIAMP · AEROMON</p>
+        <ul class="bullets">
+          <li>Acceso protegido (correo autorizado + clave).</li>
+          <li>Una sola puerta para Presentaciones, Municipalidad y Portafolio Proyectos.</li>
+          <li>Enlaces directos a SEREMI, DAEM San Nicolás / Chillán, Catálogo y Liceo.</li>
+        </ul>
+      </div>
+      <div>
+        <form id="login-form" class="form glass" autocomplete="on">
+          <h2>Ingresa</h2>
+          <label class="input">
+            <span class="kbd">Correo</span>
+            <input id="email" type="email" placeholder="tu@correo.cl" required/>
+          </label>
+          <label class="input">
+            <span class="kbd">Clave</span>
+            <input id="password" type="password" placeholder="•••••••" required/>
+          </label>
+          <button class="btn row" type="submit"><span class="icon i-play"></span>Entrar</button>
+          <div id="msg" class="small"></div>
+          <p class="small">Consejo: puedes editar los correos autorizados en <code>js/config.js</code>.</p>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  
+<footer class="footer">
+  <div id="t_created_by">Creado por: Francisco Pinto Aravena - <a href="mailto:franciscoandresp@gmail.com">franciscoandresp@gmail.com</a></div>
+  <div id="t_edu_purpose">Este proyecto es desarrollado con propósitos educacionales, motivando el desarrollo, culturización e innovación tecnológica en las aulas.</div>
+  <div>© <span class="year"></span> Queda prohibida la copia, redistribución o adaptación de los contenidos, modelos 3D, imágenes y código aquí publicados sin autorización expresa por escrito.</div>
+  <div id="t_all_rights">© Todos los derechos reservados.</div>
+</footer>
+
+
+</body>
+</html>
