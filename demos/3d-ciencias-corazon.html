@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Ciencias — 3D Corazón</title>
+<link rel="stylesheet" href="../css/styles.css"/>
+<script defer src="../js/pie-theme.js"></script>
+<script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+<style>
+  body{margin:0; display:grid; gap:16px; place-items:center}
+  .wrap{width:min(1200px,92vw); padding:14px}
+  model-viewer{width:100%; height:70vh; background:#111}
+  .hotspot{background: rgba(0,0,0,.65); color:#fff; border:1px solid rgba(255,255,255,.25); padding:6px 10px; border-radius:10px; font-size:.85rem}
+</style>
+</head>
+<body class="pie-scope">
+  <div class="wrap">
+    <h1>Ciencias — 3D Corazón</h1>
+    <div class="pie-controls">
+      <span>PIE:</span>
+      <a href="#" class="badge" data-theme="default">Default</a>
+      <a href="#" class="badge" data-theme="protanopia">Protanopia</a>
+      <a href="#" class="badge" data-theme="deuteranopia">Deuteranopia</a>
+      <a href="#" class="badge" data-theme="tritanopia">Tritanopia</a>
+    </div>
+    <p>Modelo 3D de corazón humano para identificar aurículas, ventrículos y válvulas. Reemplaza <code>src</code> por un GLB propio si lo deseas.</p>
+  </div>
+  <model-viewer src="https://modelviewer.dev/shared-assets/models/Heart.glb" alt="Corazón 3D" camera-controls auto-rotate>
+    <button slot="hotspot-1" data-position="0.1 0.2 0.1" data-normal="0 1 0" data-visibility-attribute="visible" class="hotspot">Aurícula derecha</button>
+    <button slot="hotspot-2" data-position="-0.1 0.1 0.0" data-normal="0 1 0" data-visibility-attribute="visible" class="hotspot">Ventrículo izquierdo</button>
+    <button slot="hotspot-3" data-position="0.0 -0.1 0.1" data-normal="0 1 0" data-visibility-attribute="visible" class="hotspot">Válvula mitral</button>
+  </model-viewer>
+  <section class="wrap" style="margin-top:8px">
+    <div style="display:flex; gap:8px; flex-wrap:wrap;">
+      <span class="badge">OA: Sistema circulatorio</span>
+      <span class="badge">PAES: Ciencias</span>
+      <span class="badge">PIE: Filtros daltonismo activos</span>
+    </div>
+  </section>
+</body>
+</html>
