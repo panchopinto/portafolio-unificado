@@ -21,7 +21,7 @@
   const controls = document.createElement('div');
   controls.className = 'pie-controls';
   controls.innerHTML = `
-    <span>Elige tu fondo:</span>
+    <span>PIE:</span>
     <a href="#" class="badge" data-theme="default">Default</a>
     <a href="#" class="badge" data-theme="protanopia">Protanopia</a>
     <a href="#" class="badge" data-theme="deuteranopia">Deuteranopia</a>

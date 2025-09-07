@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Historia — Demo 3D Patrimonio</title>
+<link rel="stylesheet" href="../css/styles.css"/>
+<script defer src="../js/pie-theme.js"></script>
+<script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+<style>
+ body{margin:0; display:grid; gap:16px; place-items:center}
+ .wrap{width:min(1200px,92vw); padding:14px}
+ model-viewer{width:100%; height:70vh; background:#111}
+</style>
+</head>
+<body class="pie-scope">
+  <div class="wrap">
+    <h1>Historia — Demo Patrimonio 3D</h1>
+    <div class="pie-controls">
+      <span>PIE:</span>
+      <a href="#" class="badge" data-theme="default">Default</a>
+      <a href="#" class="badge" data-theme="protanopia">Protanopia</a>
+      <a href="#" class="badge" data-theme="deuteranopia">Deuteranopia</a>
+      <a href="#" class="badge" data-theme="tritanopia">Tritanopia</a>
+    </div>
+    <p>Ejemplo de visualización de patrimonio cultural en 3D. Reemplaza el <code>src</code> por un modelo <strong>CC0/Open Access</strong> (por ejemplo de Smithsonian Open Access) cuando definas el recurso definitivo.</p>
+  </div>
+  <model-viewer src="https://modelviewer.dev/shared-assets/models/Astronaut.glb" alt="Modelo de ejemplo" camera-controls auto-rotate></model-viewer>
+</body>
+</html>

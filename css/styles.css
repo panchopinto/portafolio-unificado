@@ -190,3 +190,31 @@ html[data-pie-theme="tritanopia"] { --pie-contrast: 1.05; --pie-saturate: 0.9; -
 .nav .tab svg{width:18px; height:18px}
 .nav .tab .label{display:inline-block}
 
+
+
+
+/* --- Subject-specific color tokens --- */
+:root{
+  --sub-leng: #1e90ff;
+  --sub-mate: #ff7a1e;
+  --sub-cien: #22c55e;
+  --sub-hist: #a855f7;
+  --sub-ingl: #14b8a6;
+  --sub-eduC: #f59e0b;
+}
+.demo-pill[data-subject="Lenguaje"]{ background: color-mix(in srgb, var(--sub-leng) 15%, transparent); }
+.demo-pill[data-subject="Matemática"]{ background: color-mix(in srgb, var(--sub-mate) 15%, transparent); }
+.demo-pill[data-subject="Ciencias"]{ background: color-mix(in srgb, var(--sub-cien) 15%, transparent); }
+.demo-pill[data-subject="Historia"]{ background: color-mix(in srgb, var(--sub-hist) 15%, transparent); }
+.demo-pill[data-subject="Inglés"]{ background: color-mix(in srgb, var(--sub-ingl) 15%, transparent); }
+.demo-pill[data-subject="Educación Ciudadana"]{ background: color-mix(in srgb, var(--sub-eduC) 15%, transparent); }
+@supports not (background: color-mix(in srgb, red 10%, white)){
+  .demo-pill[data-subject="Lenguaje"]{ background: rgba(30,144,255,.15); }
+  .demo-pill[data-subject="Matemática"]{ background: rgba(255,122,30,.15); }
+  .demo-pill[data-subject="Ciencias"]{ background: rgba(34,197,94,.15); }
+  .demo-pill[data-subject="Historia"]{ background: rgba(168,85,247,.15); }
+  .demo-pill[data-subject="Inglés"]{ background: rgba(20,184,166,.15); }
+  .demo-pill[data-subject="Educación Ciudadana"]{ background: rgba(245,158,11,.18); }
+}
+.demo-pill[data-subject] { border: 1px solid rgba(255,255,255,.08); }
+
