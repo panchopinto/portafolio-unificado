@@ -8,6 +8,7 @@
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
   <script defer src="js/config.js"></script>
   <script defer src="js/dataset.js"></script>
+  <script defer src="js/asignaturas.js"></script>
 </head>
 <body>
 <header class="topbar">
@@ -20,7 +21,9 @@
     <a class="tab" href="dashboard.html"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M3 3v18h18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M7 15l4-4 3 3 4-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Dashboard</span></a>
     <a class="tab active" href="dataset.html"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="16" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M3 9h18M9 9v11" stroke="currentColor" stroke-width="1.8"/></svg><span>Dataset</span></a>
     <button id="btnClock" class="chip" disabled><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M12 7v6l4 2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="clock">--:--:--</span></button>
-  </nav>
+  
+    <a class="tab" href="#" id="btnAsignaturas">Asignaturas</a>
+</nav>
 </header>
 
 <main class="container">
@@ -55,5 +58,72 @@
   }
   tick(); setInterval(tick,1000);
 </script>
+
+<!-- MODAL: ASIGNATURAS (auto-inyectado) -->
+<div id="modalAsignaturas" class="modal-asig" aria-hidden="true" role="dialog" aria-labelledby="asigTitle">
+  <div class="modal-content">
+    <h2 id="asigTitle">Asignaturas</h2>
+    <div class="subjects-grid">
+      <div class="subject-card" data-subject="Lenguaje">
+        <h3>Lenguaje</h3>
+        <ul>
+          <li><a href="#" data-demo="ar">Demo AR</a></li>
+          <li><a href="#" data-demo="rv">Demo RV</a></li>
+          <li><a href="#" data-demo="3d">Demo 3D</a></li>
+          <li><a href="#" data-demo="trivia">Trivia</a></li>
+        </ul>
+      </div>
+      <div class="subject-card" data-subject="Matemática">
+        <h3>Matemática</h3>
+        <ul>
+          <li><a href="#" data-demo="ar">Demo AR</a></li>
+          <li><a href="#" data-demo="rv">Demo RV</a></li>
+          <li><a href="#" data-demo="3d">Demo 3D</a></li>
+          <li><a href="#" data-demo="trivia">Trivia</a></li>
+        </ul>
+      </div>
+      <div class="subject-card" data-subject="Ciencias">
+        <h3>Ciencias</h3>
+        <ul>
+          <li><a href="celulas-ar.html" data-demo="ar">Demo AR</a></li>
+          <li><a href="ciencias-rv.html" data-demo="rv">Demo RV</a></li>
+          <li><a href="ciencias-3d.html" data-demo="3d">Demo 3D</a></li>
+          <li><a href="trivias-biologia/index.html" data-demo="trivia">Trivia</a></li>
+        </ul>
+      </div>
+      <div class="subject-card" data-subject="Historia">
+        <h3>Historia</h3>
+        <ul>
+          <li><a href="#" data-demo="ar">Demo AR</a></li>
+          <li><a href="#" data-demo="rv">Demo RV</a></li>
+          <li><a href="#" data-demo="3d">Demo 3D</a></li>
+          <li><a href="#" data-demo="trivia">Trivia</a></li>
+        </ul>
+      </div>
+      <div class="subject-card" data-subject="Inglés">
+        <h3>Inglés</h3>
+        <ul>
+          <li><a href="#" data-demo="ar">Demo AR</a></li>
+          <li><a href="#" data-demo="rv">Demo RV</a></li>
+          <li><a href="#" data-demo="3d">Demo 3D</a></li>
+          <li><a href="#" data-demo="trivia">Trivia</a></li>
+        </ul>
+      </div>
+      <div class="subject-card" data-subject="Educación Ciudadana">
+        <h3>Educación Ciudadana</h3>
+        <ul>
+          <li><a href="#" data-demo="ar">Demo AR</a></li>
+          <li><a href="#" data-demo="rv">Demo RV</a></li>
+          <li><a href="#" data-demo="3d">Demo 3D</a></li>
+          <li><a href="#" data-demo="trivia">Trivia</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button id="closeAsignaturas">Cerrar</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>

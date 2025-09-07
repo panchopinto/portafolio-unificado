@@ -117,3 +117,21 @@ input[type=email],input[type=password]{
 .i-catalog{ -webkit-mask: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="white" viewBox="0 0 24 24"><path d="M4 6h16v2H4V6zm0 4h10v2H4v-2zm0 4h16v2H4v-2z"/></svg>') center/contain no-repeat; background:#67e8f9}
 
 .hide{display:none}
+
+/* --- ASIGNATURAS MODAL (auto-inyectado) --- */
+.modal-asig{display:none;position:fixed;z-index:999;inset:0;background:rgba(0,0,0,.6)}
+.modal-asig .modal-content{background:#fff;margin:5% auto;padding:20px;border-radius:12px;width:min(900px,90vw)}
+.modal-asig h2{text-align:center;margin-bottom:16px}
+.subjects-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px}
+.subject-card{padding:14px;border-radius:12px;background:#f4f6ff;text-align:center;box-shadow:0 4px 14px rgba(0,0,0,.08)}
+.subject-card:hover{transform:translateY(-2px)}
+.subject-card h3{margin:6px 0 10px}
+.subject-card ul{list-style:none;padding:0;margin:0}
+.subject-card li{margin:6px 0;padding:8px;border-radius:8px;background:#eef0ff}
+.modal-actions{display:flex;justify-content:center;margin-top:16px}
+.modal-actions button{padding:10px 16px;border-radius:10px;border:none}
+@media (prefers-color-scheme: dark){
+  .modal-asig .modal-content{background:#0f1220;color:#e7e7ea}
+  .subject-card{background:#171a2b}
+  .subject-card li{background:#20243a}
+}

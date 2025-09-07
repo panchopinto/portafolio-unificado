@@ -6,6 +6,7 @@
 <title>Dashboard Docente — Trivias CN08 OA 02</title>
 <link rel="stylesheet" href="../css/styles.css"/>
 <link rel="stylesheet" href="./dashboard.css"/>
+  <script defer src="js/asignaturas.js"></script>
 </head>
 <body>
 <div class="container grid">
@@ -94,5 +95,72 @@
   </section>
 </div>
 <script src="./dashboard.js"></script>
+
+<!-- MODAL: ASIGNATURAS (auto-inyectado) -->
+<div id="modalAsignaturas" class="modal-asig" aria-hidden="true" role="dialog" aria-labelledby="asigTitle">
+  <div class="modal-content">
+    <h2 id="asigTitle">Asignaturas</h2>
+    <div class="subjects-grid">
+      <div class="subject-card" data-subject="Lenguaje">
+        <h3>Lenguaje</h3>
+        <ul>
+          <li><a href="#" data-demo="ar">Demo AR</a></li>
+          <li><a href="#" data-demo="rv">Demo RV</a></li>
+          <li><a href="#" data-demo="3d">Demo 3D</a></li>
+          <li><a href="#" data-demo="trivia">Trivia</a></li>
+        </ul>
+      </div>
+      <div class="subject-card" data-subject="Matemática">
+        <h3>Matemática</h3>
+        <ul>
+          <li><a href="#" data-demo="ar">Demo AR</a></li>
+          <li><a href="#" data-demo="rv">Demo RV</a></li>
+          <li><a href="#" data-demo="3d">Demo 3D</a></li>
+          <li><a href="#" data-demo="trivia">Trivia</a></li>
+        </ul>
+      </div>
+      <div class="subject-card" data-subject="Ciencias">
+        <h3>Ciencias</h3>
+        <ul>
+          <li><a href="celulas-ar.html" data-demo="ar">Demo AR</a></li>
+          <li><a href="ciencias-rv.html" data-demo="rv">Demo RV</a></li>
+          <li><a href="ciencias-3d.html" data-demo="3d">Demo 3D</a></li>
+          <li><a href="trivias-biologia/index.html" data-demo="trivia">Trivia</a></li>
+        </ul>
+      </div>
+      <div class="subject-card" data-subject="Historia">
+        <h3>Historia</h3>
+        <ul>
+          <li><a href="#" data-demo="ar">Demo AR</a></li>
+          <li><a href="#" data-demo="rv">Demo RV</a></li>
+          <li><a href="#" data-demo="3d">Demo 3D</a></li>
+          <li><a href="#" data-demo="trivia">Trivia</a></li>
+        </ul>
+      </div>
+      <div class="subject-card" data-subject="Inglés">
+        <h3>Inglés</h3>
+        <ul>
+          <li><a href="#" data-demo="ar">Demo AR</a></li>
+          <li><a href="#" data-demo="rv">Demo RV</a></li>
+          <li><a href="#" data-demo="3d">Demo 3D</a></li>
+          <li><a href="#" data-demo="trivia">Trivia</a></li>
+        </ul>
+      </div>
+      <div class="subject-card" data-subject="Educación Ciudadana">
+        <h3>Educación Ciudadana</h3>
+        <ul>
+          <li><a href="#" data-demo="ar">Demo AR</a></li>
+          <li><a href="#" data-demo="rv">Demo RV</a></li>
+          <li><a href="#" data-demo="3d">Demo 3D</a></li>
+          <li><a href="#" data-demo="trivia">Trivia</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button id="closeAsignaturas">Cerrar</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
