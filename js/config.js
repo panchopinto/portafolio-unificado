@@ -5,6 +5,8 @@
 window.APP_CONFIG = {
   allowedEmails: [
     "franciscoandresp@gmail.com",
-    "TODO_belen_email@ejemplo.cl"
-  ]
+    "franciscopinto@liceosannicolas.cl",
+    "belen.acpe@gmail.com",
+    "belenacuna@liceosannicolas.cl"
+    ]
 };
