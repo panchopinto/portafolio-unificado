@@ -30,11 +30,17 @@
   <section class="wrap" style="margin-top:8px">
     <label for="assetSel"><strong>Modelo:</strong></label>
     <select id="assetSel" style="margin-left:8px">
-      <option value="https://modelviewer.dev/shared-assets/models/Astronaut.glb">Astronauta (placeholder)</option>
-      <option value="https://3d.si.edu/object/3d/1903-wright-flyer%3Ad8c62e5e-4ebc-11ea-b77f-2e728ce88125">Smithsonian — 1903 Wright Flyer (descargar y alojar GLB)</option>
-      <option value="https://3d.si.edu/object/3d/orbiter-space-shuttle-ov-103-discovery%3Ad8c636ce-4ebc-11ea-b77f-2e728ce88125">Smithsonian — Transbordador Discovery (descargar y alojar GLB)</option>
-      <option value="https://3d.si.edu/explorer/cosmic-buddha-laser-scan">Smithsonian — Cosmic Buddha (OBJ → convertir a GLB)</option>
-    </select>
+  <option value="local:assets/wright_flyer.glb">Wright Flyer (1903) — CC0 (local)</option>
+  <option value="local:assets/shuttle_discovery.glb">Space Shuttle Discovery — CC0 (local)</option>
+  <option value="local:assets/cosmic_buddha.glb">Cosmic Buddha — CC0 (local)</option>
+  <option value="https://modelviewer.dev/shared-assets/models/Astronaut.glb">Astronauta (placeholder)</option>
+</select>
+<div style="margin-top:8px">
+  <a href="https://3d.si.edu/object/3d/1903-wright-flyer%3Ad8c62e5e-4ebc-11ea-b77f-2e728ce88125" target="_blank">Descargar Wright Flyer (Smithsonian)</a> ·
+  <a href="https://3d.si.edu/object/3d/orbiter-space-shuttle-ov-103-discovery%3Ad8c636ce-4ebc-11ea-b77f-2e728ce88125" target="_blank">Descargar Shuttle Discovery</a> ·
+  <a href="https://3d.si.edu/explorer/cosmic-buddha-laser-scan" target="_blank">Descargar Cosmic Buddha</a>
+</div>
+
     <p style="font-size:.95rem;opacity:.9;margin-top:6px">
       Consejo: descarga el modelo desde Smithsonian Open Access (CC0), conviértelo a <code>.glb</code> si hace falta, y súbelo a tu repo para evitar CORS. Fuente: Open Access (CC0) del Smithsonian.
     </p>
@@ -46,16 +52,20 @@
   </section>
   <script>
     const mv = document.querySelector('model-viewer');
-    const sel = document.getElementById('assetSel');
-    sel.addEventListener('change', e=>{
-      const v = e.target.value;
-      if(v.endsWith('.glb')||v.endsWith('.gltf')){
-        mv.src = v;
-      }else{
-        window.open(v,'_blank');
-        sel.value = 'https://modelviewer.dev/shared-assets/models/Astronaut.glb';
-      }
-    });
+const sel = document.getElementById('assetSel');
+sel.addEventListener('change', e=>{
+  let v = e.target.value;
+  if(v.startsWith('local:')){
+    v = v.replace('local:', ''); // becomes relative path under demos/
+    mv.src = v;
+  }else if(v.endsWith('.glb')||v.endsWith('.gltf')){
+    mv.src = v;
+  }else{
+    window.open(v,'_blank');
+    sel.value = 'https://modelviewer.dev/shared-assets/models/Astronaut.glb';
+  }
+});
+
   </script>
 
 </body>
