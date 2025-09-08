@@ -229,6 +229,36 @@
   justify-content: center; 
 }
 .card.centered .actions .tab { align-self: center; }
+</style><style>
+/* Grids centradas y responsivas (ajuste de centrado real) */
+.present-grid, .resources-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 340px));
+  gap: 22px;
+  justify-content: center;   /* centra las columnas como conjunto */
+  align-items: stretch;
+}
+.present-grid .card, .resources-grid .card {
+  width: 100%;
+  max-width: 340px;
+  display: flex;
+  flex-direction: column;
+}
+@media (max-width: 1024px) {
+  .present-grid, .resources-grid {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    justify-content: stretch; /* en tablets/móviles, que ocupe todo el ancho */
+  }
+  .present-grid .card, .resources-grid .card { max-width: 100%; }
+}
+@media (max-width: 640px) {
+  .present-grid, .resources-grid {
+    grid-template-columns: 1fr;
+    justify-content: stretch;
+  }
+}
+/* Mantener CTAs centrados al fondo */
+.card.centered .actions { margin-top: auto; display:flex; justify-content:center; }
 </style></head>
 <body>
 <header class="topbar">
