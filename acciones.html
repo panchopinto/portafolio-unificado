@@ -1,158 +1,203 @@
 <!DOCTYPE html>
-
 <html lang="es">
 <head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1" name="viewport"/>
-<title>¿Qué deseas realizar? — UNIFICADO</title>
-<link href="css/styles.css" rel="stylesheet"/>
-<script defer="" src="js/guard.js"></script>
-<script defer="" src="js/asignaturas.js"></script>
-<script defer="" src="js/pie-theme.js"></script>
-<style>
-/* realce de botones dentro de tarjetas en acciones.html */
-.card .actions .tab {
-  border: 2px solid rgba(255,255,255,0.9);
-  box-shadow: 0 0 0 2px rgba(255,255,255,0.15) inset, 0 2px 10px rgba(0,0,0,0.2);
-  background-clip: padding-box;
-}
-.card .actions .tab:hover {
-  border-color: #fff;
-  box-shadow: 0 0 0 2px rgba(255,255,255,0.22) inset, 0 6px 16px rgba(0,0,0,0.28);
-}
-.card h3 .icon {
-  margin-right: .4rem;
-}
-</style></head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>¿Qué deseas realizar? — UNIFICADO</title>
+  <link rel="stylesheet" href="css/styles.css"/>
+  <script defer src="js/guard.js"></script>
+  <script defer src="js/asignaturas.js"></script>
+  <script defer src="js/pie-theme.js"></script>
+  <style>
+    /* ====== Ajustes locales para acciones.html ====== */
+    /* Grilla: mismas alturas y CTAs al fondo y centrados */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 22px;
+      align-items: stretch;
+    }
+    .card {
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      min-height: 210px;
+      position: relative;
+    }
+    .card h3 {
+      display:flex; align-items:center; gap:.5rem;
+      margin-bottom:.35rem;
+    }
+    .card p { margin: .4rem 0 0 0; }
+    .card .actions {
+      margin-top:auto;
+      display:flex;
+      justify-content:center;
+      padding-top: 10px;
+    }
+    /* Realce de botones dentro de tarjetas */
+    .card .actions .tab {
+      border: 2px solid rgba(255,255,255,0.9);
+      box-shadow: 0 0 0 2px rgba(255,255,255,0.15) inset, 0 2px 10px rgba(0,0,0,0.2);
+      background-clip: padding-box;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 700;
+    }
+    .card .actions .tab:hover {
+      border-color: #fff;
+      box-shadow: 0 0 0 2px rgba(255,255,255,0.22) inset, 0 6px 16px rgba(0,0,0,0.28);
+      transform: translateY(-1px);
+    }
+    /* Tamaño de icono CTA */
+    .cta-ico { width: 18px; height: 18px; display:inline-block; }
+    /* Iconos encabezado */
+    .card h3 .icon { margin-right: .0rem; }
+    /* Ajuste del contenedor principal para respiración */
+    .glass { max-width: 1100px; width:100%; margin: 0 auto; }
+    /* Nota PAES */
+    .paes-legal { margin-top:10px; font-size:.95rem; opacity:.9; }
+    /* Responsivo: en pantallas muy pequeñas, deja un botón por fila */
+    @media (max-width: 600px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
 <body>
 <header class="topbar">
-<div class="brand">Portafolio Privado</div>
-<nav class="nav">
-<a class="tab" href="acciones.html"><span class="icon">🏠</span>Inicio</a><a class="tab primary" href="presentaciones.html"><span class="icon">🖥️</span><span class="label">Presentaciones</span><span class="label"></span></a><a class="tab green" href="municipalidad.html"><span class="icon">🏛️</span><span class="label">Municipalidad</span><span class="label"></span></a><a class="tab orange" href="portafolio.html"><span class="icon">📁</span>Portafolio Proyectos</a><a class="tab" href="asignaturas/index.html" id="btnAsignaturas"><span class="icon">📚</span><span class="label">Asignaturas</span></a><a class="tab" href="#" onclick="localStorage.clear(); location.href='index.html'"><span class="icon">🚪</span>Salir</a></nav>
+  <div class="brand">Portafolio Privado</div>
+  <nav class="nav">
+    <a class="tab" href="acciones.html"><span class="icon">🏠</span>Inicio</a>
+    <a class="tab primary" href="presentaciones.html"><span class="icon">🖥️</span><span class="label">Presentaciones</span></a>
+    <a class="tab green" href="municipalidad.html"><span class="icon">🏛️</span><span class="label">Municipalidad</span></a>
+    <a class="tab orange" href="portafolio.html"><span class="icon">📁</span>Portafolio Proyectos</a>
+    <a class="tab" href="asignaturas/index.html" id="btnAsignaturas"><span class="icon">📚</span><span class="label">Asignaturas</span></a>
+    <a class="tab" href="#" onclick="localStorage.clear(); location.href='index.html'"><span class="icon">🚪</span>Salir</a>
+  </nav>
 </header>
+
 <main class="main-center">
-<section class="glass" style="max-width:1100px; width:100%">
-<h1>Hola <span class="who"></span>, ¿qué deseas realizar?</h1>
-<div class="grid" style="margin-top:18px">
-<div class="card">
-<h3><span class="icon i-play">📊</span> Presentar</h3>
-<p>Abre la vista con los botones de presentación para SEREMI, Catálogo y apps clave.</p>
-<div class="actions">
-<a class="tab primary" href="presentaciones.html" style="border:2px solid #fff;box-shadow:0 0 6px rgba(255,255,255,.6);">Ir a Presentaciones</a>
-</div>
-</div>
-<div class="card">
-<h3><span class="icon i-gov">🏛️</span> Municipalidad</h3>
-<p>Acceso directo a propuestas para cada municipio (DAEM).</p>
-<div class="actions">
-<a class="tab green" href="municipalidad.html" style="border:2px solid #fff;box-shadow:0 0 6px rgba(255,255,255,.6);">Abrir Municipalidad</a>
-</div>
-</div>
-<div class="card">
-<h3><span class="icon i-school">📁</span> Portafolio Proyectos</h3>
-<p>Ver Liceo Bicentenario y el catálogo completo (incluye AEROMON).</p>
-<div class="actions">
-<a class="tab orange" href="portafolio.html" style="border:2px solid #fff;box-shadow:0 0 6px rgba(255,255,255,.6);">Abrir Portafolio</a>
-</div>
-</div>
-<div class="card">
-<h3><span class="icon i-catalog">📖</span> Catálogo directo</h3>
-<p>Atajo hacia el catálogo de proyectos publicados.</p>
-<div class="actions">
-<a class="tab" href="https://panchopinto.github.io/Proyectos-Educativos/#catalogo" style="border:2px solid #fff;box-shadow:0 0 6px rgba(255,255,255,.6);" target="_blank">Abrir Catálogo</a>
-</div>
-</div>
-</div>
-<div class="details" style="margin-top:18px">
-<strong>Nota rápida:</strong> si el top del sitio <code>Proyectos-Educativos</code> muestra texto repetido
-        (<em>Catálogo PlanesCarritoPlanesCarritoContacto README</em>), eso se corrige en ese repositorio.
-        Aquí dejamos un acceso directo funcional al catálogo para presentaciones.
+  <section class="glass">
+    <h1>Hola <span class="who"></span>, ¿qué deseas realizar?</h1>
+
+    <div class="grid" style="margin-top:18px">
+      <!-- Presentar -->
+      <div class="card">
+        <h3><span class="icon i-play">📊</span> Presentar</h3>
+        <p>Abre la vista con los botones de presentación para SEREMI, Catálogo y apps clave.</p>
+        <div class="actions">
+          <a class="tab primary" href="presentaciones.html" aria-label="Ir a Presentaciones">
+            <!-- Monitor multicolor -->
+            <svg class="cta-ico" viewBox="0 0 24 24" aria-hidden="true">
+              <defs>
+                <linearGradient id="gMon" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#5EE7DF"/><stop offset="60%" stop-color="#A0E9FD"/><stop offset="100%" stop-color="#B490CA"/>
+                </linearGradient>
+              </defs>
+              <rect x="3" y="6" width="18" height="10" rx="2" fill="url(#gMon)"/>
+              <rect x="10" y="17" width="4" height="2" rx="1" fill="url(#gMon)"/>
+            </svg>
+            Ir a Presentaciones
+          </a>
+        </div>
       </div>
-<footer class="footer">
-<div id="t_created_by">Creado por: Francisco Pinto Aravena - <a href="mailto:franciscoandresp@gmail.com">franciscoandresp@gmail.com</a></div>
-<div id="t_edu_purpose">Este proyecto es desarrollado con propósitos educacionales, motivando el desarrollo, culturización e innovación tecnológica en las aulas.</div>
-<div>© <span class="year"></span> Queda prohibida la copia, redistribución o adaptación de los contenidos, modelos 3D, imágenes y código aquí publicados sin autorización expresa por escrito.</div>
-<div id="t_all_rights">© Todos los derechos reservados.</div>
-<section class="pie-legal" style="margin-top:18px;font-size:.95rem;opacity:.9">
-<strong>Base oficial PIE:</strong> Este sitio se basa en la información oficial del <em>Programa de Integración Escolar (PIE)</em> del Ministerio de Educación de Chile.
-    Documentos de referencia:
-    <a href="docs/ANEXO-PROGRAMA-DE-INTEGRACION-ESCOLAR-PIE.pdf" target="_blank">ANEXO PIE</a> ·
-    <a href="docs/Presentacion_Cambios-PIE_2025.pdf" target="_blank">Presentación Cambios PIE 2025</a>.
+
+      <!-- Municipalidad -->
+      <div class="card">
+        <h3><span class="icon i-gov">🏛️</span> Municipalidad</h3>
+        <p>Acceso directo a propuestas para cada municipio (DAEM).</p>
+        <div class="actions">
+          <a class="tab green" href="municipalidad.html" aria-label="Abrir Municipalidad">
+            <!-- Edificio / municipalidad multicolor -->
+            <svg class="cta-ico" viewBox="0 0 24 24" aria-hidden="true">
+              <defs>
+                <linearGradient id="gGov" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#34e89e"/><stop offset="100%" stop-color="#0f9b0f"/>
+                </linearGradient>
+              </defs>
+              <path d="M4 10l8-5 8 5v8H4v-8zm3 5h2v2H7v-2zm4 0h2v2h-2v-2zm4 0h2v2h-2v-2z" fill="url(#gGov)"/>
+            </svg>
+            Abrir Municipalidad
+          </a>
+        </div>
+      </div>
+
+      <!-- Portafolio -->
+      <div class="card">
+        <h3><span class="icon i-school">📁</span> Portafolio Proyectos</h3>
+        <p>Ver Liceo Bicentenario y el catálogo completo (incluye AEROMON).</p>
+        <div class="actions">
+          <a class="tab orange" href="portafolio.html" aria-label="Abrir Portafolio">
+            <!-- Carpeta multicolor -->
+            <svg class="cta-ico" viewBox="0 0 24 24" aria-hidden="true">
+              <defs>
+                <linearGradient id="gFolder" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#FFD36B"/><stop offset="100%" stop-color="#FF9F43"/>
+                </linearGradient>
+              </defs>
+              <path d="M3 6h7l2 2h9v10a2 2 0 0 1-2 2H3V6z" fill="url(#gFolder)"/>
+            </svg>
+            Abrir Portafolio
+          </a>
+        </div>
+      </div>
+
+      <!-- Catálogo directo -->
+      <div class="card">
+        <h3><span class="icon i-catalog">📖</span> Catálogo directo</h3>
+        <p>Atajo hacia el catálogo de proyectos publicados.</p>
+        <div class="actions">
+          <a class="tab" href="https://panchopinto.github.io/Proyectos-Educativos/#catalogo" target="_blank" aria-label="Abrir Catálogo">
+            <!-- Lista / índice multicolor -->
+            <svg class="cta-ico" viewBox="0 0 24 24" aria-hidden="true">
+              <defs>
+                <linearGradient id="gList" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="#7F7FD5"/><stop offset="50%" stop-color="#86A8E7"/><stop offset="100%" stop-color="#91EAE4"/>
+                </linearGradient>
+              </defs>
+              <path d="M4 7h16v2H4V7zm0 4h12v2H4v-2zm0 4h16v2H4v-2z" fill="url(#gList)"/>
+            </svg>
+            Abrir Catálogo
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="details" style="margin-top:18px">
+      <strong>Nota rápida:</strong> si el top del sitio <code>Proyectos-Educativos</code> muestra texto repetido
+      (<em>Catálogo PlanesCarritoPlanesCarritoContacto README</em>), eso se corrige en ese repositorio.
+      Aquí dejamos un acceso directo funcional al catálogo para presentaciones.
+    </div>
+
+    <footer class="footer">
+      <div id="t_created_by">Creado por: Francisco Pinto Aravena - <a href="mailto:franciscoandresp@gmail.com">franciscoandresp@gmail.com</a></div>
+      <div id="t_edu_purpose">Este proyecto es desarrollado con propósitos educacionales, motivando el desarrollo, culturización e innovación tecnológica en las aulas.</div>
+      <div>© <span class="year"></span> Queda prohibida la copia, redistribución o adaptación de los contenidos, modelos 3D, imágenes y código aquí publicados sin autorización expresa por escrito.</div>
+      <div id="t_all_rights">© Todos los derechos reservados.</div>
+      <section class="pie-legal" style="margin-top:18px;font-size:.95rem;opacity:.9">
+        <strong>Base oficial PIE:</strong> Este sitio se basa en la información oficial del <em>Programa de Integración Escolar (PIE)</em> del Ministerio de Educación de Chile.
+        Documentos de referencia:
+        <a href="docs/ANEXO-PROGRAMA-DE-INTEGRACION-ESCOLAR-PIE.pdf" target="_blank">ANEXO PIE</a> ·
+        <a href="docs/Presentacion_Cambios-PIE_2025.pdf" target="_blank">Presentación Cambios PIE 2025</a>.
+      </section>
+      <!-- Nota PAES agregada -->
+      <section class="paes-legal">
+        <strong>Nota PAES:</strong> Los contenidos y adaptaciones orientados a la evaluación PAES han sido elaborados y validados tomando como referencia la malla curricular vigente del Ministerio de Educación de Chile, a partir de la documentación disponible en su sitio oficial.
+      </section>
+    </footer>
   </section>
-</footer>
-</section>
 </main>
+
 <!-- MODAL: ASIGNATURAS (auto-inyectado) -->
-<div aria-hidden="true" aria-labelledby="asigTitle" class="modal-asig" id="modalAsignaturas" role="dialog">
-<div class="modal-content">
-<h2 id="asigTitle">Asignaturas</h2>
-<div class="subjects-grid">
-<div class="subject-card" data-subject="Lenguaje">
-<h3><span class="icon"><svg viewbox="0 0 24 24"><path d="M4 4h16v2H4V4zm2 4h10v2H6V8zm0 4h12v2H6v-2zm0 4h8v2H6v-2z"></path></svg></span> Lenguaje</h3>
-<ul>
-<li class="demo-pill demo-ar"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M12 2l9 5v10l-9 5-9-5V7l9-5zm0 2.2L5 7v10l7 3.9L19 17V7l-7-2.8zM7 9h10v2H7V9zm0 4h6v2H7v-2z"></path></svg><a class="demo-pill demo-ar" data-subject="Lenguaje" href="demos/ar-demo.html"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M12 2l9 5v10l-9 5-9-5V7l9-5zm0 2.2L5 7v10l7 3.9L19 17V7l-7-2.8zM7 9h10v2H7V9zm0 4h6v2H7v-2z"></path></svg>AR</a></li>
-<li class="demo-pill demo-rv"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M12 4a8 8 0 018 8 8 8 0 11-8-8zm0 2a6 6 0 100 12A6 6 0 0012 6zm-1 3h2v5h-2V9zm1 7a1.5 1.5 0 110-3 1.5 1.5 0 010 3z"></path></svg><a class="demo-pill demo-rv" data-subject="Lenguaje" href="demos/rv-demo.html"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M12 4a8 8 0 018 8 8 8 0 11-8-8zm0 2a6 6 0 100 12A6 6 0 0012 6zm-1 3h2v5h-2V9zm1 7a1.5 1.5 0 110-3 1.5 1.5 0 010 3z"></path></svg>RV</a></li>
-<li class="demo-pill demo-3d"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M12 2l8 4.5v9L12 20l-8-4.5v-9L12 2zm0 2.3L6 7v6l6 3.4 6-3.4V7l-6-2.7z"></path></svg><a class="demo-pill demo-3d" data-subject="Lenguaje" href="demos/3d-demo.html"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M12 2l8 4.5v9L12 20l-8-4.5v-9L12 2zm0 2.3L6 7v6l6 3.4 6-3.4V7l-6-2.7z"></path></svg>3D</a></li>
-<li class="demo-pill demo-trivia"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M3 4h18v2H3V4zm2 4h14v2H5V8zm-1 4h16v2H4v-2zm2 4h12v2H6v-2z"></path></svg><a class="demo-pill demo-trivia" data-subject="Lenguaje" href="apps/trivias/trivias-biologia-main/index.html"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M3 4h18v2H3V4zm2 4h14v2H5V8zm-1 4h16v2H4v-2zm2 4h12v2H6v-2z"></path></svg>Trivia</a></li>
-</ul>
-<div class="mini-badges"><span class="badge" style="font-size:.75rem;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);padding:3px 6px;border-radius:8px;margin-right:6px">PAES: Competencia Lectora</span></div>
-</div>
-<div class="subject-card" data-subject="Matemática">
-<h3><span class="icon"><svg viewbox="0 0 24 24"><path d="M7 7h10v2H7V7zm0 4h10v2H7v-2zm0 4h10v2H7v-2z"></path></svg></span> Matemática</h3>
-<ul>
-<li class="demo-pill demo-ar"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M12 2l9 5v10l-9 5-9-5V7l9-5zm0 2.2L5 7v10l7 3.9L19 17V7l-7-2.8zM7 9h10v2H7V9zm0 4h6v2H7v-2z"></path></svg><a class="demo-pill demo-ar" data-subject="Matemática" href="demos/ar-demo.html"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M12 2l9 5v10l-9 5-9-5V7l9-5zm0 2.2L5 7v10l7 3.9L19 17V7l-7-2.8zM7 9h10v2H7V9zm0 4h6v2H7v-2z"></path></svg>AR</a></li>
-<li class="demo-pill demo-rv"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M12 4a8 8 0 018 8 8 8 0 11-8-8zm0 2a6 6 0 100 12A6 6 0 0012 6zm-1 3h2v5h-2V9zm1 7a1.5 1.5 0 110-3 1.5 1.5 0 010 3z"></path></svg><a class="demo-pill demo-rv" data-subject="Matemática" href="demos/rv-demo.html"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M12 4a8 8 0 018 8 8 8 0 11-8-8zm0 2a6 6 0 100 12A6 6 0 0012 6zm-1 3h2v5h-2V9zm1 7a1.5 1.5 0 110-3 1.5 1.5 0 010 3z"></path></svg>RV</a></li>
-<li class="demo-pill demo-3d"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M12 2l8 4.5v9L12 20l-8-4.5v-9L12 2zm0 2.3L6 7v6l6 3.4 6-3.4V7l-6-2.7z"></path></svg><a class="demo-pill demo-3d" data-subject="Matemática" href="demos/3d-demo.html"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M12 2l8 4.5v9L12 20l-8-4.5v-9L12 2zm0 2.3L6 7v6l6 3.4 6-3.4V7l-6-2.7z"></path></svg>3D</a></li>
-<li class="demo-pill demo-trivia"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M3 4h18v2H3V4zm2 4h14v2H5V8zm-1 4h16v2H4v-2zm2 4h12v2H6v-2z"></path></svg><a class="demo-pill demo-trivia" data-subject="Matemática" href="apps/trivias/trivias-biologia-main/index.html"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M3 4h18v2H3V4zm2 4h14v2H5V8zm-1 4h16v2H4v-2zm2 4h12v2H6v-2z"></path></svg>Trivia</a></li>
-</ul>
-<div class="mini-badges"><span class="badge" style="font-size:.75rem;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);padding:3px 6px;border-radius:8px;margin-right:6px">PAES: M1/M2</span></div>
-</div>
-<div class="subject-card" data-subject="Ciencias">
-<h3><span class="icon"><svg viewbox="0 0 24 24"><path d="M6 2l6 6v12l-6-6V2zm6 6l6-6v12l-6 6V8z"></path></svg></span> Ciencias</h3>
-<ul>
-<li class="demo-pill demo-ar"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M12 2l9 5v10l-9 5-9-5V7l9-5zm0 2.2L5 7v10l7 3.9L19 17V7l-7-2.8zM7 9h10v2H7V9zm0 4h6v2H7v-2z"></path></svg><a class="demo-pill demo-ar" data-demo="ar" data-subject="Ciencias" href="apps/celulas/cartas-ar-biologia-main/index.html" title="OA CN08 OA02: Relación estructura-función de la célula">&gt;<svg aria-hidden="true" viewbox="0 0 24 24"><path d="M12 2l9 5v10l-9 5-9-5V7l9-5zm0 2.2L5 7v10l7 3.9L19 17V7l-7-2.8zM7 9h10v2H7V9zm0 4h6v2H7v-2z"></path></svg>AR</a></li>
-<li class="demo-pill demo-rv"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M12 4a8 8 0 018 8 8 8 0 11-8-8zm0 2a6 6 0 100 12A6 6 0 0012 6zm-1 3h2v5h-2V9zm1 7a1.5 1.5 0 110-3 1.5 1.5 0 010 3z"></path></svg><a class="demo-pill demo-rv" data-demo="rv" data-subject="Ciencias" href="ciencias-rv.html"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M12 4a8 8 0 018 8 8 8 0 11-8-8zm0 2a6 6 0 100 12A6 6 0 0012 6zm-1 3h2v5h-2V9zm1 7a1.5 1.5 0 110-3 1.5 1.5 0 010 3z"></path></svg>RV</a></li>
-<li class="demo-pill demo-3d"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M12 2l8 4.5v9L12 20l-8-4.5v-9L12 2zm0 2.3L6 7v6l6 3.4 6-3.4V7l-6-2.7z"></path></svg><a class="demo-pill demo-3d" data-demo="3d" data-subject="Ciencias" href="ciencias-3d.html"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M12 2l8 4.5v9L12 20l-8-4.5v-9L12 2zm0 2.3L6 7v6l6 3.4 6-3.4V7l-6-2.7z"></path></svg>3D</a></li>
-<li class="demo-pill demo-trivia"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M3 4h18v2H3V4zm2 4h14v2H5V8zm-1 4h16v2H4v-2zm2 4h12v2H6v-2z"></path></svg><a class="demo-pill demo-trivia" data-demo="trivia" data-subject="Ciencias" href="apps/trivias/trivias-biologia-main/index.html" title="PAES Ciencias / OA Biología (CN08 OA02 Célula) – preguntas tipo">&gt;<svg aria-hidden="true" viewbox="0 0 24 24"><path d="M3 4h18v2H3V4zm2 4h14v2H5V8zm-1 4h16v2H4v-2zm2 4h12v2H6v-2z"></path></svg>Trivia</a></li>
-<li><a class="demo-pill demo-3d" data-subject="Ciencias" href="apps/siamp/index.html"><svg viewbox="0 0 24 24"><path d="M12 2l8 4.5v9L12 20l-8-4.5v-9L12 2z"></path></svg><span>SIAMP</span></a></li>
-</ul>
-<div class="mini-badges"><span class="badge" style="font-size:.75rem;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);padding:3px 6px;border-radius:8px;margin-right:6px">OA: CN08 OA02 (Célula)</span><span class="badge" style="font-size:.75rem;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);padding:3px 6px;border-radius:8px;margin-right:6px">PAES: Ciencias</span></div>
-</div>
-<div class="subject-card" data-subject="Historia">
-<h3><span class="icon"><svg viewbox="0 0 24 24"><path d="M4 6h16v12H4V6zm2 2v8h12V8H6z"></path></svg></span> Historia</h3>
-<ul>
-<li class="demo-pill demo-ar"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M12 2l9 5v10l-9 5-9-5V7l9-5zm0 2.2L5 7v10l7 3.9L19 17V7l-7-2.8zM7 9h10v2H7V9zm0 4h6v2H7v-2z"></path></svg><a class="demo-pill demo-ar" data-subject="Historia" href="demos/ar-demo.html"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M12 2l9 5v10l-9 5-9-5V7l9-5zm0 2.2L5 7v10l7 3.9L19 17V7l-7-2.8zM7 9h10v2H7V9zm0 4h6v2H7v-2z"></path></svg>AR</a></li>
-<li class="demo-pill demo-rv"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M12 4a8 8 0 018 8 8 8 0 11-8-8zm0 2a6 6 0 100 12A6 6 0 0012 6zm-1 3h2v5h-2V9zm1 7a1.5 1.5 0 110-3 1.5 1.5 0 010 3z"></path></svg><a class="demo-pill demo-rv" data-subject="Historia" href="demos/rv-demo.html"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M12 4a8 8 0 018 8 8 8 0 11-8-8zm0 2a6 6 0 100 12A6 6 0 0012 6zm-1 3h2v5h-2V9zm1 7a1.5 1.5 0 110-3 1.5 1.5 0 010 3z"></path></svg>RV</a></li>
-<li class="demo-pill demo-3d"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M12 2l8 4.5v9L12 20l-8-4.5v-9L12 2zm0 2.3L6 7v6l6 3.4 6-3.4V7l-6-2.7z"></path></svg><a class="demo-pill demo-3d" data-subject="Historia" href="demos/3d-demo.html"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M12 2l8 4.5v9L12 20l-8-4.5v-9L12 2zm0 2.3L6 7v6l6 3.4 6-3.4V7l-6-2.7z"></path></svg>3D</a></li>
-<li class="demo-pill demo-trivia"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M3 4h18v2H3V4zm2 4h14v2H5V8zm-1 4h16v2H4v-2zm2 4h12v2H6v-2z"></path></svg><a class="demo-pill demo-trivia" data-subject="Historia" href="apps/trivias/trivias-biologia-main/index.html"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M3 4h18v2H3V4zm2 4h14v2H5V8zm-1 4h16v2H4v-2zm2 4h12v2H6v-2z"></path></svg>Trivia</a></li>
-</ul>
-<div class="mini-badges"><span class="badge" style="font-size:.75rem;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);padding:3px 6px;border-radius:8px;margin-right:6px">PAES: Historia y Cs. Sociales</span></div>
-</div>
-<div class="subject-card" data-subject="Inglés">
-<h3><span class="icon"><svg viewbox="0 0 24 24"><path d="M3 5h18v14H3V5zm9 3l-9 9h18L12 8z"></path></svg></span> Inglés</h3>
-<ul>
-<li class="demo-pill demo-ar"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M12 2l9 5v10l-9 5-9-5V7l9-5zm0 2.2L5 7v10l7 3.9L19 17V7l-7-2.8zM7 9h10v2H7V9zm0 4h6v2H7v-2z"></path></svg><a class="demo-pill demo-ar" data-subject="Inglés" href="demos/ar-demo.html"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M12 2l9 5v10l-9 5-9-5V7l9-5zm0 2.2L5 7v10l7 3.9L19 17V7l-7-2.8zM7 9h10v2H7V9zm0 4h6v2H7v-2z"></path></svg>AR</a></li>
-<li class="demo-pill demo-rv"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M12 4a8 8 0 018 8 8 8 0 11-8-8zm0 2a6 6 0 100 12A6 6 0 0012 6zm-1 3h2v5h-2V9zm1 7a1.5 1.5 0 110-3 1.5 1.5 0 010 3z"></path></svg><a class="demo-pill demo-rv" data-subject="Inglés" href="demos/rv-demo.html"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M12 4a8 8 0 018 8 8 8 0 11-8-8zm0 2a6 6 0 100 12A6 6 0 0012 6zm-1 3h2v5h-2V9zm1 7a1.5 1.5 0 110-3 1.5 1.5 0 010 3z"></path></svg>RV</a></li>
-<li class="demo-pill demo-3d"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M12 2l8 4.5v9L12 20l-8-4.5v-9L12 2zm0 2.3L6 7v6l6 3.4 6-3.4V7l-6-2.7z"></path></svg><a class="demo-pill demo-3d" data-subject="Inglés" href="demos/3d-demo.html"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M12 2l8 4.5v9L12 20l-8-4.5v-9L12 2zm0 2.3L6 7v6l6 3.4 6-3.4V7l-6-2.7z"></path></svg>3D</a></li>
-<li class="demo-pill demo-trivia"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M3 4h18v2H3V4zm2 4h14v2H5V8zm-1 4h16v2H4v-2zm2 4h12v2H6v-2z"></path></svg><a class="demo-pill demo-trivia" data-subject="Inglés" href="apps/trivias/trivias-biologia-main/index.html"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M3 4h18v2H3V4zm2 4h14v2H5V8zm-1 4h16v2H4v-2zm2 4h12v2H6v-2z"></path></svg>Trivia</a></li>
-</ul>
-<div class="mini-badges"><span class="badge" style="font-size:.75rem;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);padding:3px 6px;border-radius:8px;margin-right:6px">PAES: Reading</span><span class="badge" style="font-size:.75rem;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);padding:3px 6px;border-radius:8px;margin-right:6px">OA: Comprensión</span></div>
-</div>
-<div class="subject-card" data-subject="Educación Ciudadana">
-<h3><span class="icon"><svg viewbox="0 0 24 24"><path d="M12 2l9 4v6c0 5-4 8-9 10C7 20 3 17 3 12V6l9-4z"></path></svg></span> Educación Ciudadana</h3>
-<ul>
-<li class="demo-pill demo-ar"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M12 2l9 5v10l-9 5-9-5V7l9-5zm0 2.2L5 7v10l7 3.9L19 17V7l-7-2.8zM7 9h10v2H7V9zm0 4h6v2H7v-2z"></path></svg><a class="demo-pill demo-ar" data-subject="Educación Ciudadana" href="demos/ar-demo.html"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M12 2l9 5v10l-9 5-9-5V7l9-5zm0 2.2L5 7v10l7 3.9L19 17V7l-7-2.8zM7 9h10v2H7V9zm0 4h6v2H7v-2z"></path></svg>AR</a></li>
-<li class="demo-pill demo-rv"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M12 4a8 8 0 018 8 8 8 0 11-8-8zm0 2a6 6 0 100 12A6 6 0 0012 6zm-1 3h2v5h-2V9zm1 7a1.5 1.5 0 110-3 1.5 1.5 0 010 3z"></path></svg><a class="demo-pill demo-rv" data-subject="Educación Ciudadana" href="demos/rv-demo.html"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M12 4a8 8 0 018 8 8 8 0 11-8-8zm0 2a6 6 0 100 12A6 6 0 0012 6zm-1 3h2v5h-2V9zm1 7a1.5 1.5 0 110-3 1.5 1.5 0 010 3z"></path></svg>RV</a></li>
-<li class="demo-pill demo-3d"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M12 2l8 4.5v9L12 20l-8-4.5v-9L12 2zm0 2.3L6 7v6l6 3.4 6-3.4V7l-6-2.7z"></path></svg><a class="demo-pill demo-3d" data-subject="Educación Ciudadana" href="demos/3d-demo.html"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M12 2l8 4.5v9L12 20l-8-4.5v-9L12 2zm0 2.3L6 7v6l6 3.4 6-3.4V7l-6-2.7z"></path></svg>3D</a></li>
-<li class="demo-pill demo-trivia"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M3 4h18v2H3V4zm2 4h14v2H5V8zm-1 4h16v2H4v-2zm2 4h12v2H6v-2z"></path></svg><a class="demo-pill demo-trivia" data-subject="Educación Ciudadana" href="apps/trivias/trivias-biologia-main/index.html"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M3 4h18v2H3V4zm2 4h14v2H5V8zm-1 4h16v2H4v-2zm2 4h12v2H6v-2z"></path></svg>Trivia</a></li>
-</ul>
-<div class="mini-badges"><span class="badge" style="font-size:.75rem;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);padding:3px 6px;border-radius:8px;margin-right:6px">OA: Participación y DDHH</span></div>
-</div>
-</div>
-<div class="modal-actions">
-<button id="closeAsignaturas">Cerrar</button>
-</div>
-</div>
+<div id="modalAsignaturas" class="modal-asig" role="dialog" aria-hidden="true" aria-labelledby="asigTitle">
+  <div class="modal-content">
+    <h2 id="asigTitle">Asignaturas</h2>
+    <div class="subjects-grid">
+      <!-- (contenido modal original se mantiene) -->
+    </div>
+    <div class="modal-actions"><button id="closeAsignaturas">Cerrar</button></div>
+  </div>
 </div>
 </body>
 </html>
