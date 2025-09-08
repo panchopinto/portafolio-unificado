@@ -9,7 +9,21 @@
 <script defer="" src="js/guard.js"></script>
 <script defer="" src="js/asignaturas.js"></script>
 <script defer="" src="js/pie-theme.js"></script>
-</head>
+<style>
+/* realce de botones dentro de tarjetas en acciones.html */
+.card .actions .tab {
+  border: 2px solid rgba(255,255,255,0.9);
+  box-shadow: 0 0 0 2px rgba(255,255,255,0.15) inset, 0 2px 10px rgba(0,0,0,0.2);
+  background-clip: padding-box;
+}
+.card .actions .tab:hover {
+  border-color: #fff;
+  box-shadow: 0 0 0 2px rgba(255,255,255,0.22) inset, 0 6px 16px rgba(0,0,0,0.28);
+}
+.card h3 .icon {
+  margin-right: .4rem;
+}
+</style></head>
 <body>
 <header class="topbar">
 <div class="brand">Portafolio Privado</div>
@@ -21,31 +35,31 @@
 <h1>Hola <span class="who"></span>, ¿qué deseas realizar?</h1>
 <div class="grid" style="margin-top:18px">
 <div class="card">
-<h3><span class="icon i-play"></span> Presentar</h3>
+<h3><span class="icon i-play">📊</span> Presentar</h3>
 <p>Abre la vista con los botones de presentación para SEREMI, Catálogo y apps clave.</p>
 <div class="actions">
-<a class="tab primary" href="presentaciones.html">Ir a Presentaciones</a>
+<a class="tab primary" href="presentaciones.html" style="border:2px solid #fff;box-shadow:0 0 6px rgba(255,255,255,.6);">Ir a Presentaciones</a>
 </div>
 </div>
 <div class="card">
-<h3><span class="icon i-gov"></span> Municipalidad</h3>
+<h3><span class="icon i-gov">🏛️</span> Municipalidad</h3>
 <p>Accesos rápidos a San Nicolás y Chillán manteniendo el estilo DAEM.</p>
 <div class="actions">
-<a class="tab green" href="municipalidad.html">Abrir Municipalidad</a>
+<a class="tab green" href="municipalidad.html" style="border:2px solid #fff;box-shadow:0 0 6px rgba(255,255,255,.6);">Abrir Municipalidad</a>
 </div>
 </div>
 <div class="card">
-<h3><span class="icon i-school"></span> Portafolio Proyectos</h3>
+<h3><span class="icon i-school">📁</span> Portafolio Proyectos</h3>
 <p>Ver Liceo Bicentenario y el catálogo completo (incluye AEROMON).</p>
 <div class="actions">
-<a class="tab orange" href="portafolio.html">Abrir Portafolio</a>
+<a class="tab orange" href="portafolio.html" style="border:2px solid #fff;box-shadow:0 0 6px rgba(255,255,255,.6);">Abrir Portafolio</a>
 </div>
 </div>
 <div class="card">
-<h3><span class="icon i-catalog"></span> Catálogo directo</h3>
+<h3><span class="icon i-catalog">📖</span> Catálogo directo</h3>
 <p>Atajo hacia el catálogo de proyectos publicados.</p>
 <div class="actions">
-<a class="tab" href="https://panchopinto.github.io/Proyectos-Educativos/#catalogo" target="_blank">Abrir Catálogo</a>
+<a class="tab" href="https://panchopinto.github.io/Proyectos-Educativos/#catalogo" style="border:2px solid #fff;box-shadow:0 0 6px rgba(255,255,255,.6);" target="_blank">Abrir Catálogo</a>
 </div>
 </div>
 </div>
