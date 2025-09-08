@@ -259,6 +259,18 @@
 }
 /* Mantener CTAs centrados al fondo */
 .card.centered .actions { margin-top: auto; display:flex; justify-content:center; }
+</style><style>
+/* Icono multicolor del título (presentaciones) */
+.page-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.page-title .h1-ico {
+  flex: 0 0 auto;
+  filter: drop-shadow(0 4px 10px rgba(0,0,0,0.35)) drop-shadow(0 0 8px rgba(255,255,255,0.08));
+  border-radius: 6px;
+}
 </style></head>
 <body>
 <header class="topbar">
@@ -268,7 +280,27 @@
 </header>
 <main class="main-center">
 <section class="glass" style="max-width:1280px; width:100%">
-<h1>Presentaciones</h1><p class="intro-present">En esta sección se reúnen accesos rápidos a las presentaciones, catálogos y aplicaciones clave, diseñados para apoyar la exposición de proyectos educativos de forma clara y atractiva.</p>
+<h1 class="page-title">
+<svg aria-hidden="true" class="h1-ico" height="30" viewbox="0 0 24 24" width="30">
+<defs>
+<lineargradient id="gradTitleH1" x1="0%" x2="100%" y1="0%" y2="100%">
+<stop offset="0%" stop-color="#5EE7DF"></stop>
+<stop offset="50%" stop-color="#A0E9FD"></stop>
+<stop offset="100%" stop-color="#B490CA"></stop>
+</lineargradient>
+<lineargradient id="gradAccent" x1="0%" x2="100%" y1="0%" y2="0%">
+<stop offset="0%" stop-color="#FFD36B"></stop>
+<stop offset="100%" stop-color="#FF9F43"></stop>
+</lineargradient>
+</defs>
+<!-- Pantalla -->
+<rect fill="url(#gradTitleH1)" height="10" opacity="0.95" rx="2" ry="2" width="17" x="3.5" y="6.5"></rect>
+<!-- Barra superior -->
+<rect fill="url(#gradAccent)" height="2" opacity="0.95" rx="1" ry="1" width="19" x="2.5" y="4"></rect>
+<!-- Base -->
+<rect fill="url(#gradTitleH1)" height="2" opacity="0.95" rx="1" ry="1" width="4" x="10" y="17.5"></rect>
+</svg>
+Presentaciones</h1><p class="intro-present">En esta sección se reúnen accesos rápidos a las presentaciones, catálogos y aplicaciones clave, diseñados para apoyar la exposición de proyectos educativos de forma clara y atractiva.</p>
 <div class="stack-grids"><div class="grid present-grid"><div class="centered card"><h3><span class="icon">🏛️</span> Presentación SEREMI</h3><div class="tiny-sep"></div><p>Vista oficial con proyectos destacados.</p><div class="actions"><a class="tab btn-seremi" href="https://panchopinto.github.io/PROYECTOS-PANCHOPINTO/seremi.html" target="_blank">🏛️ Abrir SEREMI</a></div></div><div class="centered card"><h3><span class="icon">🏛️</span> Municipalidad</h3><div class="tiny-sep"></div><p>Accesos rápidos a San Nicolás y Chillán manteniendo el estilo DAEM.</p><div class="actions"><a class="tab btn-muni" href="municipalidad.html">🏛️ Abrir Municipalidad</a></div></div><div class="centered card"><h3><span class="icon">📖</span> Proyectos‑Educativos</h3><div class="tiny-sep"></div><p>Acceso al catálogo para revisar proyectos</p><div class="actions"><a class="tab btn-catalogo" href="https://panchopinto.github.io/Proyectos-Educativos/#catalogo" target="_blank">🔗 Abrir Catálogo</a></div></div></div><div class="section-sep"><span>Algunos recursos ya funcionando:</span></div><div class="grid resources-grid"><div class="centered card"><h3><span class="icon">🧬</span> Contenidos Biología</h3><div class="tiny-sep"></div><p>App Realidad Aumentada (RA) y Virtual (RV) de células.</p><div class="actions"><a class="tab btn-contenido" href="./apps/celulas/cartas-ar-biologia-main/index.html" target="_blank">🧬 Abrir Contenido</a></div></div><div class="centered card"><h3><span class="icon">❓</span> Trivias Biología</h3><div class="tiny-sep"></div><p>Banco de preguntas alineado a CN08 OA02.</p><div class="actions"><a class="tab btn-trivias" href="./apps/trivias/trivias-biologia-main/index.html" target="_blank">❓ Abrir Trivias</a></div></div><div class="centered card"><h3><span class="icon">📈</span> AEROMON</h3><div class="tiny-sep"></div><p>Panel con datos para monitorear en tiempo real (ver histórico y panel).</p><div class="actions"><a class="tab btn-aeromon" href="./apps/AEROMON/dashboard.html" target="_blank">📈 Abrir AEROMON</a></div></div></div><div class="grid"></div></div>
 <footer class="footer">
 <div id="t_created_by">Creado por: Francisco Pinto Aravena - <a href="mailto:franciscoandresp@gmail.com">franciscoandresp@gmail.com</a></div>
