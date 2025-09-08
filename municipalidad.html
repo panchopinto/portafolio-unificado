@@ -2,191 +2,75 @@
 <html lang="es">
 <head>
   <meta charset="utf-8"/>
-  <meta content="width=device-width, initial-scale=1" name="viewport"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>Municipalidad — UNIFICADO</title>
-  <link href="css/styles.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="css/styles.css"/>
   <script defer src="js/guard.js"></script>
-  <script defer src="js/asignaturas.js"></script>
-  <script defer src="js/pie-theme.js"></script>
   <style>
-    /* Iconos multicolor rápidos (sin tocar tu CSS global) */
-    .i-city-grad { width:1.15em; height:1.15em; vertical-align:-.2em; margin-right:.5rem; }
-    .grad-green { fill:url(#g-green); }
-    .grad-blue  { fill:url(#g-blue); }
-    .grad-orange{ fill:url(#g-orange); }
-    .grad-purple{ fill:url(#g-purple); }
-
-    .actions .tab .icon {
-      display:inline-flex; align-items:center; margin-right:.4rem;
+    /* ====== NAV estilo pill como la imagen ====== */
+    .topbar{display:flex;justify-content:space-between;align-items:center;padding:.75rem 1rem;background:linear-gradient(90deg,#0e1624,#121826 40%,#0d0f19);position:sticky;top:0;z-index:20}
+    .brand{color:#f5f7fb;font-weight:700}
+    .nav{display:flex;gap:.6rem;align-items:center}
+    .tab{display:inline-flex;align-items:center;gap:.5rem;padding:.55rem .9rem;border-radius:14px; /* outer radius */
+         background:#1c2230;border:1px solid rgba(255,255,255,.08);color:#f5f7fb;text-decoration:none;font-weight:700;
+         box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 1px 0 rgba(0,0,0,.2);}
+    .tab .ico{width:1.1rem;height:1.1rem}
+    .tab:hover{filter:brightness(1.05)}
+    .pill{border-radius:14px}
+    /* colores */
+    .c-inicio{background:#20242e}
+    .c-pres{background:linear-gradient(90deg,#62c2ff,#6e63ff)}
+    .c-muni{background:#3bc25f}
+    .c-port{background:#ffbe2e}
+    .c-asig{background:#2a2f3b;border-color:transparent; }
+    .c-salir{background:#3a3331}
+    /* iconos multicolor para Asignaturas */
+    .asig-dot{display:inline-block;width:.9rem;height:.9rem;border-radius:2px;background:conic-gradient(#ff4d4d, #ffaf2e, #34d06a, #36c, #ff4d4d)}
+    /* responsive */
+    @media (max-width: 820px){
+      .nav{flex-wrap:wrap}
     }
-    .card .actions .tab { gap:.35rem; }
-
-    /* Acentos de tarjeta para DAEM */
-    .card.daem-sn h3 { color:#2ecc71; }
-    .card.daem-ch h3 { color:#00bcd4; }
-
-    /* Botones más vistosos en esta vista */
-    .tab.green  { border-color:rgba(46, 204, 113,.35); }
-    .tab.blue   { border-color:rgba(0, 188, 212,.35); }
-    .tab.orange { border-color:rgba(255, 159, 67,.35); }
-    .tab.purple { border-color:rgba(155, 89, 182,.35); }
-
-    /* === SOLO para el header: ocultar los SVG originales y usar emoji === */
-    .topbar .nav .tab .icon { display:none; }
-    .topbar .nav .tab .emoji {
-      font-size:1rem; line-height:1; margin-right:.5rem; display:inline-block;
-    }
+    main{padding:1rem}
   </style>
 </head>
 <body>
-  <!-- Gradientes para iconos -->
-  <svg width="0" height="0" style="position:absolute">
-    <defs>
-      <linearGradient id="g-green" x1="0" x2="1">
-        <stop offset="0%" stop-color="#2ecc71"/><stop offset="100%" stop-color="#27ae60"/>
-      </linearGradient>
-      <linearGradient id="g-blue" x1="0" x2="1">
-        <stop offset="0%" stop-color="#00bcd4"/><stop offset="100%" stop-color="#0984e3"/>
-      </linearGradient>
-      <linearGradient id="g-orange" x1="0" x2="1">
-        <stop offset="0%" stop-color="#ffa502"/><stop offset="100%" stop-color="#ff7f50"/>
-      </linearGradient>
-      <linearGradient id="g-purple" x1="0" x2="1">
-        <stop offset="0%" stop-color="#9b59b6"/><stop offset="100%" stop-color="#8e44ad"/>
-      </linearGradient>
-    </defs>
-  </svg>
+<header class="topbar">
+  <div class="brand">Portafolio Privado</div>
+  <nav class="nav">
+    <a class="tab c-inicio" href="acciones.html" aria-label="Inicio">
+      <svg class="ico" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3l9 7v10h-6v-6H9v6H3V10l9-7z"/></svg>
+      <span>Inicio</span>
+    </a>
 
-  <header class="topbar">
-    <div class="brand">Portafolio Privado</div>
-    <nav class="nav">
-      <a class="tab" href="acciones.html">
-        <span class="emoji">🏠</span>
-        Inicio
-      </a>
+    <a class="tab c-pres" href="presentaciones.html">
+      <svg class="ico" viewBox="0 0 24 24" fill="currentColor"><path d="M4 5h14a2 2 0 0 1 2 2v11H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2zm2 3h10v2H6V8zm0 4h8v2H6v-2z"/></svg>
+      <span>Presentaciones</span>
+    </a>
 
-      <a class="tab primary" href="presentaciones.html">
-        <span class="emoji">💻</span>
-        <span class="icon">
-          <svg viewBox="0 0 24 24" width="18" height="18"><path d="M3 4h18v2H3V4zm2 4h14v10H5V8zm4 12h6v2H9v-2z"/></svg>
-        </span>
-        <span class="label">Presentaciones</span>
-      </a>
+    <a class="tab c-muni" href="municipalidad.html">
+      <svg class="ico" viewBox="0 0 24 24" fill="currentColor"><path d="M3 10l9-6 9 6v9H3v-9zm6 3h2v4H9v-4zm4 0h2v4h-2v-4z"/></svg>
+      <span>Municipalidad</span>
+    </a>
 
-      <a class="tab green" href="municipalidad.html">
-        <span class="emoji">🏛️</span>
-        <span class="icon">
-          <svg viewBox="0 0 24 24" width="18" height="18"><path d="M4 10l8-6 8 6v10H4V10zm8-3.5L6 10h12l-6-3.5z"/></svg>
-        </span>
-        <span class="label">Municipalidad</span>
-      </a>
+    <a class="tab c-port" href="portafolio.html">
+      <svg class="ico" viewBox="0 0 24 24" fill="currentColor"><path d="M10 4h4l1 2h5v12H4V6h5l1-2z"/></svg>
+      <span>Portafolio Proyectos</span>
+    </a>
 
-      <a class="tab orange" href="portafolio.html">
-        <span class="emoji">📁</span>
-        Portafolio Proyectos
-      </a>
+    <a class="tab c-asig" href="asignaturas/index.html" id="btnAsignaturas">
+      <span class="asig-dot" aria-hidden="true"></span>
+      <span>Asignaturas</span>
+    </a>
 
-      <a class="tab" href="#" onclick="localStorage.clear(); location.href='index.html'">
-        <span class="emoji">📕</span>
-        Salir
-      </a>
+    <a class="tab c-salir" href="#" onclick="localStorage.clear(); location.href='index.html'">
+      <svg class="ico" viewBox="0 0 24 24" fill="currentColor"><path d="M10 17l-1.4-1.4 3.6-3.6-3.6-3.6L10 7l5 5-5 5zM4 19h6v-2H6V7h4V5H4v14z"/></svg>
+      <span>Salir</span>
+    </a>
+  </nav>
+</header>
 
-      <a class="tab" href="asignaturas/index.html" id="btnAsignaturas">
-        <span class="emoji">🧩</span>
-        <span class="icon">
-          <svg viewBox="0 0 24 24" width="18" height="18"><path d="M4 6h16v2H4V6zm0 4h10v2H4v-2zm0 4h16v2H4v-2z"/></svg>
-        </span>
-        <span class="label">Asignaturas</span>
-      </a>
-    </nav>
-  </header>
-
-  <main class="main-center">
-    <section class="glass" style="max-width:1100px; width:100%">
-      <h1>Municipalidad / DAEM</h1>
-
-      <div class="disclosure" style="margin-top:14px">
-        <!-- San Nicolás -->
-        <div class="card daem-sn">
-          <h3>
-            <svg class="i-city-grad grad-green" viewBox="0 0 24 24">
-              <path d="M3 10l9-6 9 6v9H3v-9zm9-3.5L6 10h12l-6-3.5zM8 12h2v5H8v-5zm3 0h2v5h-2v-5zm3 0h2v5h-2v-5z"/>
-            </svg>
-            San Nicolás
-          </h3>
-          <p>Conserva el estilo y marca DAEM en verde.</p>
-          <div class="actions">
-            <a class="tab green" href="https://panchopinto.github.io/PROYECTOS-PANCHOPINTO/sannicolas.html" target="_blank" rel="noopener">
-              <span class="icon">
-                <svg viewBox="0 0 24 24" width="18" height="18"><path d="M12 3l8 5v9H4V8l8-5zm0 2.5L6 9v6h12V9l-6-3.5z"/></svg>
-              </span>
-              Abrir San Nicolás
-            </a>
-            <a class="tab blue" href="https://maps.google.com/?q=San+Nicol%C3%A1s,+Chile" target="_blank" rel="noopener">
-              <span class="icon">
-                <svg viewBox="0 0 24 24" width="18" height="18"><path d="M12 2C8.1 2 5 5.1 5 9c0 5.2 7 13 7 13s7-7.8 7-13c0-3.9-3.1-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6a2.5 2.5 0 0 1 0 5.5z"/></svg>
-              </span>
-              Ubicación
-            </a>
-          </div>
-        </div>
-
-        <!-- Chillán -->
-        <div class="card daem-ch">
-          <h3>
-            <svg class="i-city-grad grad-blue" viewBox="0 0 24 24">
-              <path d="M4 10l8-6 8 6v10H4V10zm4 3h2v4H8v-4zm3-2h2v6h-2v-6zm3 1h2v5h-2v-5z"/>
-            </svg>
-            Chillán
-          </h3>
-          <p>Botones, letras y colores tal como están definidos.</p>
-          <div class="actions">
-            <a class="tab blue" href="https://panchopinto.github.io/PROYECTOS-PANCHOPINTO/chillan.html" target="_blank" rel="noopener">
-              <span class="icon">
-                <svg viewBox="0 0 24 24" width="18" height="18"><path d="M12 3l8 5v9H4V8l8-5zm0 2.5L6 9v6h12V9l-6-3.5z"/></svg>
-              </span>
-              Abrir Chillán
-            </a>
-            <a class="tab orange" href="https://maps.google.com/?q=Chill%C3%A1n,+Chile" target="_blank" rel="noopener">
-              <span class="icon">
-                <svg viewBox="0 0 24 24" width="18" height="18"><path d="M12 2C8.1 2 5 5.1 5 9c0 5.2 7 13 7 13s7-7.8 7-13c0-3.9-3.1-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6a2.5 2.5 0 0 1 0 5.5z"/></svg>
-              </span>
-              Ubicación
-            </a>
-          </div>
-        </div>
-      </div>
-
-      <!-- Footer igual a acciones/presentaciones + Nota PAES -->
-      <footer class="footer">
-        <div id="t_created_by">Creado por: Francisco Pinto Aravena - <a href="mailto:franciscoandresp@gmail.com">franciscoandresp@gmail.com</a></div>
-        <div id="t_edu_purpose">Este proyecto es desarrollado con propósitos educacionales, motivando el desarrollo, culturización e innovación tecnológica en las aulas.</div>
-        <div>© <span class="year"></span> Queda prohibida la copia, redistribución o adaptación de los contenidos, modelos 3D, imágenes y código aquí publicados sin autorización expresa por escrito.</div>
-        <div id="t_all_rights">© Todos los derechos reservados.</div>
-
-        <section class="pie-legal" style="margin-top:18px;font-size:.95rem;opacity:.9">
-          <strong>Base oficial PIE:</strong> Este sitio se basa en la información oficial del <em>Programa de Integración Escolar (PIE)</em> del Ministerio de Educación de Chile.
-          Documentos de referencia:
-          <a href="docs/ANEXO-PROGRAMA-DE-INTEGRACION-ESCOLAR-PIE.pdf" target="_blank" rel="noopener">ANEXO PIE</a> ·
-          <a href="docs/Presentacion_Cambios-PIE_2025.pdf" target="_blank" rel="noopener">Presentación Cambios PIE 2025</a>.
-        </section>
-
-        <section style="margin-top:10px;font-size:.95rem;opacity:.9">
-          <strong>Nota PAES:</strong> Los contenidos y adaptaciones orientados a la evaluación PAES han sido elaborados tomando como referencia la malla curricular vigente del Ministerio de Educación de Chile, a partir de la documentación disponible en su sitio oficial.
-        </section>
-      </footer>
-    </section>
-  </main>
-
-  <!-- MODAL: ASIGNATURAS (auto-inyectado por asignaturas.js) -->
-  <div aria-hidden="true" aria-labelledby="asigTitle" class="modal-asig" id="modalAsignaturas" role="dialog">
-    <div class="modal-content">
-      <h2 id="asigTitle">Asignaturas</h2>
-      <div class="subjects-grid"></div>
-      <div class="modal-actions">
-        <button id="closeAsignaturas">Cerrar</button>
-      </div>
-    </div>
-  </div>
+<main>
+  <!-- contenido de tu página aquí -->
+</main>
 </body>
 </html>
