@@ -6,6 +6,23 @@
   <title>Asignaturas — Portafolio Privado</title>
   <link rel="stylesheet" href="../css/styles.css"/>
   <script defer src="../js/pie-theme.js"></script>
+
+  <style>
+    .subjects-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px}
+    .card{background:var(--glass-bg,#111a);backdrop-filter:blur(8px);border:1px solid #2a2f3a;border-radius:18px;padding:16px}
+    .card-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px}
+    .badges{display:flex;gap:6px;flex-wrap:wrap}
+    .badge{padding:2px 8px;border-radius:999px;font-size:.75rem;border:1px solid #3a4151;opacity:.95}
+    .badge.pie{background:#163d;}
+    .badge.paes{background:#1a3d;}
+    .badge.course{background:#314d;}
+    .badge.access{background:#2a3ad022;}
+    .desc{font-size:.95rem;opacity:.9;margin-top:2px;margin-bottom:10px}
+    .demo-list{display:flex;flex-direction:column;gap:8px}
+    .demo-list a{display:inline-block;padding:10px 12px;border:1px solid #2e3646;border-radius:12px;text-decoration:none}
+    .demo-list a:hover{transform:translateY(-1px)}
+  </style>
+
 </head>
 <body>
 <header class="topbar">
@@ -21,27 +38,99 @@
   <h1>Asignaturas</h1>
   <p class="muted">Demos listas para aula y ferias (PIE + PAES).</p>
 
+  
   <section class="subjects-grid">
+
+    <!-- CIENCIAS (Biología, base PAES/PIE 4° medio) -->
     <article class="card">
-      <div class="card-head"><h2>Ciencias</h2></div>
+      <div class="card-head">
+        <h2>Ciencias</h2>
+        <div class="badges">
+          <span class="badge pie">PIE</span>
+          <span class="badge paes">PAES</span>
+          <span class="badge course">4° medio</span>
+          <span class="badge access">Accesible</span>
+        </div>
+      </div>
+      <p class="desc">
+        Enfoque en <strong>estructura y función celular</strong>, <strong>procesos vitales</strong> y
+        <strong>lectura de modelos</strong>, con apoyos para estudiantes PIE (lectura fácil, contraste alto, audio‑guías).
+      </p>
       <ul class="demo-list">
-        <li><a href="../apps/celulas/cartas-ar-biologia-main/webar-mindar/animal.html" target="_blank">AR — Célula</a></li>
-        <li><a href="../apps/celulas/cartas-ar-biologia-main/viewer.html" target="_blank">RV — Célula</a></li>
-        <li><a href="../apps/celulas/cartas-ar-biologia-main/viewer_hotspots.html" target="_blank">3D — Célula (hotspots)</a></li>
-        <li><a href="../apps/trivias/trivias-biologia-main/index.html" target="_blank">Trivia — Célula</a></li>
+        <li><a href="../apps/celulas/cartas-ar-biologia-main/webar-mindar/animal.html" target="_blank">AR — Célula (animal/vegetal)</a></li>
+        <li><a href="../apps/celulas/cartas-ar-biologia-main/viewer_hotspots.html" target="_blank">3D — Célula con hotspots</a></li>
+        <li><a href="../apps/trivias/trivias-biologia-main/index.html" target="_blank">Trivia — Célula (CN08‑OA02)</a></li>
       </ul>
     </article>
 
+    <!-- HISTORIA Y CS. SOCIALES (PAES electiva) -->
     <article class="card">
-      <div class="card-head"><h2>Historia</h2></div>
+      <div class="card-head">
+        <h2>Historia</h2>
+        <div class="badges">
+          <span class="badge pie">PIE</span>
+          <span class="badge paes">PAES</span>
+          <span class="badge course">4° medio</span>
+          <span class="badge access">Accesible</span>
+        </div>
+      </div>
+      <p class="desc">
+        Ejes: <strong>territorio y temporalidad</strong>, <strong>patrimonio</strong> y <strong>ciudadanía</strong>.
+        Demos con mapas y objetos patrimoniales para contextualizar procesos históricos.
+      </p>
       <ul class="demo-list">
-        <li><a href="#" aria-disabled="true">AR — Mapas (próx.)</a></li>
-        <li><a href="#" aria-disabled="true">RV — Sitios (próx.)</a></li>
-        <li><a href="#" aria-disabled="true">3D — Patrimonio (próx.)</a></li>
-        <li><a href="#" aria-disabled="true">Trivia — Historia (próx.)</a></li>
+        <li><a href="./historia/AR__Mapas_históricos.html" target="_blank">AR — Mapas históricos de Chile</a></li>
+        <li><a href="./historia/RV__Sitios_patrimoniales.html" target="_blank">RV — Sitios patrimoniales</a></li>
+        <li><a href="./historia/Trivia__Línea_de_tiempo.html" target="_blank">Trivia — Línea de tiempo</a></li>
       </ul>
     </article>
+
+    <!-- LENGUAJE (PAES Competencia Lectora) -->
+    <article class="card">
+      <div class="card-head">
+        <h2>Lenguaje</h2>
+        <div class="badges">
+          <span class="badge pie">PIE</span>
+          <span class="badge paes">PAES</span>
+          <span class="badge course">4° medio</span>
+          <span class="badge access">Accesible</span>
+        </div>
+      </div>
+      <p class="desc">
+        Énfasis en <strong>comprensión lectora</strong>, <strong>inferencia</strong> y <strong>organización textual</strong>.
+        Material con lectura fácil, pictogramas y opción de lectura en voz.
+      </p>
+      <ul class="demo-list">
+        <li><a href="./lenguaje/AR__Comprensión_lectora.html" target="_blank">AR — Comprensión lectora</a></li>
+        <li><a href="./lenguaje/RV__Literatura.html" target="_blank">RV — Literatura y contextos</a></li>
+        <li><a href="./lenguaje/Trivia__Ortografía.html" target="_blank">Trivia — Ortografía y acentuación</a></li>
+      </ul>
+    </article>
+
+    <!-- MATEMÁTICA (PAES M1/M2) -->
+    <article class="card">
+      <div class="card-head">
+        <h2>Matemática</h2>
+        <div class="badges">
+          <span class="badge pie">PIE</span>
+          <span class="badge paes">PAES</span>
+          <span class="badge course">4° medio</span>
+          <span class="badge access">Accesible</span>
+        </div>
+      </div>
+      <p class="desc">
+        Cobertura de <strong>geometría</strong>, <strong>funciones</strong> y <strong>probabilidades</strong>,
+        con apoyos visuales y manipulativos virtuales pensados para M1/M2.
+      </p>
+      <ul class="demo-list">
+        <li><a href="./matemática/AR__Geometría.html" target="_blank">AR — Geometría</a></li>
+        <li><a href="./matemática/RV__Funciones.html" target="_blank">RV — Funciones</a></li>
+        <li><a href="./matemática/Trivia__Probabilidades.html" target="_blank">Trivia — Probabilidades</a></li>
+      </ul>
+    </article>
+
   </section>
+
 </main>
 
 <footer>
