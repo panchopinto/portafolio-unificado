@@ -23,56 +23,72 @@
 .card h3 .icon {
   margin-right: .4rem;
 }
+</style><style>
+/* Intro destacado para presentaciones */
+.intro-present {
+  margin: 10px 0 6px 0;
+  padding: 12px 14px;
+  background: rgba(255,255,255,0.10);
+  border-left: 4px solid rgba(255,255,255,0.85);
+  border-radius: 10px;
+  font-size: 1.02rem;
+  line-height: 1.4;
+}
+/* Asegurar contraste de CTA en tarjetas */
+.card .actions .tab {
+  border: 2px solid rgba(255,255,255,0.9);
+  box-shadow: 0 0 0 2px rgba(255,255,255,0.15) inset, 0 2px 10px rgba(0,0,0,0.2);
+  background-clip: padding-box;
+}
+.card .actions .tab:hover {
+  border-color: #fff;
+  box-shadow: 0 0 0 2px rgba(255,255,255,0.22) inset, 0 6px 16px rgba(0,0,0,0.28);
+}
+.card h3 .icon { margin-right: .4rem; }
 </style></head>
 <body>
 <header class="topbar">
 <div class="brand">Portafolio Privado</div>
 <nav class="nav">
-
-
-
-
-
-
 <a class="tab" href="acciones.html"><span class="icon">🏠</span>Inicio</a><a class="tab primary" href="presentaciones.html"><span class="icon">🖥️</span><span class="label">Presentaciones</span><span class="label"></span></a><a class="tab green" href="municipalidad.html"><span class="icon">🏛️</span><span class="label">Municipalidad</span><span class="label"></span></a><a class="tab orange" href="portafolio.html"><span class="icon">📁</span>Portafolio Proyectos</a><a class="tab" href="asignaturas/index.html" id="btnAsignaturas"><span class="icon">📚</span><span class="label">Asignaturas</span></a><a class="tab" href="#" onclick="localStorage.clear(); location.href='index.html'"><span class="icon">🚪</span>Salir</a></nav>
 </header>
 <main class="main-center">
 <section class="glass" style="max-width:1100px; width:100%">
-<h1>Presentaciones</h1>
+<h1>Presentaciones</h1><p class="intro-present">En esta sección se reúnen accesos rápidos a las presentaciones, catálogos y aplicaciones clave, diseñados para apoyar la exposición de proyectos educativos de forma clara y atractiva.</p>
 <div class="grid" style="margin-top:18px">
 <div class="card">
 <h3><span class="icon i-gov">🏛️</span> Presentación SEREMI</h3>
 <p>Vista oficial con proyectos destacados.</p>
 <div class="actions">
-<a class="tab primary" href="https://panchopinto.github.io/PROYECTOS-PANCHOPINTO/seremi.html" target="_blank">Abrir SEREMI</a>
+<a class="tab primary primary" href="https://panchopinto.github.io/PROYECTOS-PANCHOPINTO/seremi.html" target="_blank">🏛️ Abrir SEREMI</a>
 </div>
 </div>
 <div class="card">
-<h3><span class="icon i-catalog">📖</span> Catálogo (Proyectos‑Educativos)</h3>
-<p>Acceso directo al catálogo para exponer rápidamente.</p>
+<h3><span class="icon">📖</span> Proyectos‑Educativos</h3>
+<p>Acceso al catálogo para revisar proyectos</p>
 <div class="actions">
-<a class="tab" href="https://panchopinto.github.io/Proyectos-Educativos/#catalogo" target="_blank">Abrir Catálogo</a>
+<a class="tab primary" href="https://panchopinto.github.io/Proyectos-Educativos/#catalogo" target="_blank">🔗 Abrir Catálogo</a>
 </div>
 </div>
 <div class="card">
-<h3><span class="icon i-lab">🧬</span> Cartas Biología</h3>
-<p>App AR de células para demostración.</p>
+<h3><span class="icon">🧬</span> Contenidos Biología</h3>
+<p>App Realidad Aumentada (RA) y Virtual (RV) de células.</p>
 <div class="actions">
-<a class="tab" href="./apps/celulas/cartas-ar-biologia-main/index.html" target="_blank">Abrir Cartas</a>
+<a class="tab primary" href="./apps/celulas/cartas-ar-biologia-main/index.html" target="_blank">🧬 Abrir Contenido</a>
 </div>
 </div>
 <div class="card">
 <h3><span class="icon i-lab">❓</span> Trivias Biología</h3>
 <p>Banco de preguntas alineado a CN08 OA02.</p>
 <div class="actions">
-<a class="tab" href="./apps/trivias/trivias-biologia-main/index.html" target="_blank">Abrir Trivias</a>
+<a class="tab primary" href="./apps/trivias/trivias-biologia-main/index.html" target="_blank">❓ Abrir Trivias</a>
 </div>
 </div>
 <div class="card">
 <h3><span class="icon i-lab">📈</span> AEROMON</h3>
-<p>Panel con datos (ver histórico y panel).</p>
+<p>Panel con datos para monitorear en tiempo real (ver histórico y panel).</p>
 <div class="actions">
-<a class="tab" href="./apps/AEROMON/dashboard.html" target="_blank">Abrir AEROMON</a>
+<a class="tab primary" href="./apps/AEROMON/dashboard.html" target="_blank">📈 Abrir AEROMON</a>
 </div>
 </div>
 </div>
